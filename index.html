@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaspa Deep Tracer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .kaspa-gradient { background: linear-gradient(90deg, #70ebff 0%, #4affd4 100%); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Tree Styles */
+        .tree-container { font-family: monospace; font-size: 0.9rem; }
+        details {
+            margin-left: 1.25rem;
+            border-left: 1px solid #334155;
+            padding-left: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        details[open] > summary {
+            margin-bottom: 0.5rem;
+        }
+        summary {
+            cursor: pointer;
+            padding: 0.4rem 0.5rem;
+            border-radius: 0.25rem;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: transparent;
+            transition: background-color 0.2s;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary:hover { background-color: #1e293b; }
+        .node-caret::before { content: '▶ '; font-size: 0.7rem; color: #64748b; margin-right: 5px; display: inline-block; transition: transform 0.2s; }
+        details[open] > summary > .node-caret::before { transform: rotate(90deg); }
+        .leaf-node { padding: 0.4rem 0.5rem 0.4rem 1.5rem; display: flex; justify-content: space-between; border-radius: 0.25rem; }
+        .leaf-node:hover { background-color: #1e293b; }
+
+        /* Entity Colors */
+        .text-mining { color: #4ade80; } /* Green */
+        .text-known { color: #c084fc; } /* Purple */
+        .text-whale { color: #94a3b8; } /* Gray */
+        .text-unresolved { color: #fbbf24; } /* Yellow */
+        .text-cycle { color: #f87171; } /* Red */
+        .text-root { color: #38bdf8; font-weight: bold;} /* Light Blue */
+
+        /* Input styling overrides */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col relative overflow-x-hidden">
+    
+    <div id="toast" class="fixed bottom-6 right-6 bg-cyan-500 text-slate-900 font-bold py-3 px-6 rounded-lg shadow-xl shadow-cyan-500/20 transform transition-all duration-300 translate-y-20 opacity-0 z-50 pointer-events-none">
+        Copied!
+    </div>
+
+    <div class="max-w-7xl mx-auto w-full">
+        <h1 class="text-4xl font-extrabold mb-1 kaspa-gradient bg-clip-text text-transparent tracking-tight">Kaspa Deep Origin Tracer</h1>
+        <p class="text-slate-400 mb-8 text-sm">Uncover the true origin of any Kaspa balance. A client-side tracing engine that recursively maps the exact journey of funds - from mining rewards and exchange pools straight to the wallet.</p>
+
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 mb-8 shadow-lg">
+            <div class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Target Address</label>
+                    <input id="addrInput" type="text" placeholder="kaspa:..." class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-slate-100 font-mono text-sm transition">
+                </div>
+                <div class="w-full md:w-32">
+                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Max Depth</label>
+                    <input id="depthInput" type="number" value="5" min="1" max="15" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 text-slate-100 transition text-center">
+                </div>
+                <div class="w-full md:w-32">
+                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Min KAS</label>
+                    <input id="minKasInput" type="number" value="5" min="0.1" step="0.1" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 text-slate-100 transition text-center">
+                </div>
+                <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                    <button onclick="goBack()" id="btnBack" class="hidden w-full md:w-auto bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
+                        &larr; Back
+                    </button>
+                    <button onclick="startTrace()" id="btnTrace" class="w-full md:w-auto bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-3 px-8 rounded-lg shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
+                        Trace Balance
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loader" class="hidden text-center py-10">
+            <div class="inline-block w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-cyan-400 animate-pulse font-mono text-sm" id="loaderText">Scanning blockchain... building tree...</p>
+        </div>
+
+        <div id="results" class="hidden flex flex-col gap-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-800 p-6 rounded-xl border-l-4 border-green-400 shadow-md">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Mining Rewards</p>
+                    <p id="resMining" class="text-3xl font-bold text-slate-100">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl border-l-4 border-purple-400 shadow-md">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Known Sources</p>
+                    <p id="resKnown" class="text-3xl font-bold text-slate-100">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl border-l-4 border-yellow-400 shadow-md">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Unresolved / Missing</p>
+                    <p id="resUnresolved" class="text-3xl font-bold text-slate-100">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md">
+                    <h3 class="text-lg font-bold mb-4 text-cyan-300 border-b border-slate-700 pb-2">Recursive Origin Tree</h3>
+                    <div id="treeContainer" class="tree-container overflow-x-auto">
+                        </div>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md">
+                        <h3 class="text-lg font-bold mb-4 text-purple-300 border-b border-slate-700 pb-2">Top Known Origins</h3>
+                        <div id="knownList" class="space-y-2 max-h-64 overflow-y-auto font-mono text-sm pr-2"></div>
+                    </div>
+                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md flex-1">
+                        <h3 class="text-lg font-bold mb-4 text-slate-300 border-b border-slate-700 pb-2">Remaining Wallets</h3>
+                        <div id="whaleList" class="space-y-2 max-h-96 overflow-y-auto font-mono text-xs pr-2"></div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+<script>
+    const SOMPI = 100000000;
+    let knownMap = {};
+    let globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
+    
+    // History Navigation tracking
+    let historyStack = [];
+    let currentTracedAddress = "";
+
+    // Format KAS numbers beautifully
+    const formatKAS = (num) => num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    async function fetchData(url) {
+        try {
+            const res = await fetch(url);
+            return await res.json();
+        } catch (e) { return null; }
+    }
+
+    // Helper function to copy an address and show a toast
+    function copyAddress(address) {
+        if(!address.startsWith('kaspa:')) return; 
+        
+        navigator.clipboard.writeText(address).then(() => {
+            const toast = document.getElementById('toast');
+            toast.innerText = 'Copied!';
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+
+    // Pop the history stack and re-trace the previous address
+    function goBack() {
+        if (historyStack.length === 0) return;
+        const previousAddr = historyStack.pop();
+        document.getElementById('addrInput').value = previousAddr;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        startTrace(true); // pass true to indicate a back-navigation event
+    }
+
+    async function startTrace(isBackNavigation = false) {
+        const addr = document.getElementById('addrInput').value.trim();
+        const maxDepth = parseInt(document.getElementById('depthInput').value) || 5;
+        const minKas = parseFloat(document.getElementById('minKasInput').value) || 5.0;
+
+        if(!addr.startsWith('kaspa:')) return alert("Invalid Kaspa Address");
+
+        // History Stack Logic
+        if (!isBackNavigation && currentTracedAddress && currentTracedAddress !== addr) {
+            historyStack.push(currentTracedAddress);
+        }
+        currentTracedAddress = addr;
+
+        // Toggle visibility of the Back button
+        const btnBack = document.getElementById('btnBack');
+        if (historyStack.length > 0) {
+            btnBack.classList.remove('hidden');
+            btnBack.title = `Go back to: ${historyStack[historyStack.length - 1]}`;
+        } else {
+            btnBack.classList.add('hidden');
+        }
+
+        // UI Reset
+        document.getElementById('loader').classList.remove('hidden');
+        document.getElementById('results').classList.add('hidden');
+        document.getElementById('btnTrace').disabled = true;
+        document.getElementById('btnTrace').classList.add('opacity-50', 'cursor-not-allowed');
+        globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
+        
+        // Ensure known map is loaded
+        if (Object.keys(knownMap).length === 0) {
+            document.getElementById('loaderText').innerText = "Fetching known entities...";
+            const names = await fetchData("https://api.kaspa.org/addresses/names");
+            if(names) names.forEach(i => knownMap[i.address] = i.name);
+        }
+
+        document.getElementById('loaderText').innerText = "Fetching base balance...";
+        const balanceRes = await fetchData(`https://api.kaspa.org/addresses/${addr}/balance`);
+        const targetBalance = balanceRes ? balanceRes.balance / SOMPI : 0;
+
+        document.getElementById('loaderText').innerText = "Tracing origins recursively...";
+        
+        // Start recursive trace
+        const rootTree = await recursiveTrace(addr, targetBalance, 1, maxDepth, minKas, new Set());
+
+        renderResults(targetBalance, rootTree);
+        
+        document.getElementById('btnTrace').disabled = false;
+        document.getElementById('btnTrace').classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+
+    async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas, visited) {
+        // Stop conditions: Max depth reached, amount too small, or cycle detected
+        if (depth > maxDepth || targetAmount < minKas || visited.has(address)) {
+            globalSums.unknown[address] = (globalSums.unknown[address] || 0) + targetAmount;
+            return {
+                label: address,
+                amount: targetAmount,
+                type: visited.has(address) ? 'cycle' : 'whale',
+                info: visited.has(address) ? 'Cycle Detected' : 'Limit Reached',
+                children: null
+            };
+        }
+
+        // Create a branch-specific visited set to prevent infinite loops in this specific path
+        const currentVisited = new Set(visited);
+        currentVisited.add(address);
+
+        const data = await fetchData(`https://api.kaspa.org/addresses/${address}/full-transactions-page?limit=500&resolve_previous_outpoints=light`);
+        
+        // Properly handle Kaspa API returning a direct Array instead of an Object
+        const txs = Array.isArray(data) ? data : (data && data.transactions ? data.transactions : []);
+
+        // No history found
+        if (txs.length === 0) {
+            globalSums.unresolved += targetAmount;
+            return { label: address, amount: targetAmount, type: 'unresolved', info: 'No API History', children: null };
+        }
+
+        let lifetimeIn = 0;
+        let mining = 0;
+        let knownSrcs = {};
+        let unknownSrcs = {};
+
+        // Parse Transactions
+        txs.forEach(tx => {
+            const outputs = tx.outputs || [];
+            const inputs = tx.inputs || [];
+            
+            const recv = outputs.filter(o => (o.script_public_key_address || o.scriptPublicKeyAddress) === address)
+                                .reduce((acc, curr) => acc + parseInt(curr.amount || 0), 0);
+            const sent = inputs.some(i => (i.previous_outpoint_address || i.previousOutpointAddress) === address);
+
+            if (recv > 0 && !sent) {
+                const amt = recv / SOMPI;
+                lifetimeIn += amt;
+                
+                if (!inputs.length || !inputs[0].previous_outpoint_hash) {
+                    mining += amt;
+                } else {
+                    const sender = inputs[0].previous_outpoint_address || inputs[0].previousOutpointAddress || 'Unknown';
+                    if (sender === 'Unknown') {
+                        mining += amt; 
+                    } else if (knownMap[sender]) {
+                        knownSrcs[knownMap[sender]] = (knownSrcs[knownMap[sender]] || 0) + amt;
+                    } else {
+                        unknownSrcs[sender] = (unknownSrcs[sender] || 0) + amt;
+                    }
+                }
+            }
+        });
+
+        // Calculate Scale Factor
+        let scale = 1.0;
+        let unresolved = 0;
+        if (lifetimeIn > targetAmount && lifetimeIn > 0) {
+            scale = targetAmount / lifetimeIn;
+        } else if (lifetimeIn < targetAmount) {
+            unresolved = targetAmount - lifetimeIn;
+        }
+
+        let childrenNodes = [];
+
+        // 1. Process Mining
+        const scaledMining = mining * scale;
+        if (scaledMining >= 0.01) {
+            globalSums.mining += scaledMining;
+            childrenNodes.push({ label: "⛏️ Mining Rewards", amount: scaledMining, type: 'mining', info: 'Network Block Reward', children: null });
+        }
+
+        // 2. Process Known Sources
+        for (let [kName, kAmt] of Object.entries(knownSrcs)) {
+            const scaledAmt = kAmt * scale;
+            if (scaledAmt >= 0.01) {
+                globalSums.known[kName] = (globalSums.known[kName] || 0) + scaledAmt;
+                childrenNodes.push({ label: `🏦 ${kName}`, amount: scaledAmt, type: 'known', info: 'Exchange / Pool', children: null });
+            }
+        }
+
+        // 3. Process Unresolved Missing History
+        if (unresolved >= 0.01) {
+            globalSums.unresolved += unresolved;
+            childrenNodes.push({ label: "Missing History", amount: unresolved, type: 'unresolved', info: 'API Output Limit Reached', children: null });
+        }
+
+        // 4. Process Unknown Senders (Recursion)
+        for (let [wAddr, wAmt] of Object.entries(unknownSrcs)) {
+            const scaledAmt = wAmt * scale;
+            if (scaledAmt >= minKas && depth < maxDepth) {
+                const childNode = await recursiveTrace(wAddr, scaledAmt, depth + 1, maxDepth, minKas, currentVisited);
+                childrenNodes.push(childNode);
+            } else if (scaledAmt >= 0.01) {
+                globalSums.unknown[wAddr] = (globalSums.unknown[wAddr] || 0) + scaledAmt;
+                childrenNodes.push({ label: wAddr, amount: scaledAmt, type: 'whale', info: 'Whale / User', children: null });
+            }
+        }
+
+        // Sort children by amount descending
+        childrenNodes.sort((a, b) => b.amount - a.amount);
+
+        return {
+            label: address,
+            amount: targetAmount,
+            type: depth === 1 ? 'root' : 'node',
+            info: depth === 1 ? 'Target Address' : 'Intermediary',
+            children: childrenNodes
+        };
+    }
+
+    function renderResults(totalBalance, rootTree) {
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('results').classList.remove('hidden');
+        
+        // 1. Update Summary Cards
+        document.getElementById('resMining').innerHTML = `${formatKAS(globalSums.mining)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
+        const totalKnown = Object.values(globalSums.known).reduce((a, b) => a + b, 0);
+        document.getElementById('resKnown').innerHTML = `${formatKAS(totalKnown)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
+        document.getElementById('resUnresolved').innerHTML = `${formatKAS(globalSums.unresolved)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
+
+        // 2. Update Known List
+        const kList = document.getElementById('knownList');
+        kList.innerHTML = Object.entries(globalSums.known)
+            .sort((a,b) => b[1]-a[1])
+            .map(([k,v]) => {
+                const isAddr = k.startsWith('kaspa:');
+                const hoverStyles = isAddr ? 'cursor-pointer hover:bg-slate-700/80 hover:ring-1 hover:ring-purple-400' : 'hover:bg-slate-700/50';
+                const textStyles = isAddr ? 'text-cyan-400 underline decoration-cyan-400/50' : 'text-purple-300';
+                return `<div ${isAddr ? `onclick="copyAddress('${k}')"` : ''} title="${isAddr ? 'Click to copy address' : k}" class="p-2 rounded flex justify-between transition border border-slate-700/50 bg-slate-800/50 ${hoverStyles}"><span class="${textStyles} truncate mr-3">${k}</span><b class="text-slate-200">${formatKAS(v)}</b></div>`;
+            })
+            .join('');
+        if(kList.innerHTML === '') kList.innerHTML = '<span class="text-slate-500 italic">No known origins found.</span>';
+
+        // 3. Update Whale List
+        const wList = document.getElementById('whaleList');
+        wList.innerHTML = Object.entries(globalSums.unknown)
+            .sort((a,b) => b[1]-a[1])
+            .map(([k,v]) => `
+                <div onclick="copyAddress('${k}')" title="Click to copy address" class="p-2 rounded flex justify-between cursor-pointer hover:bg-slate-700/80 hover:ring-1 hover:ring-cyan-500 transition border border-slate-700/50 bg-slate-800/50">
+                    <span class="text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/50 truncate mr-3">
+                        ${k.substring(0, 16)}...${k.substring(k.length - 8)}
+                    </span>
+                    <b class="text-slate-200">${formatKAS(v)}</b>
+                </div>`)
+            .join('');
+        if(wList.innerHTML === '') wList.innerHTML = '<span class="text-slate-500 italic">No remaining whales.</span>';
+
+        // 4. Render Tree
+        const treeContainer = document.getElementById('treeContainer');
+        treeContainer.innerHTML = buildTreeHTML(rootTree, true);
+    }
+
+    function buildTreeHTML(node, isRoot = false) {
+        if (!node) return '';
+
+        const amountStr = `${formatKAS(node.amount)} KAS`;
+        const typeClass = `text-${node.type}`;
+        
+        // Handle Leaf Nodes
+        if (!node.children || node.children.length === 0) {
+            return `
+                <div class="leaf-node">
+                    <span class="${typeClass} truncate mr-4" title="${node.label}">${node.label}</span>
+                    <div class="flex space-x-4 shrink-0 text-right">
+                        <span class="text-slate-500 w-32 text-xs self-center">${node.info}</span>
+                        <span class="text-slate-100 font-bold w-32">${amountStr}</span>
+                    </div>
+                </div>`;
+        }
+
+        // Handle Expandable Nodes
+        const childHTML = node.children.map(c => buildTreeHTML(c)).join('');
+        
+        return `
+            <details ${isRoot ? 'open' : ''}>
+                <summary>
+                    <div class="flex items-center truncate mr-4 overflow-hidden">
+                        <span class="node-caret"></span>
+                        <span class="${typeClass} truncate" title="${node.label}">${node.label}</span>
+                    </div>
+                    <div class="flex space-x-4 shrink-0 text-right">
+                        <span class="text-slate-500 w-32 text-xs self-center">${node.info}</span>
+                        <span class="text-slate-100 font-bold w-32">${amountStr}</span>
+                    </div>
+                </summary>
+                ${childHTML}
+            </details>
+        `;
+    }
+</script>
+</body>
+</html>
