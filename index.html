@@ -16,6 +16,7 @@
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .kaspa-gradient { background: linear-gradient(90deg, #70ebff 0%, #4affd4 100%); }
+        .kaspa-text-gradient { background: linear-gradient(90deg, #70ebff 0%, #4affd4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -55,7 +56,7 @@
         /* Entity Colors */
         .text-mining { color: #4ade80; } /* Green */
         .text-known { color: #c084fc; } /* Purple */
-        .text-whale { color: #94a3b8; } /* Gray */
+        .text-unidentified { color: #94a3b8; } /* Gray */
         .text-unresolved { color: #fbbf24; } /* Yellow */
         .text-cycle { color: #f87171; } /* Red */
         .text-root { color: #38bdf8; font-weight: bold;} /* Light Blue */
@@ -75,15 +76,15 @@
         Copied!
     </div>
 
-    <div class="max-w-7xl mx-auto w-full">
-        <h1 class="text-4xl font-extrabold mb-1 kaspa-gradient bg-clip-text text-transparent tracking-tight">Kaspa Deep Origin Tracer</h1>
+    <div class="max-w-7xl mx-auto w-full flex-grow">
+        <h1 class="text-4xl font-extrabold mb-1 kaspa-text-gradient tracking-tight">Kaspa Deep Origin Tracer</h1>
         <p class="text-slate-400 mb-8 text-sm">Uncover the true origin of any Kaspa balance. A client-side tracing engine that recursively maps the exact journey of funds—from mining rewards and exchange pools straight to the wallet.</p>
 
         <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 mb-8 shadow-lg">
             <div class="flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
                     <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Target Address</label>
-                    <input id="addrInput" type="text" placeholder="kaspa:..." class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-slate-100 font-mono text-sm transition">
+                    <input id="addrInput" type="text" value="kaspa:qpz2vgvlxhmyhmt22h538pjzmvvd52nuut80y5zulgpvyerlskvvwm7n4uk5a" placeholder="kaspa:..." class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-slate-100 font-mono text-sm transition">
                 </div>
                 <div class="w-full md:w-32">
                     <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Max Depth</label>
@@ -107,10 +108,7 @@
         <div id="loader" class="hidden bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-8 shadow-lg">
             <div class="flex justify-between items-end mb-2">
                 <div>
-                    <h3 class="text-cyan-400 font-bold tracking-wide flex items-center gap-2">
-                        <div class="inline-block w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                        Tracing Origins...
-                    </h3>
+                    <h3 class="text-cyan-400 font-bold tracking-wide animate-pulse">Tracing Origins...</h3>
                     <p id="loaderText" class="text-slate-400 font-mono text-sm mt-1 h-5 overflow-hidden text-ellipsis whitespace-nowrap">Initializing engine...</p>
                 </div>
                 <p id="progressText" class="text-slate-300 font-mono text-sm font-bold text-right hidden sm:block">0.00 / 0.00 KAS (0%)</p>
@@ -121,28 +119,32 @@
         </div>
 
         <div id="results" class="hidden flex flex-col gap-8">
+            
+            <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 shadow-lg text-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 kaspa-gradient blur-2xl"></div>
+                <p class="text-slate-400 text-xs md:text-sm font-bold uppercase tracking-widest mb-2 relative z-10">Target Wallet Balance</p>
+                <p id="resTotalBalance" class="text-4xl md:text-5xl font-extrabold kaspa-text-gradient relative z-10">0.00 <span class="text-xl md:text-2xl text-slate-400 font-normal">KAS</span></p>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-slate-800 p-6 rounded-xl border-l-4 border-green-400 shadow-md transition-all">
                     <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Mining Rewards</p>
-                    <p id="resMining" class="text-3xl font-bold text-slate-100 transition-all">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
+                    <p id="resMining" class="text-3xl font-bold text-slate-100">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
                 </div>
                 <div class="bg-slate-800 p-6 rounded-xl border-l-4 border-purple-400 shadow-md transition-all">
                     <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Known Sources</p>
-                    <p id="resKnown" class="text-3xl font-bold text-slate-100 transition-all">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
+                    <p id="resKnown" class="text-3xl font-bold text-slate-100">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
                 </div>
                 <div class="bg-slate-800 p-6 rounded-xl border-l-4 border-yellow-400 shadow-md transition-all">
                     <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Unresolved / Missing</p>
-                    <p id="resUnresolved" class="text-3xl font-bold text-slate-100 transition-all">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
+                    <p id="resUnresolved" class="text-3xl font-bold text-slate-100">0.00 <span class="text-sm text-slate-500 font-normal">KAS</span></p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md">
-                    <h3 class="text-lg font-bold mb-4 text-cyan-300 border-b border-slate-700 pb-2 flex justify-between">
-                        Recursive Origin Tree
-                        <span id="treeStatus" class="text-xs font-normal text-slate-500 mt-1">Waiting for trace to finish...</span>
-                    </h3>
-                    <div id="treeContainer" class="tree-container overflow-x-auto">
+                    <h3 class="text-lg font-bold mb-4 text-cyan-300 border-b border-slate-700 pb-2">Recursive Origin Tree</h3>
+                    <div id="treeContainer" class="tree-container overflow-x-auto min-h-[150px]">
                         </div>
                 </div>
 
@@ -150,17 +152,25 @@
                     <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md">
                         <h3 class="text-lg font-bold mb-4 text-purple-300 border-b border-slate-700 pb-2">Top Known Origins</h3>
                         <div id="knownList" class="space-y-2 max-h-64 overflow-y-auto font-mono text-sm pr-2">
-                            <span class="text-slate-500 italic">Waiting...</span>
+                            <span class="text-slate-500 italic">No known origins found yet...</span>
                         </div>
                     </div>
                     <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md flex-1">
-                        <h3 class="text-lg font-bold mb-4 text-slate-300 border-b border-slate-700 pb-2">Remaining Whale Wallets</h3>
-                        <div id="whaleList" class="space-y-2 max-h-96 overflow-y-auto font-mono text-xs pr-2">
-                            <span class="text-slate-500 italic">Waiting...</span>
+                        <h3 class="text-lg font-bold mb-4 text-slate-300 border-b border-slate-700 pb-2">Unidentified Wallets</h3>
+                        <div id="unidentifiedList" class="space-y-2 max-h-96 overflow-y-auto font-mono text-xs pr-2">
+                            <span class="text-slate-500 italic">No unidentified wallets found yet...</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-7xl mx-auto mt-12 mb-4 text-center">
+        <p class="text-slate-400 text-sm mb-3">Find this tool useful? Consider fueling the project with a small KAS donation:</p>
+        <div onclick="copyAddress('kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee')" title="Click to copy donation address" class="inline-block bg-slate-800/80 border border-slate-700/50 hover:border-cyan-500/50 hover:bg-slate-700/80 transition-all cursor-pointer rounded-lg py-2 px-4 shadow-md group">
+            <span class="text-cyan-400 group-hover:text-cyan-300 font-mono text-xs sm:text-sm tracking-wide transition-colors">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</span>
+            <span class="ml-2 text-slate-500 group-hover:text-slate-300 transition-colors text-sm">📋</span>
         </div>
     </div>
 
@@ -206,7 +216,7 @@
         startTrace(true);
     }
 
-    // Update the UI Progress Bar dynamically
+    // Update the UI Progress Bar AND LIVE PREVIEW dynamically
     function updateProgress(message, kasResolvedChunk = 0) {
         if (kasResolvedChunk > 0) {
             currentlyResolvedKas += kasResolvedChunk;
@@ -214,20 +224,19 @@
         
         let pct = totalTargetKas > 0 ? Math.min(100, (currentlyResolvedKas / totalTargetKas) * 100) : 0;
         
+        // Progress Bar
         document.getElementById('loaderText').innerText = message;
         document.getElementById('progressBarFill').style.width = `${pct}%`;
         document.getElementById('progressText').innerText = `${formatKAS(currentlyResolvedKas)} / ${formatKAS(totalTargetKas)} KAS (${pct.toFixed(1)}%)`;
-    }
 
-    // Renders the Cards and Lists LIVE during the trace
-    function renderLivePreview() {
+        // Live DOM Updating (Cards and Lists)
         document.getElementById('resMining').innerHTML = `${formatKAS(globalSums.mining)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
         const totalKnown = Object.values(globalSums.known).reduce((a, b) => a + b, 0);
         document.getElementById('resKnown').innerHTML = `${formatKAS(totalKnown)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
         document.getElementById('resUnresolved').innerHTML = `${formatKAS(globalSums.unresolved)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
 
         const kList = document.getElementById('knownList');
-        kList.innerHTML = Object.entries(globalSums.known)
+        let kHTML = Object.entries(globalSums.known)
             .sort((a,b) => b[1]-a[1])
             .map(([k,v]) => {
                 const isAddr = k.startsWith('kaspa:');
@@ -235,10 +244,10 @@
                 const textStyles = isAddr ? 'text-cyan-400 underline decoration-cyan-400/50' : 'text-purple-300';
                 return `<div ${isAddr ? `onclick="copyAddress('${k}')"` : ''} title="${isAddr ? 'Click to copy address' : k}" class="p-2 rounded flex justify-between transition border border-slate-700/50 bg-slate-800/50 ${hoverStyles}"><span class="${textStyles} truncate mr-3">${k}</span><b class="text-slate-200">${formatKAS(v)}</b></div>`;
             }).join('');
-        if(kList.innerHTML === '') kList.innerHTML = '<span class="text-slate-500 italic animate-pulse">Hunting...</span>';
+        kList.innerHTML = kHTML === '' ? '<span class="text-slate-500 italic">No known origins found yet...</span>' : kHTML;
 
-        const wList = document.getElementById('whaleList');
-        wList.innerHTML = Object.entries(globalSums.unknown)
+        const uList = document.getElementById('unidentifiedList');
+        let uHTML = Object.entries(globalSums.unknown)
             .sort((a,b) => b[1]-a[1])
             .map(([k,v]) => `
                 <div onclick="copyAddress('${k}')" title="Click to copy address" class="p-2 rounded flex justify-between cursor-pointer hover:bg-slate-700/80 hover:ring-1 hover:ring-cyan-500 transition border border-slate-700/50 bg-slate-800/50">
@@ -247,7 +256,7 @@
                     </span>
                     <b class="text-slate-200">${formatKAS(v)}</b>
                 </div>`).join('');
-        if(wList.innerHTML === '') wList.innerHTML = '<span class="text-slate-500 italic animate-pulse">Hunting...</span>';
+        uList.innerHTML = uHTML === '' ? '<span class="text-slate-500 italic">No unidentified wallets found yet...</span>' : uHTML;
     }
 
     async function startTrace(isBackNavigation = false) {
@@ -280,18 +289,15 @@
             btnBack.classList.add('hidden');
         }
 
-        // UI Reset
+        // UI Reset Before Fetching
         document.getElementById('loader').classList.remove('hidden');
-        document.getElementById('results').classList.remove('hidden'); // UNHIDDEN IMMEDIATELY for Live Preview
+        document.getElementById('results').classList.add('hidden'); // Hide momentarily to reset layout
         document.getElementById('btnTrace').disabled = true;
         document.getElementById('btnTrace').classList.add('opacity-50', 'cursor-not-allowed');
-        document.getElementById('treeContainer').innerHTML = '<div class="text-slate-500 italic animate-pulse py-4">Generating visual tree...</div>';
-        document.getElementById('treeStatus').innerText = 'Building branches...';
         
         globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
         currentlyResolvedKas = 0;
         totalTargetKas = 0;
-        renderLivePreview(); // Clear cards to 0
         
         updateProgress("Checking global known entities list...", 0);
 
@@ -304,13 +310,20 @@
         const balanceRes = await fetchData(`https://api.kaspa.org/addresses/${addr}/balance`);
         totalTargetKas = balanceRes ? balanceRes.balance / SOMPI : 0;
 
+        // Start Live Preview Phase!
+        document.getElementById('resTotalBalance').innerHTML = `${formatKAS(totalTargetKas)} <span class="text-xl md:text-2xl text-slate-400 font-normal">KAS</span>`;
+        document.getElementById('treeContainer').innerHTML = '<div class="text-cyan-400 animate-pulse py-6 font-mono font-bold">Building Recursive Origin Tree... <br><span class="text-slate-500 font-normal text-xs">(This will render when tracing is complete)</span></div>';
+        
+        // Un-hide the Results Section while tracing
+        document.getElementById('results').classList.remove('hidden');
+
         // Start recursive trace
         const rootTree = await recursiveTrace(addr, totalTargetKas, 1, maxDepth, minKas, new Set());
 
-        // Trace Finished
+        // Finalize UI
         document.getElementById('loader').classList.add('hidden');
-        document.getElementById('treeStatus').innerText = 'Complete';
         document.getElementById('treeContainer').innerHTML = buildTreeHTML(rootTree, true);
+        updateProgress("Trace Complete", 0); // Force one last DOM sync
         
         document.getElementById('btnTrace').disabled = false;
         document.getElementById('btnTrace').classList.remove('opacity-50', 'cursor-not-allowed');
@@ -320,13 +333,12 @@
         if (depth > maxDepth || targetAmount < minKas || visited.has(address)) {
             globalSums.unknown[address] = (globalSums.unknown[address] || 0) + targetAmount;
             let reason = visited.has(address) ? 'Cycle Shielded' : 'Depth/Min Limit Reached';
-            updateProgress(`Whale logged (${reason}): ${address.substring(0,16)}...`, targetAmount);
-            renderLivePreview();
+            updateProgress(`Wallet logged (${reason}): ${address.substring(0,16)}...`, targetAmount);
             
             return {
                 label: address,
                 amount: targetAmount,
-                type: visited.has(address) ? 'cycle' : 'whale',
+                type: visited.has(address) ? 'cycle' : 'unidentified',
                 info: reason,
                 children: null
             };
@@ -343,7 +355,6 @@
         if (txs.length === 0) {
             globalSums.unresolved += targetAmount;
             updateProgress(`Missing API History: ${address.substring(0,16)}...`, targetAmount);
-            renderLivePreview();
             return { label: address, amount: targetAmount, type: 'unresolved', info: 'No API History', children: null };
         }
 
@@ -410,21 +421,17 @@
             updateProgress(`Hit API Output Limit (Unresolved)`, unresolved);
             childrenNodes.push({ label: "Missing History", amount: unresolved, type: 'unresolved', info: 'API Output Limit Reached', children: null });
         }
-        
-        // Push intermediate data to the UI before going deeper
-        renderLivePreview();
 
         for (let [wAddr, wAmt] of Object.entries(unknownSrcs)) {
             const scaledAmt = wAmt * scale;
             if (scaledAmt >= minKas && depth < maxDepth) {
-                updateProgress(`Expanding Whale Branch: ${wAddr.substring(0,16)}...`, 0);
+                updateProgress(`Expanding Branch: ${wAddr.substring(0,16)}...`, 0);
                 const childNode = await recursiveTrace(wAddr, scaledAmt, depth + 1, maxDepth, minKas, currentVisited);
                 childrenNodes.push(childNode);
             } else if (scaledAmt >= 0.01) {
                 globalSums.unknown[wAddr] = (globalSums.unknown[wAddr] || 0) + scaledAmt;
-                updateProgress(`Whale logged (Leaf Node): ${wAddr.substring(0,16)}...`, scaledAmt);
-                renderLivePreview(); // Live update the whale list
-                childrenNodes.push({ label: wAddr, amount: scaledAmt, type: 'whale', info: 'Whale / User', children: null });
+                updateProgress(`Wallet logged (Leaf Node): ${wAddr.substring(0,16)}...`, scaledAmt);
+                childrenNodes.push({ label: wAddr, amount: scaledAmt, type: 'unidentified', info: 'Unidentified Wallet', children: null });
             }
         }
 
