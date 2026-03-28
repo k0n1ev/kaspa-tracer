@@ -9,9 +9,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kaspa Deep Tracer</title>
+    
     <link rel="icon" href="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-32x32.png" sizes="32x32" />
     <link rel="icon" href="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-192x192.png" sizes="192x192" />
     <link rel="apple-touch-icon" href="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-180x180.png" />
+    <meta name="msapplication-TileImage" content="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-270x270.png" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
@@ -95,42 +98,57 @@
         </div>
     </div>
 
-    <div id="results" class="hidden flex flex-col gap-6">
-        <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 shadow-lg text-center relative overflow-hidden">
-            <div class="absolute inset-0 opacity-5 kaspa-gradient blur-3xl"></div>
-            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2 relative z-10">Target Wallet Balance</p>
-            <p id="resTotalBalance" class="text-4xl md:text-5xl font-extrabold kaspa-text-gradient relative z-10">—</p>
+    <div id="resultsWrapper" class="hidden">
+
+        <div id="zeroBalancePrompt" class="hidden bg-slate-800/80 p-8 rounded-xl border border-yellow-500/50 shadow-lg text-center mb-6">
+            <div class="text-5xl mb-4">📭</div>
+            <h2 class="text-2xl font-bold text-slate-100 mb-2">Current Balance is 0 KAS</h2>
+            <p class="text-slate-400 mb-6">This wallet is currently empty. Would you like to trace its <b>historical inflows</b> instead to see where its past funds originated?</p>
+            <button onclick="startTrace(false, true)" class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold py-3 px-8 rounded-lg shadow-lg transition">Trace Historical Funds</button>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-green-400 shadow-md">
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">⛏ Mining Rewards</p>
-                <p id="resMining" class="text-2xl font-bold text-slate-100">—</p>
-            </div>
-            <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-purple-400 shadow-md">
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">🏦 Known Sources</p>
-                <p id="resKnown" class="text-2xl font-bold text-slate-100">—</p>
-            </div>
-            <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-yellow-400 shadow-md">
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">⚠ Unresolved</p>
-                <p id="resUnresolved" class="text-2xl font-bold text-slate-100">—</p>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md">
-                <h3 class="text-lg font-bold mb-4 text-cyan-300 border-b border-slate-700 pb-2">Recursive Origin Tree</h3>
-                <div id="treeContainer" class="tree-container overflow-x-auto min-h-[120px]"></div>
-            </div>
-            <div class="flex flex-col gap-5">
-                <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-md">
-                    <h3 class="text-base font-bold mb-3 text-purple-300 border-b border-slate-700 pb-2">Top Known Origins</h3>
-                    <div id="knownList" class="space-y-2 max-h-56 overflow-y-auto font-mono text-sm pr-1">
-                        <span class="text-slate-500 italic text-xs">None found yet…</span>
-                    </div>
+
+        <div id="mainResultsBox" class="hidden flex flex-col gap-6">
+            <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 shadow-lg text-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-5 kaspa-gradient blur-3xl"></div>
+                <p id="resTargetLabel" class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2 relative z-10">Target Wallet Balance</p>
+                <p id="resTotalBalance" class="text-4xl md:text-5xl font-extrabold kaspa-text-gradient relative z-10">—</p>
+                <div id="resSummaryBadge" class="mt-4 inline-block bg-slate-900/50 border border-slate-700/50 rounded px-3 py-1 text-xs text-slate-400 font-mono hidden relative z-10">
+                    Oldest Traced Activity: <span id="resOldestDate" class="text-slate-300">...</span>
                 </div>
-                <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-md flex-1">
-                    <h3 class="text-base font-bold mb-3 text-slate-300 border-b border-slate-700 pb-2">Unidentified Wallets</h3>
-                    <div id="unidentifiedList" class="space-y-2 max-h-80 overflow-y-auto font-mono text-xs pr-1">
-                        <span class="text-slate-500 italic text-xs">None found yet…</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-green-400 shadow-md">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">⛏ Mining Rewards</p>
+                    <p id="resMining" class="text-2xl font-bold text-slate-100">—</p>
+                </div>
+                <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-purple-400 shadow-md">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">🏦 Known Sources</p>
+                    <p id="resKnown" class="text-2xl font-bold text-slate-100">—</p>
+                </div>
+                <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-yellow-400 shadow-md">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">⚠ Unresolved</p>
+                    <p id="resUnresolved" class="text-2xl font-bold text-slate-100">—</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md">
+                    <h3 class="text-lg font-bold mb-4 text-cyan-300 border-b border-slate-700 pb-2">Recursive Origin Tree</h3>
+                    <div id="treeContainer" class="tree-container overflow-x-auto min-h-[120px]"></div>
+                </div>
+                <div class="flex flex-col gap-5">
+                    <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-md">
+                        <h3 class="text-base font-bold mb-3 text-purple-300 border-b border-slate-700 pb-2">Top Known Origins</h3>
+                        <div id="knownList" class="space-y-2 max-h-56 overflow-y-auto font-mono text-sm pr-1">
+                            <span class="text-slate-500 italic text-xs">None found yet…</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-md flex-1">
+                        <h3 class="text-base font-bold mb-3 text-slate-300 border-b border-slate-700 pb-2">Unidentified Wallets</h3>
+                        <div id="unidentifiedList" class="space-y-2 max-h-80 overflow-y-auto font-mono text-xs pr-1">
+                            <span class="text-slate-500 italic text-xs">None found yet…</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -148,36 +166,57 @@
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════════
-// CONSTANTS
+// CONSTANTS & FALLBACKS
 // ═══════════════════════════════════════════════════════════════════════════════
 const SOMPI          = 100_000_000;
 const API            = 'https://api.kaspa.org';
 const COINBASE_HASH  = '0'.repeat(64);
-const PAGE_LIMIT     = 500;   // Kaspa API max per request
-const MAX_PAGES      = 40;    // safety cap per address (40 × 500 = 20 000 txs)
-const CONCURRENCY    = 3;     // parallel sibling branch expansions
+const PAGE_LIMIT     = 500;   
+const MAX_PAGES      = 40;    
+const CONCURRENCY    = 3;     
 const MAX_RETRIES    = 4;
 const BASE_DELAY_MS  = 500;
+
+const FALLBACK_NAMES = [
+    { "address": "kaspa:precqv0krj3r6uyyfa36ga7s0u9jct0v4wg8ctsfde2gkrsgwgw8jgxfzfc98", "name": "Kaspa Dev Fund" },
+    { "address": "kaspa:pzhh76qc82wzduvsrd9xh4zde9qhp0xc8rl7qu2mvl2e42uvdqt75zrcgpm00", "name": "Kaspa Dev Fund (Mining)" },
+    { "address": "kaspa:qp8zppfpwkat7c8ukp9g5uq44xk3ckcle3k6w0a4l28n8q7q9g4jj4glf8el2", "name": "Community Marketing Fund" },
+    { "address": "kaspa:pqzsudfucnsh7j325pwwxch8er2zpm87k647edzex30j8e763axtqu977e2s2", "name": "MEXC" },
+    { "address": "kaspa:qru2dhtet2kmd6h3tshw0fmsn3z6s44tt5r3ktdq22y4tyh6s9zksgnsxyud4", "name": "KuCoin" },
+    { "address": "kaspa:qqcqzzl930s5388f6h9t38aayrntv8p6tudrytzmryft43f8j9t6k7rnmz4z9", "name": "Gate.io" },
+    { "address": "kaspa:qz2k7sqdquv60mch8hymn8z74ymegesrdthavxtf3f2gmd9f5smycquvccv6a", "name": "CoinEx" },
+    { "address": "kaspa:qpcag2w0r2m2t08e7kclx0s988s9u6m7x0shpschf6f8s2j9l9x7spu6k3h32", "name": "Hummingbot" },
+    { "address": "kaspa:qqw0jwe7l9tt8p7u87gtyqrm48a27dpm7u26exg97lchmld9esquysq9j7j8c", "name": "KASPA Pool" },
+    { "address": "kaspa:qqx0xsc9m295ks6c6m3w4k7e49p47d4sktm20l25s3gsc9k0w4z7ynpndvjss", "name": "WoolyPooly" },
+    { "address": "kaspa:qrruwsvtt6q4g4y53z2zshmrmy7j4m3rd0z2u7m2749z4f063yqjgu5j2n6x3", "name": "WoolyPooly (Solo)" },
+    { "address": "kaspa:qqgqpsk7l92s3xctur6cwtqmsu62ed7rftv699yyl8qjym7e2e5quf69v4sll", "name": "HeroMiners" },
+    { "address": "kaspa:qz4j2k204cvw4gmyq6q9x5u7y52dch9x4ns0zpxemecrkyrt6443wsfsh0pau", "name": "HeroMiners (Solo)" },
+    { "address": "kaspa:qrljcvz8647q20e2x569yv37lygmyv4gchgqjndn7et0gqqjptndus4068gnd", "name": "Kryptex" },
+    { "address": "kaspa:qryk6fctczn89hcl2a9s4f5nntn3mscz988xav77uydp228k3yhhcyd84d72j", "name": "K1Pool" },
+    { "address": "kaspa:qq8g0m2f2n7j27p8l54fthv8ngqnt948euzwcl0c58e5s99y5ycksw8tngj4q", "name": "K1Pool (Solo)" },
+    { "address": "kaspa:qqyqjff4zuvf0z30r8yv5wusmhw4x2w5fsqz3p4vtrrtmlyp2m3wsv7q26uaw", "name": "Acc-Pool" },
+    { "address": "kaspa:qp34q8wwnz7jksqsw4h4x22ty9z8rrt0504h2kswp8h5j66a9pxzswv7s3s0z", "name": "HashPool" },
+    { "address": "kaspa:qqz0m3xss7nshlyf9npt38z3ls9x4t2dtsa4w60cawgny4jchpxh2kffyewnw", "name": "F2Pool" },
+    { "address": "kaspa:qqvzhzcv0n94t32ts6nmy2xrq4hmsq5r8shps7k8rur3g84j9g5zsyhscfczq", "name": "Coinex Payouts" },
+    { "address": "kaspa:qqw6yqq45c2490x3qerct8c9y38tcy9r705a6e8hscg225h66t22ytrlsj2y4", "name": "2Miners" },
+    { "address": "kaspa:qzue6t6k32pms6k2277d33g7d8lyuwt06xksn4c9gct52qj9hupgquun7fpx0", "name": "Nicehash" }
+];
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SESSION STATE
 // ═══════════════════════════════════════════════════════════════════════════════
-let knownMap      = {};   // kaspa-address → entity name (exchanges, pools …)
-let isTracing     = false;
-let historyStack  = [];
-let currentAddr   = '';
-
-// globalVisited: once an address is fully expanded, it is NEVER expanded again —
-// this is the definitive loop-prevention mechanism.
-let globalVisited  = new Set();
-
-// analysisCache: stores the result of analyseAddress() per address so that if
-// two branches happen to reference the same sender, we reuse the work.
-let analysisCache  = new Map();
+let knownMap         = {};
+let isTracing        = false;
+let isHistoricalMode = false;
+let historyStack     = [];
+let currentAddr      = '';
+let currentHistMode  = false;
+let globalVisited    = new Set();
+let analysisCache    = new Map();
 
 let globalSums   = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
-let totalTarget  = 0;   // KAS balance of target wallet
-let resolvedKas  = 0;   // KAS we've accounted for so far (progress bar)
+let totalTarget  = 0;
+let resolvedKas  = 0;
 let eng          = { pages: 0, txs: 0, retries: 0, loops: 0, nodes: 0 };
 let traceStart   = 0;
 let elapsedTimer = null;
@@ -185,10 +224,7 @@ let elapsedTimer = null;
 // ═══════════════════════════════════════════════════════════════════════════════
 // UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════════
-const fmt = n =>
-    (typeof n === 'number' ? n : 0)
-        .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
+const fmt = n => (typeof n === 'number' ? n : 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function copyToClipboard(text) {
@@ -207,9 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// API: FETCH WITH RETRY + EXPONENTIAL BACK-OFF
-// ═══════════════════════════════════════════════════════════════════════════════
 async function apiFetch(url) {
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         if (!isTracing) return null;
@@ -233,41 +266,16 @@ async function apiFetch(url) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CORE: NET FLOW FOR AN ADDRESS IN A TX (UTXO model)
-//
-// netFlow = Σ(outputs_to_me) − Σ(inputs_from_me)
-//
-// Positive  → net received
-// Negative  → net sent (more input than change)
-// Zero      → unrelated tx or perfect self-consolidation
-//
-// WHY THIS IS CORRECT:
-//   Old code did `recv > 0 && !sent` — this skips any tx where the address
-//   also appears as a sender, which means ALL spend-with-change txs are silently
-//   dropped. Net-flow correctly handles every case including:
-//     • Pure mining receive (inputs=[], output=miner)
-//     • Exchange payout (inputs=exchange, output=wallet)
-//     • Send with change (inputs include wallet, outputs include change back)
-//     • Self-consolidation (net ≈ 0, no contribution to inflow)
+// CORE: ANALYSIS
 // ═══════════════════════════════════════════════════════════════════════════════
 function netFlowForAddress(tx, address) {
     const outputs = tx.outputs || [];
     const inputs  = tx.inputs  || [];
-
-    const outSompi = outputs
-        .filter(o => (o.script_public_key_address || o.scriptPublicKeyAddress) === address)
-        .reduce((s, o) => s + Number(o.amount || 0), 0);
-
-    const inSompi = inputs
-        .filter(i => (i.previous_outpoint_address || i.previousOutpointAddress) === address)
-        .reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
-
-    return outSompi - inSompi;   // sompi; positive = received, negative = sent
+    const outSompi = outputs.filter(o => (o.script_public_key_address || o.scriptPublicKeyAddress) === address).reduce((s, o) => s + Number(o.amount || 0), 0);
+    const inSompi = inputs.filter(i => (i.previous_outpoint_address || i.previousOutpointAddress) === address).reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
+    return outSompi - inSompi;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// CORE: COINBASE (MINING) DETECTION
-// ═══════════════════════════════════════════════════════════════════════════════
 function isCoinbase(tx) {
     const inputs = tx.inputs || [];
     if (inputs.length === 0) return true;
@@ -277,33 +285,16 @@ function isCoinbase(tx) {
     });
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// CORE: PAGINATED TX FETCHER
-//
-// Fetches as many pages as needed (up to MAX_PAGES) to collect enough incoming
-// transaction history to explain `targetAmountKas`.
-//
-// Key design decisions:
-//   • Pages are ordered NEWEST FIRST from the API.
-//   • Cursor = smallest accepting_block_blue_score on the current page.
-//   • We stop early once netInflow >= targetAmount (no need for older history).
-//   • If a page has fewer than PAGE_LIMIT txs, we've reached the oldest page.
-//   • MAX_PAGES is a hard safety cap to prevent runaway on high-volume wallets.
-// ═══════════════════════════════════════════════════════════════════════════════
 async function fetchAllTxs(address, targetAmountKas) {
     let allTxs    = [];
-    let before    = null;   // blue-score cursor; null = most recent
-    let netInflow = 0;      // running KAS net-received on pages fetched so far
+    let before    = null;   
+    let netInflow = 0;      
 
     for (let page = 0; page < MAX_PAGES && isTracing; page++) {
-        const url = `${API}/addresses/${address}/full-transactions-page`
-            + `?limit=${PAGE_LIMIT}`
-            + `&resolve_previous_outpoints=light`
-            + (before !== null ? `&before=${before}` : '');
-
+        const url = `${API}/addresses/${address}/full-transactions-page?limit=${PAGE_LIMIT}&resolve_previous_outpoints=light` + (before !== null ? `&before=${before}` : '');
         setStatus(`Paginating ${address.substring(0,16)}… (page ${page + 1})`);
+        
         const data = await apiFetch(url);
-
         if (!data || !Array.isArray(data) || data.length === 0) break;
 
         eng.pages++;
@@ -311,65 +302,37 @@ async function fetchAllTxs(address, targetAmountKas) {
         refreshStats();
         allTxs = allTxs.concat(data);
 
-        // Tally net inflow from this page
         for (const tx of data) {
             const net = netFlowForAddress(tx, address);
             if (net > 0) netInflow += net / SOMPI;
         }
 
-        // Early exit: we have enough history to explain the balance
+        // If target is Infinity (Historical mode), it forces pagination to the end
         if (netInflow >= targetAmountKas * 0.9999) break;
 
-        // Advance cursor to the oldest blue_score on this page
-        const scores = data
-            .map(tx => tx.accepting_block_blue_score ?? tx.block_blue_score ?? null)
-            .filter(s => s !== null && s > 0);
+        const scores = data.map(tx => tx.accepting_block_blue_score ?? tx.block_blue_score ?? null).filter(s => s !== null && s > 0);
         if (scores.length === 0) break;
 
         const minScore = Math.min(...scores);
-        if (before !== null && minScore >= before) break;  // no progress, stop
+        if (before !== null && minScore >= before) break;  
         before = minScore;
 
-        // Last page (partial) — no more history
         if (data.length < PAGE_LIMIT) break;
     }
-
     return allTxs;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// CORE: ANALYSE ADDRESS
-//
-// Returns { netInflow (KAS), miningKas, knownKas: {name→KAS}, senderKas: {addr→KAS} }
-//
-// For every tx where this address has a positive net flow:
-//   • Coinbase → attribute to mining
-//   • Non-coinbase → attribute proportionally across EXTERNAL input addresses
-//     (all inputs not from this address itself), weighted by input amount
-//
-// Self-consolidation txs (all inputs from self) contribute to netInflow but
-// have no external senders; they resolve naturally because the earlier txs
-// that funded those UTXOs ARE in the history and will have been credited
-// to mining or senders already.
-//
-// WHY PROPORTIONAL NOT FIRST-SENDER:
-//   An exchange payout tx may have dozens of inputs from the exchange's hot
-//   wallet UTXOs. Taking only inputs[0] means we credit one UTXO and ignore
-//   the rest, badly understating or mislabelling the source.
-// ═══════════════════════════════════════════════════════════════════════════════
 async function analyseAddress(address, targetKas) {
     if (analysisCache.has(address)) return analysisCache.get(address);
 
     const txs = await fetchAllTxs(address, targetKas);
+    const oldestTime = txs.length > 0 ? txs[txs.length - 1].block_time : null;
 
-    let netInflow = 0;
-    let miningKas = 0;
-    let knownKas  = {};   // entityName → KAS
-    let senderKas = {};   // senderAddress → KAS
+    let netInflow = 0, miningKas = 0, knownKas = {}, senderKas = {};   
 
     for (const tx of txs) {
         const netSompi = netFlowForAddress(tx, address);
-        if (netSompi <= 0) continue;          // outgoing or irrelevant
+        if (netSompi <= 0) continue;          
 
         const netKas = netSompi / SOMPI;
         netInflow += netKas;
@@ -379,31 +342,19 @@ async function analyseAddress(address, targetKas) {
             continue;
         }
 
-        // External input addresses (anything NOT this address)
         const inputs = tx.inputs || [];
         const extInputs = inputs.filter(i => {
             const a = i.previous_outpoint_address || i.previousOutpointAddress || '';
             return a && a !== address;
         });
 
-        if (extInputs.length === 0) {
-            // All inputs from self → self-funded consolidation.
-            // The KAS came from earlier txs already counted; skip double-attributing.
-            // Don't add to miningKas — this isn't a mining reward.
-            // netInflow still counts it so our scale formula works.
-            continue;
-        }
+        if (extInputs.length === 0) continue;
 
-        // Sum external input amounts for proportional attribution
-        const totalExtAmt = extInputs.reduce(
-            (s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0
-        );
-
+        const totalExtAmt = extInputs.reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
         for (const inp of extInputs) {
             const sAddr = inp.previous_outpoint_address || inp.previousOutpointAddress;
             if (!sAddr) continue;
             const sAmt  = Number(inp.previous_outpoint_amount || inp.previousOutpointAmount || 0);
-            // Weight by input amount; fall back to equal share if amounts missing
             const share = totalExtAmt > 0 ? sAmt / totalExtAmt : 1 / extInputs.length;
             const attrKas = netKas * share;
 
@@ -416,39 +367,21 @@ async function analyseAddress(address, targetKas) {
         }
     }
 
-    const result = { netInflow, miningKas, knownKas, senderKas };
+    const result = { netInflow, miningKas, knownKas, senderKas, oldestTime };
     analysisCache.set(address, result);
     return result;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CORE: RECURSIVE TRACE
-//
-// targetAmount: KAS we are trying to attribute at this node.
-// Returns a tree node object for the UI renderer.
-//
-// Scale formula:
-//   If netInflow > targetAmount → we received more than we're attributing
-//       (e.g. wallet also sent some KAS on) → scale = targetAmount / netInflow
-//       so each source's fraction is proportionally reduced.
-//   If netInflow < targetAmount → history is incomplete (API pruned or gap)
-//       → record gap as unresolved, scale = 1 (attribute what we found fully).
-//   If netInflow ≈ targetAmount → scale = 1 (perfect match, common for miners).
 // ═══════════════════════════════════════════════════════════════════════════════
 async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
-
-    // ── Abort check ──────────────────────────────────────────────────────────
     if (!isTracing) {
         globalSums.unresolved += targetAmount;
         addResolved(targetAmount);
         return mkNode(address, targetAmount, 'unresolved', 'Trace Aborted', null);
     }
 
-    // ── Global loop guard ────────────────────────────────────────────────────
-    // An address already in globalVisited has been fully expanded.
-    // Referencing it again from another branch would double-count its sources.
-    // We return a lightweight "cycle" marker without adding to globalSums
-    // (the KAS was already attributed during the first expansion).
     if (globalVisited.has(address)) {
         eng.loops++;
         refreshStats();
@@ -456,7 +389,6 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
         return mkNode(address, targetAmount, 'cycle', 'Already Traced (Loop Guard)', null);
     }
 
-    // ── Depth / min-KAS cutoff ───────────────────────────────────────────────
     if (depth > maxDepth || targetAmount < minKas) {
         const reason = depth > maxDepth ? `Max Depth (${maxDepth})` : 'Below Min KAS';
         globalSums.unknown[address] = (globalSums.unknown[address] || 0) + targetAmount;
@@ -464,16 +396,17 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
         return mkNode(address, targetAmount, 'unidentified', reason, null);
     }
 
-    // ── Mark visited BEFORE any await ────────────────────────────────────────
-    // This ensures sibling branches that see the same address in parallel
-    // will hit the loop guard above rather than launching duplicate fetches.
     globalVisited.add(address);
     eng.nodes++;
     refreshStats();
 
-    // ── Fetch and analyse ────────────────────────────────────────────────────
-    const { netInflow, miningKas, knownKas, senderKas } =
-        await analyseAddress(address, targetAmount);
+    const analysis = await analyseAddress(address, targetAmount);
+    
+    // UI Setup for Root Summary
+    if (depth === 1 && analysis.oldestTime) {
+        document.getElementById('resOldestDate').innerText = new Date(analysis.oldestTime).toLocaleString();
+        document.getElementById('resSummaryBadge').classList.remove('hidden');
+    }
 
     if (!isTracing) {
         globalSums.unresolved += targetAmount;
@@ -481,30 +414,19 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
         return mkNode(address, targetAmount, 'unresolved', 'Trace Aborted', null);
     }
 
-    // ── No incoming history at all ───────────────────────────────────────────
-    if (netInflow <= 0) {
+    if (analysis.netInflow <= 0) {
         globalSums.unresolved += targetAmount;
         addResolved(targetAmount);
         return mkNode(address, targetAmount, 'unresolved', 'No Incoming History Found', null);
     }
 
-    // ── Scale factor ─────────────────────────────────────────────────────────
-    let scale  = 1.0;
-    let gapKas = 0.0;
-
-    if (netInflow > targetAmount * 1.0001) {
-        // We found more inflow than we need to explain → scale proportionally
-        scale = targetAmount / netInflow;
-    } else if (netInflow < targetAmount * 0.9999) {
-        // History incomplete → record the gap as unresolved
-        gapKas = targetAmount - netInflow;
-        // scale stays 1.0: attribute what we found at face value
-    }
+    let scale = 1.0, gapKas = 0.0;
+    if (analysis.netInflow > targetAmount * 1.0001) scale = targetAmount / analysis.netInflow;
+    else if (analysis.netInflow < targetAmount * 0.9999) gapKas = targetAmount - analysis.netInflow;
 
     let children = [];
 
-    // ── Mining ───────────────────────────────────────────────────────────────
-    const scaledMining = miningKas * scale;
+    const scaledMining = analysis.miningKas * scale;
     if (scaledMining >= 0.01) {
         globalSums.mining += scaledMining;
         addResolved(scaledMining);
@@ -512,8 +434,7 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
         children.push(mkNode('⛏️ Mining Rewards', scaledMining, 'mining', 'Network Block Reward', null));
     }
 
-    // ── Known entities ───────────────────────────────────────────────────────
-    for (const [name, kas] of Object.entries(knownKas)) {
+    for (const [name, kas] of Object.entries(analysis.knownKas)) {
         const scaled = kas * scale;
         if (scaled < 0.01) continue;
         globalSums.known[name] = (globalSums.known[name] || 0) + scaled;
@@ -522,17 +443,13 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
         children.push(mkNode(`🏦 ${name}`, scaled, 'known', 'Exchange / Pool', null));
     }
 
-    // ── History gap ──────────────────────────────────────────────────────────
     if (gapKas >= 0.01) {
         globalSums.unresolved += gapKas;
         addResolved(gapKas);
-        children.push(mkNode('⚠️ Incomplete History', gapKas, 'unresolved',
-            'API pagination gap or pruned history', null));
+        children.push(mkNode('⚠️ Incomplete History', gapKas, 'unresolved', 'API pagination gap or pruned history', null));
     }
 
-    // ── Unknown senders: recurse or leaf ─────────────────────────────────────
-    // Sort descending by amount so we recurse on the biggest flows first
-    const senders = Object.entries(senderKas).sort((a, b) => b[1] - a[1]);
+    const senders = Object.entries(analysis.senderKas).sort((a, b) => b[1] - a[1]);
     const recurseTasks = [];
 
     for (const [sAddr, sKas] of senders) {
@@ -540,15 +457,12 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
         if (scaled < 0.01) continue;
 
         if (knownMap[sAddr]) {
-            // Catch any known addresses that slipped through analyseAddress
             const name = knownMap[sAddr];
             globalSums.known[name] = (globalSums.known[name] || 0) + scaled;
             addResolved(scaled);
             children.push(mkNode(`🏦 ${name}`, scaled, 'known', 'Exchange / Pool', null));
-
         } else if (scaled >= minKas && depth < maxDepth && isTracing) {
             recurseTasks.push({ addr: sAddr, amount: scaled });
-
         } else {
             const reason = depth >= maxDepth ? `Max Depth (${maxDepth})` : 'Below Min KAS';
             globalSums.unknown[sAddr] = (globalSums.unknown[sAddr] || 0) + scaled;
@@ -557,45 +471,24 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
         }
     }
 
-    // ── Parallel recursion in small batches ───────────────────────────────────
     for (let i = 0; i < recurseTasks.length; i += CONCURRENCY) {
         if (!isTracing) break;
         const batch = recurseTasks.slice(i, i + CONCURRENCY);
         setStatus(`Expanding ${batch.length} sender(s) at depth ${depth + 1}…`);
-        const results = await Promise.all(
-            batch.map(({ addr, amount }) =>
-                recursiveTrace(addr, amount, depth + 1, maxDepth, minKas))
-        );
+        const results = await Promise.all(batch.map(({ addr, amount }) => recursiveTrace(addr, amount, depth + 1, maxDepth, minKas)));
         children.push(...results);
     }
 
     children.sort((a, b) => b.amount - a.amount);
-
-    return {
-        label:    address,
-        amount:   targetAmount,
-        type:     depth === 1 ? 'root' : 'node',
-        info:     depth === 1 ? 'Target Address' : `Intermediary (depth ${depth})`,
-        children: children.length ? children : null
-    };
+    return { label: address, amount: targetAmount, type: depth === 1 ? 'root' : 'node', info: depth === 1 ? 'Target Address' : `Intermediary (depth ${depth})`, children: children.length ? children : null };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// HELPERS
+// UI & CONTROL LOGIC
 // ═══════════════════════════════════════════════════════════════════════════════
-function mkNode(label, amount, type, info, children) {
-    return { label, amount, type, info, children };
-}
-
-function addResolved(kas) {
-    resolvedKas += kas;
-    updateProgressBar();
-}
-
-function setStatus(msg) {
-    document.getElementById('loaderText').textContent = msg;
-}
-
+function mkNode(label, amount, type, info, children) { return { label, amount, type, info, children }; }
+function addResolved(kas) { resolvedKas += kas; updateProgressBar(); }
+function setStatus(msg) { document.getElementById('loaderText').textContent = msg; }
 function refreshStats() {
     document.getElementById('sPages').textContent   = eng.pages;
     document.getElementById('sTxs').textContent     = eng.txs;
@@ -614,35 +507,20 @@ function updateProgressBar() {
     document.getElementById('resKnown').innerHTML      = `${fmt(totalKnown)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
     document.getElementById('resUnresolved').innerHTML = `${fmt(globalSums.unresolved)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
 
-    // Known list
     const kList = document.getElementById('knownList');
     const kHTML = Object.entries(globalSums.known).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
         const isAddr = k.startsWith('kaspa:');
-        return `<div ${isAddr ? `onclick="copyToClipboard('${k}')"` : ''} title="${k}"
-                     class="p-2 rounded flex justify-between border border-slate-700/50 bg-slate-800/50
-                            ${isAddr ? 'cursor-pointer hover:bg-slate-700 hover:ring-1 hover:ring-purple-400' : 'hover:bg-slate-700/50'} transition">
-                    <span class="${isAddr ? 'text-cyan-400 underline decoration-cyan-400/50' : 'text-purple-300'} truncate mr-2">${k}</span>
-                    <b class="text-slate-200 shrink-0">${fmt(v)}</b>
-                </div>`;
+        return `<div ${isAddr ? `onclick="copyToClipboard('${k}')"` : ''} title="${k}" class="p-2 rounded flex justify-between border border-slate-700/50 bg-slate-800/50 ${isAddr ? 'cursor-pointer hover:bg-slate-700 hover:ring-1 hover:ring-purple-400' : 'hover:bg-slate-700/50'} transition"><span class="${isAddr ? 'text-cyan-400 underline decoration-cyan-400/50' : 'text-purple-300'} truncate mr-2">${k}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`;
     }).join('');
     kList.innerHTML = kHTML || '<span class="text-slate-500 italic text-xs">None found yet…</span>';
 
-    // Unidentified list
     const uList = document.getElementById('unidentifiedList');
     const uHTML = Object.entries(globalSums.unknown).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
-        `<div onclick="copyToClipboard('${k}')" title="${k}"
-              class="p-2 rounded flex justify-between cursor-pointer hover:bg-slate-700 hover:ring-1
-                     hover:ring-cyan-500 transition border border-slate-700/50 bg-slate-800/50">
-            <span class="text-cyan-400 underline decoration-cyan-400/50 truncate mr-2">${k.substring(0,18)}…${k.slice(-8)}</span>
-            <b class="text-slate-200 shrink-0">${fmt(v)}</b>
-        </div>`
+        `<div onclick="copyToClipboard('${k}')" title="${k}" class="p-2 rounded flex justify-between cursor-pointer hover:bg-slate-700 hover:ring-1 hover:ring-cyan-500 transition border border-slate-700/50 bg-slate-800/50"><span class="text-cyan-400 underline decoration-cyan-400/50 truncate mr-2">${k.substring(0,18)}…${k.slice(-8)}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`
     ).join('');
     uList.innerHTML = uHTML || '<span class="text-slate-500 italic text-xs">None found yet…</span>';
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// UI CONTROLS
-// ═══════════════════════════════════════════════════════════════════════════════
 function stopTrace() {
     if (!isTracing) return;
     isTracing = false;
@@ -654,12 +532,13 @@ function stopTrace() {
 
 function goBack() {
     if (historyStack.length === 0 || isTracing) return;
-    document.getElementById('addrInput').value = historyStack.pop();
+    const prev = historyStack.pop();
+    document.getElementById('addrInput').value = prev.addr;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    startTrace(true);
+    startTrace(true, prev.isHist);
 }
 
-async function startTrace(isBack = false) {
+async function startTrace(isBack = false, isHist = false) {
     if (isTracing) return;
 
     const addr     = document.getElementById('addrInput').value.trim();
@@ -668,13 +547,13 @@ async function startTrace(isBack = false) {
 
     if (!addr.startsWith('kaspa:')) { alert('Invalid Kaspa address'); return; }
 
-    if (window.dataLayer) window.dataLayer.push({
-        event: 'trace_initiated', max_depth_setting: maxDepth, min_kas_setting: minKas
-    });
+    if (window.dataLayer) window.dataLayer.push({ event: 'trace_initiated', max_depth_setting: maxDepth, min_kas_setting: minKas });
 
+    // State setups
     isTracing = true;
+    if (isHist) isHistoricalMode = true;
+    else if (!isBack) isHistoricalMode = false;
 
-    // Reset all session state
     globalVisited = new Set();
     analysisCache = new Map();
     globalSums    = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
@@ -682,62 +561,104 @@ async function startTrace(isBack = false) {
     totalTarget   = 0;
     resolvedKas   = 0;
     traceStart    = Date.now();
+    document.getElementById('resSummaryBadge').classList.add('hidden');
 
-    // History stack
-    if (!isBack && currentAddr && currentAddr !== addr) historyStack.push(currentAddr);
+    if (!isBack && currentAddr && (currentAddr !== addr || currentHistMode !== isHistoricalMode)) {
+        historyStack.push({ addr: currentAddr, isHist: currentHistMode });
+    }
     currentAddr = addr;
+    currentHistMode = isHistoricalMode;
+    
     const btnBack = document.getElementById('btnBack');
     if (historyStack.length > 0) {
         btnBack.classList.remove('hidden');
-        btnBack.title = `Back to ${historyStack.at(-1)}`;
+        btnBack.title = `Back to ${historyStack.at(-1).addr.substring(0,12)}...`;
     } else {
         btnBack.classList.add('hidden');
     }
 
-    // UI
+    // UI Reset
+    document.getElementById('resultsWrapper').classList.add('hidden');
+    document.getElementById('zeroBalancePrompt').classList.add('hidden');
+    document.getElementById('mainResultsBox').classList.add('hidden');
+    
     document.getElementById('loader').classList.remove('hidden');
-    document.getElementById('results').classList.add('hidden');
     document.getElementById('btnTrace').classList.add('hidden');
     document.getElementById('btnStop').classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
     document.getElementById('btnStop').disabled = false;
     refreshStats();
 
-    // Elapsed clock
     clearInterval(elapsedTimer);
-    elapsedTimer = setInterval(() => {
-        document.getElementById('sElapsed').textContent =
-            `${((Date.now() - traceStart) / 1000).toFixed(0)}s`;
-    }, 500);
+    elapsedTimer = setInterval(() => { document.getElementById('sElapsed').textContent = `${((Date.now() - traceStart) / 1000).toFixed(0)}s`; }, 500);
 
-    // Load known entities
+    // Fetch Known Entities with strict 5-second cutoff
     setStatus('Loading known entity list…');
     if (Object.keys(knownMap).length === 0) {
-        const names = await apiFetch(`${API}/addresses/names`);
-        if (names) names.forEach(i => { knownMap[i.address] = i.name; });
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            const r = await fetch(`${API}/addresses/names`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            const names = await r.json();
+            names.forEach(i => { knownMap[i.address] = i.name; });
+        } catch (e) {
+            console.warn('API names fetch failed or timed out. Using local fallback.', e);
+            setStatus('API timeout. Using local fallback list…');
+            FALLBACK_NAMES.forEach(i => { knownMap[i.address] = i.name; });
+            await sleep(800);
+        }
     }
     if (!isTracing) { finalise(null); return; }
 
-    // Fetch balance
+    // Fetch Balance
     setStatus('Fetching wallet balance…');
     const balRes = await apiFetch(`${API}/addresses/${addr}/balance`);
-    totalTarget = balRes ? balRes.balance / SOMPI : 0;
+    const currentBalance = balRes ? balRes.balance / SOMPI : 0;
 
-    document.getElementById('resTotalBalance').innerHTML =
-        `${fmt(totalTarget)} <span class="text-xl md:text-2xl text-slate-400 font-normal">KAS</span>`;
-    document.getElementById('treeContainer').innerHTML =
-        '<div class="text-cyan-400 animate-pulse py-6 font-mono">Building origin tree… (rendered on completion)</div>';
-    document.getElementById('results').classList.remove('hidden');
+    // Handle Zero Balance Logic
+    if (currentBalance === 0 && !isHistoricalMode) {
+        isTracing = false;
+        clearInterval(elapsedTimer);
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('btnStop').classList.add('hidden');
+        document.getElementById('btnTrace').classList.remove('hidden');
+        
+        document.getElementById('resultsWrapper').classList.remove('hidden');
+        document.getElementById('zeroBalancePrompt').classList.remove('hidden');
+        return; // Pause here until user clicks "Trace Historical Funds"
+    }
+
+    if (isHistoricalMode) {
+        setStatus('Calculating historical inflows…');
+        const rootData = await analyseAddress(addr, Infinity);
+        totalTarget = rootData.netInflow;
+        document.getElementById('resTargetLabel').innerText = "Historical Total Received";
+        
+        if (totalTarget === 0) {
+            finalise(null, "This wallet has absolutely zero history on the blockchain.");
+            return;
+        }
+    } else {
+        totalTarget = currentBalance;
+        document.getElementById('resTargetLabel').innerText = "Target Wallet Balance";
+    }
+
+    document.getElementById('resTotalBalance').innerHTML = `${fmt(totalTarget)} <span class="text-xl md:text-2xl text-slate-400 font-normal">KAS</span>`;
+    document.getElementById('treeContainer').innerHTML = '<div class="text-cyan-400 animate-pulse py-6 font-mono">Building origin tree… (rendered on completion)</div>';
+    
+    document.getElementById('resultsWrapper').classList.remove('hidden');
+    document.getElementById('mainResultsBox').classList.remove('hidden');
     updateProgressBar();
 
     const rootTree = await recursiveTrace(addr, totalTarget, 1, maxDepth, minKas);
     finalise(rootTree);
 }
 
-function finalise(tree) {
+function finalise(tree, customMessage = null) {
     isTracing = false;
     clearInterval(elapsedTimer);
-    document.getElementById('sElapsed').textContent =
-        `${((Date.now() - traceStart) / 1000).toFixed(1)}s`;
+    document.getElementById('sElapsed').textContent = `${((Date.now() - traceStart) / 1000).toFixed(1)}s`;
     document.getElementById('loader').classList.add('hidden');
     document.getElementById('btnStop').classList.add('hidden');
     document.getElementById('btnTrace').classList.remove('hidden');
@@ -746,48 +667,25 @@ function finalise(tree) {
         document.getElementById('treeContainer').innerHTML = buildTreeHTML(tree, true);
         setStatus('Trace complete ✓');
     } else {
-        document.getElementById('treeContainer').innerHTML =
-            '<div class="text-red-400 py-6 font-mono font-bold">Trace aborted by user.</div>';
+        const msg = customMessage || 'Trace aborted by user.';
+        document.getElementById('treeContainer').innerHTML = `<div class="text-red-400 py-6 font-mono font-bold">${msg}</div>`;
     }
     updateProgressBar();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// TREE RENDERER
-// ═══════════════════════════════════════════════════════════════════════════════
 function buildTreeHTML(node, isRoot = false) {
     if (!node) return '';
-    const kas   = `${fmt(node.amount)} KAS`;
-    const cls   = `text-${node.type}`;
+    const kas = `${fmt(node.amount)} KAS`;
+    const cls = `text-${node.type}`;
     const label = node.label;
 
     if (!node.children || node.children.length === 0) {
         const isAddr = label.startsWith('kaspa:');
-        return `<div class="leaf-node ${isAddr ? 'cursor-pointer' : ''}"
-                     ${isAddr ? `onclick="copyToClipboard('${label}')"` : ''}
-                     title="${label}">
-                    <span class="${cls} truncate mr-4">${label}</span>
-                    <div class="flex space-x-4 shrink-0 text-right">
-                        <span class="text-slate-500 w-36 text-xs self-center">${node.info}</span>
-                        <span class="text-slate-100 font-bold w-28">${kas}</span>
-                    </div>
-                </div>`;
+        return `<div class="leaf-node ${isAddr ? 'cursor-pointer' : ''}" ${isAddr ? `onclick="copyToClipboard('${label}')"` : ''} title="${label}"><span class="${cls} truncate mr-4">${label}</span><div class="flex space-x-4 shrink-0 text-right"><span class="text-slate-500 w-36 text-xs self-center">${node.info}</span><span class="text-slate-100 font-bold w-28">${kas}</span></div></div>`;
     }
 
     const inner = node.children.map(c => buildTreeHTML(c)).join('');
-    return `<details ${isRoot ? 'open' : ''}>
-                <summary>
-                    <div class="flex items-center truncate mr-4 overflow-hidden">
-                        <span class="node-caret"></span>
-                        <span class="${cls} truncate" title="${label}">${label}</span>
-                    </div>
-                    <div class="flex space-x-4 shrink-0 text-right">
-                        <span class="text-slate-500 w-36 text-xs self-center">${node.info}</span>
-                        <span class="text-slate-100 font-bold w-28">${kas}</span>
-                    </div>
-                </summary>
-                ${inner}
-            </details>`;
+    return `<details ${isRoot ? 'open' : ''}><summary><div class="flex items-center truncate mr-4 overflow-hidden"><span class="node-caret"></span><span class="${cls} truncate" title="${label}">${label}</span></div><div class="flex space-x-4 shrink-0 text-right"><span class="text-slate-500 w-36 text-xs self-center">${node.info}</span><span class="text-slate-100 font-bold w-28">${kas}</span></div></summary>${inner}</details>`;
 }
 </script>
 </body>
