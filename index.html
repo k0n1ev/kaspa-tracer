@@ -10,7 +10,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kaspa Deep Tracer</title>
     
-    <link rel="icon" href="https://kaspa.org/wp-content/uploads/2022/02/favicon.png" type="image/png">
+    <link rel="icon" href="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-32x32.png" sizes="32x32" />
+    <link rel="icon" href="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-192x192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-180x180.png" />
+    <meta name="msapplication-TileImage" content="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-270x270.png" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -84,7 +87,7 @@
             <div class="flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
                     <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Target Address</label>
-                    <input id="addrInput" type="text" value="kaspa:qpz2vgvlxhmyhmt22h538pjzmvvd52nuut80y5zulgpvyerlskvvwm7n4uk5a" placeholder="kaspa:..." class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-slate-100 font-mono text-sm transition">
+                    <input id="addrInput" type="text" value="kaspa:qpz2vgvlxhmyhmt22h538pjzmvvd52nuut80y5zulgpvyerlskvvwm7n4uk5a" placeholder="kaspa:..." onclick="this.select()" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-slate-100 font-mono text-sm transition">
                 </div>
                 <div class="w-full md:w-32">
                     <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Max Depth</label>
@@ -97,6 +100,9 @@
                 <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                     <button onclick="goBack()" id="btnBack" class="hidden w-full md:w-auto bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
                         &larr; Back
+                    </button>
+                    <button onclick="stopTrace()" id="btnStop" class="hidden w-full md:w-auto bg-red-500 hover:bg-red-400 text-slate-900 font-bold py-3 px-8 rounded-lg shadow-lg shadow-red-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
+                        Stop Trace
                     </button>
                     <button onclick="startTrace()" id="btnTrace" class="w-full md:w-auto bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-3 px-8 rounded-lg shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
                         Trace Balance
@@ -184,9 +190,22 @@
     let currentTracedAddress = "";
     let totalTargetKas = 0;
     let currentlyResolvedKas = 0;
+    let isTracing = false; // Added flag for Stop button functionality
 
     // Format KAS numbers beautifully
     const formatKAS = (num) => num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Enable "Enter" key to start tracing
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputs = ['addrInput', 'depthInput', 'minKasInput'];
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    if(!isTracing) startTrace();
+                }
+            });
+        });
+    });
 
     async function fetchData(url) {
         try {
@@ -209,11 +228,20 @@
 
     // Pop the history stack and re-trace the previous address
     function goBack() {
-        if (historyStack.length === 0) return;
+        if (historyStack.length === 0 || isTracing) return;
         const previousAddr = historyStack.pop();
         document.getElementById('addrInput').value = previousAddr;
         window.scrollTo({ top: 0, behavior: 'smooth' });
         startTrace(true);
+    }
+
+    // Stop current trace
+    function stopTrace() {
+        if (!isTracing) return;
+        isTracing = false;
+        document.getElementById('loaderText').innerText = "Stopping trace... finalizing current branch.";
+        document.getElementById('btnStop').disabled = true;
+        document.getElementById('btnStop').classList.add('opacity-50', 'cursor-not-allowed');
     }
 
     // Update the UI Progress Bar AND LIVE PREVIEW dynamically
@@ -260,6 +288,8 @@
     }
 
     async function startTrace(isBackNavigation = false) {
+        if(isTracing) return;
+
         const addr = document.getElementById('addrInput').value.trim();
         const maxDepth = parseInt(document.getElementById('depthInput').value) || 5;
         const minKas = parseFloat(document.getElementById('minKasInput').value) || 5.0;
@@ -274,6 +304,8 @@
                 'min_kas_setting': minKas
             });
         }
+
+        isTracing = true;
 
         // History Stack Logic
         if (!isBackNavigation && currentTracedAddress && currentTracedAddress !== addr) {
@@ -291,9 +323,12 @@
 
         // UI Reset Before Fetching
         document.getElementById('loader').classList.remove('hidden');
-        document.getElementById('results').classList.add('hidden'); // Hide momentarily to reset layout
-        document.getElementById('btnTrace').disabled = true;
-        document.getElementById('btnTrace').classList.add('opacity-50', 'cursor-not-allowed');
+        document.getElementById('results').classList.add('hidden');
+        
+        // Swap Trace button for Stop button
+        document.getElementById('btnTrace').classList.add('hidden');
+        document.getElementById('btnStop').classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
+        document.getElementById('btnStop').disabled = false;
         
         globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
         currentlyResolvedKas = 0;
@@ -305,6 +340,8 @@
             const names = await fetchData("https://api.kaspa.org/addresses/names");
             if(names) names.forEach(i => knownMap[i.address] = i.name);
         }
+
+        if(!isTracing) return finalizeTrace(null); // Abort check
 
         updateProgress("Fetching base balance for target wallet...", 0);
         const balanceRes = await fetchData(`https://api.kaspa.org/addresses/${addr}/balance`);
@@ -320,16 +357,34 @@
         // Start recursive trace
         const rootTree = await recursiveTrace(addr, totalTargetKas, 1, maxDepth, minKas, new Set());
 
-        // Finalize UI
+        finalizeTrace(rootTree);
+    }
+
+    function finalizeTrace(rootTree) {
+        isTracing = false;
         document.getElementById('loader').classList.add('hidden');
-        document.getElementById('treeContainer').innerHTML = buildTreeHTML(rootTree, true);
-        updateProgress("Trace Complete", 0); // Force one last DOM sync
         
-        document.getElementById('btnTrace').disabled = false;
-        document.getElementById('btnTrace').classList.remove('opacity-50', 'cursor-not-allowed');
+        if(rootTree) {
+            document.getElementById('treeContainer').innerHTML = buildTreeHTML(rootTree, true);
+        } else {
+             document.getElementById('treeContainer').innerHTML = '<div class="text-red-400 py-6 font-mono font-bold">Trace Aborted by User.</div>';
+        }
+        
+        updateProgress(rootTree ? "Trace Complete" : "Trace Aborted", 0);
+        
+        // Swap Stop button back to Trace button
+        document.getElementById('btnStop').classList.add('hidden');
+        document.getElementById('btnTrace').classList.remove('hidden');
     }
 
     async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas, visited) {
+        // Stop check
+        if (!isTracing) {
+            globalSums.unresolved += targetAmount;
+            updateProgress(`Trace aborted at: ${address.substring(0,16)}...`, targetAmount);
+            return { label: address, amount: targetAmount, type: 'unresolved', info: 'Trace Aborted', children: null };
+        }
+
         if (depth > maxDepth || targetAmount < minKas || visited.has(address)) {
             globalSums.unknown[address] = (globalSums.unknown[address] || 0) + targetAmount;
             let reason = visited.has(address) ? 'Cycle Shielded' : 'Depth/Min Limit Reached';
@@ -350,6 +405,14 @@
         currentVisited.add(address);
 
         const data = await fetchData(`https://api.kaspa.org/addresses/${address}/full-transactions-page?limit=500&resolve_previous_outpoints=light`);
+        
+        // Stop check right after fetch
+        if (!isTracing) {
+            globalSums.unresolved += targetAmount;
+            updateProgress(`Trace aborted at: ${address.substring(0,16)}...`, targetAmount);
+            return { label: address, amount: targetAmount, type: 'unresolved', info: 'Trace Aborted', children: null };
+        }
+
         const txs = Array.isArray(data) ? data : (data && data.transactions ? data.transactions : []);
 
         if (txs.length === 0) {
@@ -424,14 +487,15 @@
 
         for (let [wAddr, wAmt] of Object.entries(unknownSrcs)) {
             const scaledAmt = wAmt * scale;
-            if (scaledAmt >= minKas && depth < maxDepth) {
+            if (scaledAmt >= minKas && depth < maxDepth && isTracing) {
                 updateProgress(`Expanding Branch: ${wAddr.substring(0,16)}...`, 0);
                 const childNode = await recursiveTrace(wAddr, scaledAmt, depth + 1, maxDepth, minKas, currentVisited);
                 childrenNodes.push(childNode);
             } else if (scaledAmt >= 0.01) {
                 globalSums.unknown[wAddr] = (globalSums.unknown[wAddr] || 0) + scaledAmt;
+                let infoReason = !isTracing ? 'Trace Aborted' : 'Unidentified Wallet';
                 updateProgress(`Wallet logged (Leaf Node): ${wAddr.substring(0,16)}...`, scaledAmt);
-                childrenNodes.push({ label: wAddr, amount: scaledAmt, type: 'unidentified', info: 'Unidentified Wallet', children: null });
+                childrenNodes.push({ label: wAddr, amount: scaledAmt, type: 'unidentified', info: infoReason, children: null });
             }
         }
 
