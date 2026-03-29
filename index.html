@@ -41,7 +41,6 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-375DF1PVL9');
     </script>
 </head>
@@ -57,15 +56,15 @@
         <div class="flex flex-col md:flex-row gap-4 items-end">
             <div class="flex-1 w-full">
                 <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Target Address</label>
-                <input id="addrInput" type="text" value="kaspa:qpz2vgvlxhmyhmt22h538pjzmvvd52nuut80y5zulgpvyerlskvvwm7n4uk5a" placeholder="kaspa:…" onclick="this.select()" onkeydown="if(event.key === 'Enter') manualTrace()" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-slate-100 font-mono text-sm transition">
+                <input id="addrInput" type="text" value="kaspa:qpz2vgvlxhmyhmt22h538pjzmvvd52nuut80y5zulgpvyerlskvvwm7n4uk5a" placeholder="kaspa:…" onclick="this.select()" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); manualTrace(); }" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-slate-100 font-mono text-sm transition">
             </div>
             <div class="w-full md:w-32">
                 <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Max Depth</label>
-                <input id="depthInput" type="number" value="5" min="1" onclick="this.select()" onkeydown="if(event.key === 'Enter') manualTrace()" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 text-slate-100 transition text-center">
+                <input id="depthInput" type="number" value="5" min="1" onclick="this.select()" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); manualTrace(); }" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 text-slate-100 transition text-center">
             </div>
             <div class="w-full md:w-36">
                 <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Min KAS</label>
-                <input id="minKasInput" type="number" value="5" min="0.01" step="1" onclick="this.select()" onkeydown="if(event.key === 'Enter') manualTrace()" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 text-slate-100 transition text-center">
+                <input id="minKasInput" type="number" value="5" min="0.01" step="1" onclick="this.select()" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); manualTrace(); }" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 text-slate-100 transition text-center">
             </div>
             <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                 <button onclick="goBack()" id="btnBack" class="hidden w-full md:w-auto bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 px-6 rounded-lg transition whitespace-nowrap">&larr; Back</button>
@@ -182,8 +181,7 @@ let globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
 let totalTarget = 0, resolvedKas = 0, eng = { pages: 0, txs: 0, retries: 0, loops: 0, nodes: 0 };
 let traceStart = 0, elapsedTimer = null;
 
-// New State Variables for your features
-let directKas = 0; 
+let directKas = 0;
 let rootAddress = "";
 let oldestTxTime = Infinity;
 
@@ -207,15 +205,14 @@ function manualTrace() {
 }
 
 function selectAndTrace(address) {
-    if(knownMap[address]) { copyToClipboard(address); return; }
-    
+    if (knownMap[address]) { copyToClipboard(address); return; }
     const currentAddr = document.getElementById('addrInput').value.trim();
-    if(currentAddr && currentAddr !== address) {
+    if (currentAddr && currentAddr !== address) {
         historyStack.push({ addr: currentAddr, isHist: isHistoricalMode });
     }
     document.getElementById('addrInput').value = address;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    startTrace(); 
+    startTrace();
 }
 
 function goBack() {
@@ -228,13 +225,17 @@ function goBack() {
 }
 
 function stopTrace() {
-    if (!isTracing) return; isTracing = false;
+    if (!isTracing) return;
+    isTracing = false;
     document.getElementById('loaderText').textContent = 'Stopping… finishing open requests.';
-    document.getElementById('btnStop').disabled = true; document.getElementById('btnStop').classList.add('opacity-50', 'cursor-not-allowed');
+    document.getElementById('btnStop').disabled = true;
+    document.getElementById('btnStop').classList.add('opacity-50', 'cursor-not-allowed');
 }
 
 function refreshStats() {
-    ['sPages','sTxs','sRetries','sNodes'].forEach(id => document.getElementById(id).textContent = eng[id.substring(1).toLowerCase()]);
+    ['sPages', 'sTxs', 'sRetries', 'sNodes'].forEach(id => {
+        document.getElementById(id).textContent = eng[id.substring(1).toLowerCase()];
+    });
 }
 
 function updateProgressBar() {
@@ -246,11 +247,10 @@ function updateProgressBar() {
     document.getElementById('resKnown').innerHTML = `${fmt(Object.values(globalSums.known).reduce((a, b) => a + b, 0))} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
     document.getElementById('resUnresolved').innerHTML = `${fmt(globalSums.unresolved)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
 
-    // Update Direct and Deep Tags
     document.getElementById('resDirectTag').textContent = `${fmt(directKas)} KAS`;
+    // Intermediaries = total resolved minus what was resolved at depth-1 leaf nodes
     document.getElementById('resDeepTag').textContent = `${fmt(Math.max(0, resolvedKas - directKas))} KAS`;
 
-    // Update Oldest Transaction Tag
     const oldestTag = document.getElementById('resOldestTag');
     if (oldestTxTime !== Infinity && oldestTxTime > 0) {
         const d = new Date(oldestTxTime);
@@ -259,12 +259,12 @@ function updateProgressBar() {
         oldestTag.textContent = '—';
     }
 
-    document.getElementById('knownList').innerHTML = Object.entries(globalSums.known).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
-        return `<div class="p-2 rounded flex justify-between border border-slate-700/50 bg-slate-800/50"><span class="text-purple-300 truncate mr-2">${k}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`;
-    }).join('') || '<span class="text-slate-500 italic text-xs">None found yet…</span>';
+    document.getElementById('knownList').innerHTML = Object.entries(globalSums.known).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+        `<div class="p-2 rounded flex justify-between border border-slate-700/50 bg-slate-800/50"><span class="text-purple-300 truncate mr-2">${k}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`
+    ).join('') || '<span class="text-slate-500 italic text-xs">None found yet…</span>';
 
     document.getElementById('unidentifiedList').innerHTML = Object.entries(globalSums.unknown).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
-        `<div onclick="selectAndTrace('${k}')" title="Trace ${k}" class="p-2 rounded flex justify-between cursor-pointer hover:bg-slate-700 hover:ring-1 hover:ring-cyan-500 transition border border-slate-700/50 bg-slate-800/50"><span class="text-cyan-400 hover:text-white underline decoration-cyan-400/50 truncate mr-2">${k.substring(0,18)}…${k.slice(-8)}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`
+        `<div onclick="selectAndTrace('${k}')" title="Trace ${k}" class="p-2 rounded flex justify-between cursor-pointer hover:bg-slate-700 hover:ring-1 hover:ring-cyan-500 transition border border-slate-700/50 bg-slate-800/50"><span class="text-cyan-400 hover:text-white underline decoration-cyan-400/50 truncate mr-2">${k.substring(0, 18)}…${k.slice(-8)}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`
     ).join('') || '<span class="text-slate-500 italic text-xs">None found yet…</span>';
 }
 
@@ -289,64 +289,88 @@ async function apiFetch(url) {
 
 function netFlowForAddress(tx, address) {
     const outputs = tx.outputs || [], inputs = tx.inputs || [];
-    const outSompi = outputs.filter(o => (o.script_public_key_address || o.scriptPublicKeyAddress) === address).reduce((s, o) => s + Number(o.amount || 0), 0);
-    const inSompi = inputs.filter(i => (i.previous_outpoint_address || i.previousOutpointAddress) === address).reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
+    const outSompi = outputs
+        .filter(o => (o.script_public_key_address || o.scriptPublicKeyAddress) === address)
+        .reduce((s, o) => s + Number(o.amount || 0), 0);
+    const inSompi = inputs
+        .filter(i => (i.previous_outpoint_address || i.previousOutpointAddress) === address)
+        .reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
     return outSompi - inSompi;
 }
 
 function isCoinbase(tx) {
     const inputs = tx.inputs || [];
     if (inputs.length === 0) return true;
-    return inputs.every(i => { const h = i.previous_outpoint_hash || i.previousOutpointHash || ''; return h === COINBASE_HASH || h === ''; });
+    return inputs.every(i => {
+        const h = i.previous_outpoint_hash || i.previousOutpointHash || '';
+        return h === COINBASE_HASH || h === '';
+    });
 }
 
-async function fetchAllTxs(address, targetAmountKas) {
-    let allTxs = [], before = null, netInflow = 0;
+// FIX 1 & 2: Pagination no longer terminates early based on inflow vs balance.
+// Instead it always fetches until: empty page, undersized page, or cursor stops advancing.
+// The cursor is derived from the last tx's blue score (not Math.min), avoiding
+// false stalls when multiple txs share the same score at a page boundary.
+async function fetchAllTxs(address) {
+    let allTxs = [], before = null;
+
     for (let page = 0; page < MAX_PAGES && isTracing; page++) {
-        const url = `${API}/addresses/${address}/full-transactions-page?limit=${PAGE_LIMIT}&resolve_previous_outpoints=light` + (before !== null ? `&before=${before}` : '');
-        document.getElementById('loaderText').textContent = `Paginating ${address.substring(0,16)}… (page ${page + 1})`;
-        
+        const url = `${API}/addresses/${address}/full-transactions-page?limit=${PAGE_LIMIT}&resolve_previous_outpoints=light`
+            + (before !== null ? `&before=${before}` : '');
+        document.getElementById('loaderText').textContent = `Paginating ${address.substring(0, 16)}… (page ${page + 1})`;
+
         const data = await apiFetch(url);
         if (!data || !Array.isArray(data) || data.length === 0) break;
 
         eng.pages++; eng.txs += data.length; refreshStats();
         allTxs = allTxs.concat(data);
 
-        for (const tx of data) {
-            // Track oldest transaction for the root address
-            if (address === rootAddress && tx.block_time && tx.block_time < oldestTxTime) {
-                oldestTxTime = tx.block_time;
+        // Track oldest tx timestamp (root address only — intentional)
+        if (address === rootAddress) {
+            for (const tx of data) {
+                if (tx.block_time && tx.block_time < oldestTxTime) {
+                    oldestTxTime = tx.block_time;
+                }
             }
-
-            const net = netFlowForAddress(tx, address);
-            if (net > 0) netInflow += net / SOMPI;
         }
 
-        if (netInflow >= targetAmountKas * 0.9999) break;
-        const scores = data.map(tx => tx.accepting_block_blue_score ?? tx.block_blue_score ?? null).filter(s => s !== null && s > 0);
-        if (scores.length === 0) break;
-        const minScore = Math.min(...scores);
-        if (before !== null && minScore >= before) break;  
-        before = minScore;
+        // Stop if the page came back smaller than the limit — we've hit the end
         if (data.length < PAGE_LIMIT) break;
+
+        // Advance cursor using the last tx's blue score (most chronologically distant
+        // item in this page). Using the last item avoids the Math.min stall bug where
+        // multiple txs with the same score at a boundary would not advance the cursor.
+        const lastTx = data[data.length - 1];
+        const nextCursor = lastTx.accepting_block_blue_score ?? lastTx.block_blue_score ?? null;
+
+        if (nextCursor === null || nextCursor <= 0) break;
+
+        // Guard: if cursor hasn't moved at all, stop to avoid infinite loop
+        if (before !== null && nextCursor >= before) break;
+
+        before = nextCursor;
     }
+
     return allTxs;
 }
 
-async function analyseAddress(address, targetKas) {
+async function analyseAddress(address) {
     if (analysisCache.has(address)) return analysisCache.get(address);
-    const txs = await fetchAllTxs(address, targetKas);
-    let netInflow = 0, miningKas = 0, knownKas = {}, senderKas = {};   
+    const txs = await fetchAllTxs(address);
+    let netInflow = 0, miningKas = 0, knownKas = {}, senderKas = {};
 
     for (const tx of txs) {
         const netSompi = netFlowForAddress(tx, address);
-        if (netSompi <= 0) continue;          
+        if (netSompi <= 0) continue;
         const netKas = netSompi / SOMPI;
         netInflow += netKas;
 
         if (isCoinbase(tx)) { miningKas += netKas; continue; }
 
-        const extInputs = (tx.inputs || []).filter(i => { const a = i.previous_outpoint_address || i.previousOutpointAddress || ''; return a && a !== address; });
+        const extInputs = (tx.inputs || []).filter(i => {
+            const a = i.previous_outpoint_address || i.previousOutpointAddress || '';
+            return a && a !== address;
+        });
         if (extInputs.length === 0) continue;
 
         const totalExtAmt = extInputs.reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
@@ -359,28 +383,43 @@ async function analyseAddress(address, targetKas) {
             if (knownMap[sAddr]) {
                 const name = knownMap[sAddr];
                 knownKas[name] = (knownKas[name] || 0) + attrKas;
-            } else senderKas[sAddr] = (senderKas[sAddr] || 0) + attrKas;
+            } else {
+                senderKas[sAddr] = (senderKas[sAddr] || 0) + attrKas;
+            }
         }
     }
+
     const result = { netInflow, miningKas, knownKas, senderKas };
-    analysisCache.set(address, result); return result;
+    analysisCache.set(address, result);
+    return result;
 }
 
+// FIX 3: directKas only accumulates when a depth-1 source is a terminal leaf
+// (mining reward, known entity, or a sender that won't be recursed further).
+// Senders that will be recursed are NOT counted here — their resolved descendants
+// will be counted at their own depth, preventing double-counting.
 async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
     if (!isTracing) return { label: address, amount: targetAmount, type: 'unresolved', info: 'Trace Aborted' };
-    if (globalVisited.has(address)) { eng.loops++; refreshStats(); return { label: address, amount: targetAmount, type: 'cycle', info: 'Loop Blocked' }; }
-    
+    if (globalVisited.has(address)) {
+        eng.loops++; refreshStats();
+        return { label: address, amount: targetAmount, type: 'cycle', info: 'Loop Blocked' };
+    }
+
     if (depth > maxDepth || targetAmount < minKas) {
         globalSums.unknown[address] = (globalSums.unknown[address] || 0) + targetAmount;
-        resolvedKas += targetAmount; updateProgressBar();
-        return { label: address, amount: targetAmount, type: 'unidentified', info: depth > maxDepth ? `Max Depth Limit` : 'Below Min KAS', isAddress: true };
+        resolvedKas += targetAmount;
+        if (depth === 1) directKas += targetAmount; // leaf at root level
+        updateProgressBar();
+        return { label: address, amount: targetAmount, type: 'unidentified', info: depth > maxDepth ? 'Max Depth Limit' : 'Below Min KAS', isAddress: true };
     }
 
     globalVisited.add(address); eng.nodes++; refreshStats();
-    const analysis = await analyseAddress(address, targetAmount);
-    
+    const analysis = await analyseAddress(address);
+
     if (!isTracing || analysis.netInflow <= 0) {
-        globalSums.unresolved += targetAmount; resolvedKas += targetAmount; updateProgressBar();
+        globalSums.unresolved += targetAmount; resolvedKas += targetAmount;
+        if (depth === 1) directKas += targetAmount;
+        updateProgressBar();
         return { label: address, amount: targetAmount, type: 'unresolved', info: 'Incomplete History' };
     }
 
@@ -389,22 +428,26 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
     else if (analysis.netInflow < targetAmount * 0.9999) gapKas = targetAmount - analysis.netInflow;
 
     let children = [];
+
+    // Mining rewards are always terminal — count as direct if depth === 1
     const scaledMining = analysis.miningKas * scale;
     if (scaledMining >= 0.01) {
         globalSums.mining += scaledMining; resolvedKas += scaledMining;
-        if (depth === 1) directKas += scaledMining; // Add to direct funds
+        if (depth === 1) directKas += scaledMining;
         children.push({ label: '⛏️ Mining Rewards', amount: scaledMining, type: 'mining', info: 'Block Reward', isAddress: false });
     }
 
+    // Known entities are always terminal — count as direct if depth === 1
     for (const [name, kas] of Object.entries(analysis.knownKas)) {
         const scaled = kas * scale; if (scaled < 0.01) continue;
         globalSums.known[name] = (globalSums.known[name] || 0) + scaled; resolvedKas += scaled;
-        if (depth === 1) directKas += scaled; // Add to direct funds
+        if (depth === 1) directKas += scaled;
         children.push({ label: `🏦 ${name}`, amount: scaled, type: 'known', info: 'Exchange', isAddress: false });
     }
 
     if (gapKas >= 0.01) {
         globalSums.unresolved += gapKas; resolvedKas += gapKas;
+        if (depth === 1) directKas += gapKas;
         children.push({ label: '⚠️ Incomplete History', amount: gapKas, type: 'unresolved', info: 'API pagination gap', isAddress: false });
     }
 
@@ -415,14 +458,18 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
         const scaled = sKas * scale; if (scaled < 0.01) continue;
 
         if (knownMap[sAddr]) {
-            const name = knownMap[sAddr]; globalSums.known[name] = (globalSums.known[name] || 0) + scaled; resolvedKas += scaled;
-            if (depth === 1) directKas += scaled; // Add to direct funds
+            // Recognised mid-trace — terminal, so count as direct at depth 1
+            const name = knownMap[sAddr];
+            globalSums.known[name] = (globalSums.known[name] || 0) + scaled; resolvedKas += scaled;
+            if (depth === 1) directKas += scaled;
             children.push({ label: `🏦 ${name}`, amount: scaled, type: 'known', info: 'Exchange', isAddress: false });
         } else if (scaled >= minKas && depth < maxDepth && isTracing) {
+            // Will be recursed — do NOT add to directKas here; children will resolve it
             recurseTasks.push({ addr: sAddr, amount: scaled });
         } else {
+            // Terminal unidentified sender
             globalSums.unknown[sAddr] = (globalSums.unknown[sAddr] || 0) + scaled; resolvedKas += scaled;
-            if (depth === 1) directKas += scaled; // Add to direct funds
+            if (depth === 1) directKas += scaled;
             children.push({ label: sAddr, amount: scaled, type: 'unidentified', info: depth >= maxDepth ? 'Max Depth Limit' : 'Below Min KAS', isAddress: true });
         }
     }
@@ -435,7 +482,14 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
     }
 
     children.sort((a, b) => b.amount - a.amount);
-    return { label: address, amount: targetAmount, type: depth === 1 ? 'root' : 'node', info: depth === 1 ? 'Target' : `Intermediary`, isAddress: true, children: children.length ? children : null };
+    return {
+        label: address,
+        amount: targetAmount,
+        type: depth === 1 ? 'root' : 'node',
+        info: depth === 1 ? 'Target' : 'Intermediary',
+        isAddress: true,
+        children: children.length ? children : null
+    };
 }
 
 async function startTrace(forceHistory = false) {
@@ -443,22 +497,21 @@ async function startTrace(forceHistory = false) {
     const addr = document.getElementById('addrInput').value.trim();
     if (!addr.startsWith('kaspa:')) return alert('Invalid Kaspa address');
 
-    // Update Back button UI
     const btnBack = document.getElementById('btnBack');
     if (historyStack.length > 0) {
         btnBack.classList.remove('hidden');
-        btnBack.innerText = `← Back to ${historyStack[historyStack.length - 1].addr.substring(0,12)}...`;
-    } else btnBack.classList.add('hidden');
+        btnBack.innerText = `← Back to ${historyStack[historyStack.length - 1].addr.substring(0, 12)}...`;
+    } else {
+        btnBack.classList.add('hidden');
+    }
 
     isTracing = true;
     if (forceHistory) isHistoricalMode = true;
-    
-    // Reset global state
+
     globalVisited = new Set(); analysisCache = new Map();
     globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
     eng = { pages: 0, txs: 0, retries: 0, loops: 0, nodes: 0 };
     totalTarget = 0; resolvedKas = 0; traceStart = Date.now();
-    
     directKas = 0;
     rootAddress = addr;
     oldestTxTime = Infinity;
@@ -467,16 +520,25 @@ async function startTrace(forceHistory = false) {
     document.getElementById('loader').classList.remove('hidden');
     document.getElementById('btnStop').classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
     document.getElementById('btnStop').disabled = false;
-    
+
     clearInterval(elapsedTimer);
-    elapsedTimer = setInterval(() => { document.getElementById('sElapsed').textContent = `${((Date.now() - traceStart) / 1000).toFixed(0)}s`; }, 500);
+    elapsedTimer = setInterval(() => {
+        document.getElementById('sElapsed').textContent = `${((Date.now() - traceStart) / 1000).toFixed(0)}s`;
+    }, 500);
 
     if (Object.keys(knownMap).length === 0) {
         try {
-            const controller = new AbortController(); setTimeout(() => controller.abort(), 5000);
+            const controller = new AbortController();
+            setTimeout(() => controller.abort(), 5000);
             const r = await fetch(`${API}/addresses/names`, { signal: controller.signal });
-            (await r.json()).forEach(i => { knownMap[i.address] = i.name; });
-        } catch (e) { FALLBACK_NAMES.forEach(i => { knownMap[i.address] = i.name; }); }
+            if (!r.ok) throw new Error(`API returned status ${r.status}`);
+            const data = await r.json();
+            if (!Array.isArray(data)) throw new Error("API did not return an array");
+            data.forEach(i => { knownMap[i.address] = i.name; });
+        } catch (e) {
+            console.warn("Failed to fetch known addresses, using fallback:", e);
+            FALLBACK_NAMES.forEach(i => { knownMap[i.address] = i.name; });
+        }
     }
 
     const currentBalance = (await apiFetch(`${API}/addresses/${addr}/balance`))?.balance / SOMPI || 0;
@@ -489,7 +551,7 @@ async function startTrace(forceHistory = false) {
     }
 
     if (isHistoricalMode) {
-        totalTarget = (await analyseAddress(addr, Infinity)).netInflow;
+        totalTarget = (await analyseAddress(addr)).netInflow;
         document.getElementById('resTargetLabel').innerText = "Historical Total Received";
         if (totalTarget === 0) { finalise(null, "Wallet has zero history."); return; }
     } else {
@@ -501,7 +563,9 @@ async function startTrace(forceHistory = false) {
     document.getElementById('treeContainer').innerHTML = '<div class="text-cyan-400 animate-pulse py-6 font-mono">Building trace hierarchy…</div>';
     ['resultsWrapper', 'mainResultsBox'].forEach(id => document.getElementById(id).classList.remove('hidden'));
 
-    const rootTree = await recursiveTrace(addr, totalTarget, 1, parseInt(document.getElementById('depthInput').value) || 5, parseFloat(document.getElementById('minKasInput').value) || 5);
+    const maxDepth = parseInt(document.getElementById('depthInput').value) || 5;
+    const minKas = parseFloat(document.getElementById('minKasInput').value) || 5;
+    const rootTree = await recursiveTrace(addr, totalTarget, 1, maxDepth, minKas);
     finalise(rootTree);
 }
 
@@ -509,7 +573,9 @@ function finalise(tree, customMsg = null) {
     isTracing = false; clearInterval(elapsedTimer);
     ['loader', 'btnStop'].forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('btnTrace').classList.remove('hidden');
-    document.getElementById('treeContainer').innerHTML = tree ? buildTreeHTML(tree, true) : `<div class="text-red-400 py-6 font-mono font-bold">${customMsg || 'Trace aborted.'}</div>`;
+    document.getElementById('treeContainer').innerHTML = tree
+        ? buildTreeHTML(tree, true)
+        : `<div class="text-red-400 py-6 font-mono font-bold">${customMsg || 'Trace aborted.'}</div>`;
     updateProgressBar();
 }
 
