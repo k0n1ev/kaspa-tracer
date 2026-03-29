@@ -108,6 +108,12 @@
                 <div class="absolute inset-0 opacity-5 kaspa-gradient blur-3xl"></div>
                 <p id="resTargetLabel" class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2 relative z-10">Target Wallet Balance</p>
                 <p id="resTotalBalance" class="text-4xl md:text-5xl font-extrabold kaspa-text-gradient relative z-10">—</p>
+                
+                <div class="mt-4 inline-flex flex-wrap justify-center items-center gap-4 bg-slate-900/50 border border-slate-700/50 rounded px-4 py-2 text-xs text-slate-400 font-mono relative z-10">
+                    <span>Direct Sources: <b id="resDirectTag" class="text-cyan-400">0 KAS</b></span>
+                    <span>Intermediaries: <b id="resDeepTag" class="text-purple-400">0 KAS</b></span>
+                    <span>Oldest Traced Tx: <b id="resOldestTag" class="text-slate-200">—</b></span>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -176,6 +182,11 @@ let globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
 let totalTarget = 0, resolvedKas = 0, eng = { pages: 0, txs: 0, retries: 0, loops: 0, nodes: 0 };
 let traceStart = 0, elapsedTimer = null;
 
+// New State Variables for your features
+let directKas = 0; 
+let rootAddress = "";
+let oldestTxTime = Infinity;
+
 const fmt = n => (typeof n === 'number' ? n : 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -235,6 +246,19 @@ function updateProgressBar() {
     document.getElementById('resKnown').innerHTML = `${fmt(Object.values(globalSums.known).reduce((a, b) => a + b, 0))} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
     document.getElementById('resUnresolved').innerHTML = `${fmt(globalSums.unresolved)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
 
+    // Update Direct and Deep Tags
+    document.getElementById('resDirectTag').textContent = `${fmt(directKas)} KAS`;
+    document.getElementById('resDeepTag').textContent = `${fmt(Math.max(0, resolvedKas - directKas))} KAS`;
+
+    // Update Oldest Transaction Tag
+    const oldestTag = document.getElementById('resOldestTag');
+    if (oldestTxTime !== Infinity && oldestTxTime > 0) {
+        const d = new Date(oldestTxTime);
+        oldestTag.textContent = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    } else {
+        oldestTag.textContent = '—';
+    }
+
     document.getElementById('knownList').innerHTML = Object.entries(globalSums.known).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
         return `<div class="p-2 rounded flex justify-between border border-slate-700/50 bg-slate-800/50"><span class="text-purple-300 truncate mr-2">${k}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`;
     }).join('') || '<span class="text-slate-500 italic text-xs">None found yet…</span>';
@@ -289,6 +313,11 @@ async function fetchAllTxs(address, targetAmountKas) {
         allTxs = allTxs.concat(data);
 
         for (const tx of data) {
+            // Track oldest transaction for the root address
+            if (address === rootAddress && tx.block_time && tx.block_time < oldestTxTime) {
+                oldestTxTime = tx.block_time;
+            }
+
             const net = netFlowForAddress(tx, address);
             if (net > 0) netInflow += net / SOMPI;
         }
@@ -363,12 +392,14 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
     const scaledMining = analysis.miningKas * scale;
     if (scaledMining >= 0.01) {
         globalSums.mining += scaledMining; resolvedKas += scaledMining;
+        if (depth === 1) directKas += scaledMining; // Add to direct funds
         children.push({ label: '⛏️ Mining Rewards', amount: scaledMining, type: 'mining', info: 'Block Reward', isAddress: false });
     }
 
     for (const [name, kas] of Object.entries(analysis.knownKas)) {
         const scaled = kas * scale; if (scaled < 0.01) continue;
         globalSums.known[name] = (globalSums.known[name] || 0) + scaled; resolvedKas += scaled;
+        if (depth === 1) directKas += scaled; // Add to direct funds
         children.push({ label: `🏦 ${name}`, amount: scaled, type: 'known', info: 'Exchange', isAddress: false });
     }
 
@@ -385,11 +416,13 @@ async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
 
         if (knownMap[sAddr]) {
             const name = knownMap[sAddr]; globalSums.known[name] = (globalSums.known[name] || 0) + scaled; resolvedKas += scaled;
+            if (depth === 1) directKas += scaled; // Add to direct funds
             children.push({ label: `🏦 ${name}`, amount: scaled, type: 'known', info: 'Exchange', isAddress: false });
         } else if (scaled >= minKas && depth < maxDepth && isTracing) {
             recurseTasks.push({ addr: sAddr, amount: scaled });
         } else {
             globalSums.unknown[sAddr] = (globalSums.unknown[sAddr] || 0) + scaled; resolvedKas += scaled;
+            if (depth === 1) directKas += scaled; // Add to direct funds
             children.push({ label: sAddr, amount: scaled, type: 'unidentified', info: depth >= maxDepth ? 'Max Depth Limit' : 'Below Min KAS', isAddress: true });
         }
     }
@@ -420,10 +453,15 @@ async function startTrace(forceHistory = false) {
     isTracing = true;
     if (forceHistory) isHistoricalMode = true;
     
+    // Reset global state
     globalVisited = new Set(); analysisCache = new Map();
     globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
     eng = { pages: 0, txs: 0, retries: 0, loops: 0, nodes: 0 };
     totalTarget = 0; resolvedKas = 0; traceStart = Date.now();
+    
+    directKas = 0;
+    rootAddress = addr;
+    oldestTxTime = Infinity;
 
     ['resultsWrapper', 'zeroBalancePrompt', 'mainResultsBox', 'btnTrace'].forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('loader').classList.remove('hidden');
