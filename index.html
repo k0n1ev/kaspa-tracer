@@ -35,6 +35,15 @@
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
         #statBar { font-variant-numeric: tabular-nums; }
     </style>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-375DF1PVL9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-375DF1PVL9');
+    </script>
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col">
 
@@ -136,6 +145,14 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="mt-8 bg-slate-800/80 p-6 rounded-xl border border-slate-700 shadow-lg text-center">
+        <p class="text-slate-300 mb-2">If you find Kaspa Tracer helpful, consider supporting the project!</p>
+        <p class="text-sm font-mono text-slate-400">
+            <strong>Donate Kaspa:</strong> 
+            <span onclick="copyToClipboard('kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee')" title="Click to copy address" class="text-cyan-400 select-all cursor-pointer hover:text-cyan-300 transition-colors">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</span>
+        </p>
     </div>
 </div>
 
