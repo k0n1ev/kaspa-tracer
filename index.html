@@ -1,599 +1,980 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaspa Deep Tracer</title>
-    
-    <link rel="icon" href="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-32x32.png" sizes="32x32" />
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
-        .kaspa-gradient { background: linear-gradient(90deg, #70ebff 0%, #4affd4 100%); }
-        .kaspa-text-gradient { background: linear-gradient(90deg, #70ebff 0%, #4affd4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        .tree-container { font-family: monospace; font-size: 0.9rem; }
-        details { margin-left: 1.25rem; border-left: 1px solid #334155; padding-left: 0.75rem; margin-top: 0.25rem; }
-        details[open] > summary { margin-bottom: 0.5rem; }
-        summary { cursor: pointer; padding: 0.4rem 0.5rem; border-radius: 0.25rem; list-style: none; display: flex; align-items: center; justify-content: space-between; transition: background-color 0.2s; }
-        summary::-webkit-details-marker { display: none; }
-        summary:hover { background-color: #1e293b; }
-        .node-caret::before { content: '▶ '; font-size: 0.7rem; color: #64748b; margin-right: 5px; display: inline-block; transition: transform 0.2s; }
-        details[open] > summary > .node-caret::before { transform: rotate(90deg); color: #4affd4; }
-        .leaf-node { padding: 0.4rem 0.5rem 0.4rem 1.5rem; display: flex; justify-content: space-between; border-radius: 0.25rem; }
-        .leaf-node:hover { background-color: #1e293b; }
-        .text-mining { color: #4ade80; }
-        .text-known { color: #c084fc; }
-        .text-unidentified { color: #94a3b8; }
-        .text-unresolved { color: #fbbf24; }
-        .text-cycle { color: #f87171; }
-        .text-root { color: #38bdf8; font-weight: bold; }
-        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
-        #statBar { font-variant-numeric: tabular-nums; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaspa Origin Tracer — where did this wallet's KAS come from?</title>
+<meta name="description" content="Trace any Kaspa wallet's balance back through the UTXO graph to mining rewards, exchanges and known entities — with exact percentages.">
+<link rel="icon" href="https://kaspa.org/wp-content/uploads/2023/06/cropped-Kaspa-Icon-Dark-Green-on-White-32x32.png" sizes="32x32" />
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-375DF1PVL9"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-375DF1PVL9');
-    </script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-375DF1PVL9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-375DF1PVL9');
+</script>
+
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --bg:#070d13;
+  --panel:#0d1722;
+  --panel-2:#101d2b;
+  --line:#1c2c3c;
+  --line-soft:#16242f;
+  --ink:#eaf4f6;
+  --muted:#7e93a6;
+  --faint:#54687c;
+  --teal:#49eacb;
+  --teal-hi:#70ebff;
+  --mining:#4ade80;
+  --known:#c084fc;
+  --unid:#6e93c0;
+  --unres:#fbbf24;
+  --cycle:#f87171;
+  --mono:ui-monospace,'SF Mono','Cascadia Code','JetBrains Mono',Menlo,Consolas,monospace;
+  --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r:12px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.5;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{ /* ambient washes */
+  content:"";
+  position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(900px 480px at 85% -10%, rgba(73,234,203,.07), transparent 60%),
+    radial-gradient(700px 420px at -10% 30%, rgba(112,235,255,.05), transparent 60%);
+}
+.bg-dag{position:fixed; inset:0; width:100%; height:100%; z-index:-1; opacity:.05; pointer-events:none}
+
+.wrap{max-width:1180px; margin:0 auto; padding:28px 20px 40px}
+
+/* ---------- header ---------- */
+header{display:flex; align-items:center; gap:14px; margin-bottom:6px}
+.mark{width:38px; height:38px; flex:none}
+h1{
+  font-size:clamp(1.5rem,3.5vw,2.1rem);
+  font-weight:800; letter-spacing:-.035em; margin:0;
+  background:linear-gradient(92deg,var(--teal-hi) 0%,var(--teal) 70%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+.tagline{color:var(--muted); font-size:.85rem; margin:2px 0 26px 52px; max-width:62ch}
+.tagline b{color:var(--ink); font-weight:600}
+
+/* ---------- panels ---------- */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:18px}
+.panel + .panel{margin-top:18px}
+
+/* ---------- command bar ---------- */
+.cmd{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap}
+.field{display:flex; flex-direction:column; gap:5px}
+.field.addr{flex:1 1 340px}
+.field.num{width:108px}
+label{font-size:.66rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+input{
+  background:#091018; border:1px solid var(--line); border-radius:9px;
+  color:var(--ink); padding:11px 13px; font-size:.86rem; width:100%;
+  transition:border-color .15s, box-shadow .15s;
+}
+input[type=text]{font-family:var(--mono)}
+input[type=number]{text-align:center; font-variant-numeric:tabular-nums}
+input:focus{outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(73,234,203,.14)}
+.actions{display:flex; gap:10px}
+button{
+  font:inherit; font-weight:700; border:none; border-radius:9px;
+  padding:11px 22px; cursor:pointer; white-space:nowrap;
+  transition:transform .12s, filter .15s, background .15s;
+}
+button:focus-visible{outline:2px solid var(--teal-hi); outline-offset:2px}
+button:active{transform:translateY(1px)}
+.btn-trace{background:linear-gradient(92deg,var(--teal-hi),var(--teal)); color:#06231d; box-shadow:0 4px 18px rgba(73,234,203,.22)}
+.btn-trace:hover{filter:brightness(1.08)}
+.btn-stop{background:#ef4444; color:#fff}
+.btn-stop:hover{background:#f05c5c}
+.btn-stop:disabled{opacity:.5; cursor:not-allowed}
+.btn-ghost{background:var(--panel-2); color:var(--ink); border:1px solid var(--line)}
+.btn-ghost:hover{background:#16263a}
+.btn-warn{background:var(--unres); color:#3a2a00}
+.hidden{display:none !important}
+
+/* ---------- loader ---------- */
+.loader-head{display:flex; justify-content:space-between; gap:16px; margin-bottom:10px}
+.loader-title{color:var(--teal); font-weight:700; letter-spacing:.1em; text-transform:uppercase; font-size:.75rem; animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+#loaderText{color:var(--muted); font-family:var(--mono); font-size:.72rem; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60ch}
+#progressText{font-family:var(--mono); font-weight:700; font-size:.95rem}
+.track{height:9px; background:#091018; border:1px solid var(--line); border-radius:99px; overflow:hidden}
+#progressBarFill{height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,var(--teal-hi),var(--teal)); transition:width .5s ease}
+.statbar{display:flex; flex-wrap:wrap; gap:6px 20px; margin-top:10px; font-family:var(--mono); font-size:.7rem; color:var(--faint); font-variant-numeric:tabular-nums}
+.statbar b{color:var(--ink); font-weight:600}
+
+/* ---------- hero result ---------- */
+.hero{text-align:center; position:relative; overflow:hidden; padding:26px 20px 24px}
+.hero .glow{position:absolute; inset:-40%; background:radial-gradient(closest-side, rgba(73,234,203,.10), transparent 70%); pointer-events:none}
+.eyebrow{font-size:.66rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--muted)}
+.balance{
+  font-size:clamp(2.1rem,6vw,3.3rem); font-weight:800; letter-spacing:-.03em;
+  margin:8px 0 4px; font-variant-numeric:tabular-nums;
+  background:linear-gradient(92deg,var(--teal-hi),var(--teal));
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  position:relative; z-index:1;
+}
+.balance small{font-size:.42em; font-weight:500; -webkit-text-fill-color:var(--muted)}
+.meta-row{display:flex; flex-wrap:wrap; justify-content:center; gap:8px 26px; font-family:var(--mono); font-size:.72rem; color:var(--muted); margin:8px 0 22px}
+.meta-row b{color:var(--ink); font-weight:600}
+
+/* the signature: origin spectrum */
+.spectrum{position:relative; z-index:1; text-align:left; max-width:860px; margin:0 auto}
+.spectrum-label{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px}
+.spectrum-label .eyebrow{color:var(--teal)}
+#specPending{font-family:var(--mono); font-size:.7rem; color:var(--faint)}
+.spec-bar{display:flex; height:16px; border-radius:99px; overflow:hidden; background:#091018; border:1px solid var(--line)}
+.spec-bar span{display:block; height:100%; width:0; transition:width .6s ease}
+.s-mining{background:var(--mining)} .s-known{background:var(--known)}
+.s-unid{background:var(--unid)} .s-unres{background:var(--unres)} .s-cycle{background:var(--cycle)}
+.legend{display:flex; flex-wrap:wrap; gap:6px 22px; margin-top:12px; font-size:.78rem}
+.legend-item{display:flex; align-items:center; gap:7px; font-variant-numeric:tabular-nums}
+.dot{width:9px; height:9px; border-radius:50%; flex:none}
+.legend-item .name{color:var(--muted)}
+.legend-item .kas{font-family:var(--mono); color:var(--ink); font-weight:600}
+.legend-item .pct{font-family:var(--mono); font-weight:700}
+
+/* ---------- results grid ---------- */
+.grid{display:grid; grid-template-columns:2fr 1fr; gap:18px; margin-top:18px}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+.panel h3{margin:0 0 12px; font-size:.8rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--teal);
+  border-bottom:1px solid var(--line-soft); padding-bottom:9px; display:flex; justify-content:space-between; align-items:center}
+.hint{font-size:.6rem; background:rgba(73,234,203,.1); color:var(--teal); padding:3px 8px; border-radius:5px; letter-spacing:.06em}
+h3.purple{color:var(--known)} h3.plain{color:var(--muted)}
+
+/* origin list rows */
+.origin-row{margin-bottom:10px}
+.origin-row .top{display:flex; justify-content:space-between; gap:10px; font-size:.78rem; margin-bottom:4px}
+.origin-row .nm{color:var(--ink); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.origin-row .vals{font-family:var(--mono); color:var(--muted); flex:none; font-variant-numeric:tabular-nums}
+.origin-row .vals b{color:var(--known)}
+.minibar{height:4px; border-radius:99px; background:#091018; overflow:hidden}
+.minibar i{display:block; height:100%; background:var(--known); border-radius:99px}
+.unid-row{display:flex; justify-content:space-between; gap:8px; padding:7px 9px; border:1px solid var(--line-soft); background:rgba(13,23,34,.6);
+  border-radius:8px; margin-bottom:6px; cursor:pointer; font-family:var(--mono); font-size:.7rem; transition:background .12s, border-color .12s}
+.unid-row:hover{background:#13243a; border-color:var(--teal)}
+.unid-row .a{color:var(--teal-hi); text-decoration:underline; text-decoration-color:rgba(112,235,255,.35); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.unid-row .v{flex:none; color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums}
+.unid-row .v small{color:var(--faint); font-weight:400}
+.scrolly{max-height:300px; overflow-y:auto; padding-right:4px}
+.empty{color:var(--faint); font-style:italic; font-size:.74rem}
+
+/* ---------- tree ---------- */
+.tree{font-family:var(--mono); font-size:.78rem; overflow-x:auto; min-height:120px}
+.tree details{margin-left:1.1rem; border-left:1px solid var(--line-soft); padding-left:.7rem; margin-top:.2rem}
+.tree > details{margin-left:0; border-left:none; padding-left:0}
+.tree summary{cursor:pointer; padding:.38rem .5rem; border-radius:6px; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:10px; transition:background .12s}
+.tree summary::-webkit-details-marker{display:none}
+.tree summary:hover{background:var(--panel-2)}
+.caret::before{content:'▶'; font-size:.62rem; color:var(--faint); margin-right:7px; display:inline-block; transition:transform .15s}
+details[open] > summary .caret::before{transform:rotate(90deg); color:var(--teal)}
+.leaf{padding:.38rem .5rem .38rem 1.45rem; display:flex; justify-content:space-between; gap:10px; border-radius:6px}
+.leaf:hover{background:var(--panel-2)}
+.n-left{display:flex; align-items:center; overflow:hidden; min-width:0}
+.n-right{display:flex; gap:14px; flex:none; align-items:center; font-variant-numeric:tabular-nums}
+.n-info{color:var(--faint); font-size:.66rem; width:118px; text-align:right}
+.n-kas{color:var(--ink); font-weight:700; width:108px; text-align:right}
+.n-pct{width:54px; text-align:right; font-weight:700; color:var(--teal)}
+.t-mining{color:var(--mining)} .t-known{color:var(--known)} .t-unidentified{color:#9fb3c8}
+.t-unresolved{color:var(--unres)} .t-cycle{color:var(--cycle)} .t-root{color:var(--teal-hi); font-weight:700} .t-node{color:var(--ink)}
+.addr-link{cursor:pointer; color:var(--teal-hi); text-decoration:underline; text-decoration-color:rgba(112,235,255,.35); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.addr-link:hover{color:#fff}
+.addr-copy{cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.addr-copy:hover{color:#fff}
+.trunc{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+/* ---------- misc ---------- */
+.zero{text-align:center; padding:36px 20px; border-color:rgba(251,191,36,.4)}
+.zero .big{font-size:2.6rem; margin-bottom:10px}
+.zero h2{margin:0 0 6px; font-size:1.3rem}
+.zero p{color:var(--muted); margin:0 0 20px}
+footer{margin-top:26px; text-align:center; color:var(--muted); font-size:.8rem}
+footer .donate{font-family:var(--mono); font-size:.72rem; color:var(--teal-hi); cursor:pointer; word-break:break-all}
+footer .donate:hover{color:#fff}
+#toast{position:fixed; bottom:24px; right:24px; background:var(--teal); color:#06231d; font-weight:700; padding:11px 22px;
+  border-radius:9px; box-shadow:0 8px 30px rgba(0,0,0,.4); transform:translateY(80px); opacity:0; transition:all .3s; z-index:50; pointer-events:none}
+#toast.show{transform:none; opacity:1}
+::-webkit-scrollbar{width:8px; height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#2a3c4e; border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#3a5066}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important; transition:none !important}
+}
+@media(max-width:640px){
+  .n-info{display:none}
+  .tagline{margin-left:0}
+}
+</style>
 </head>
-<body class="p-4 md:p-8 min-h-screen flex flex-col">
+<body>
 
-<div id="toast" class="fixed bottom-6 right-6 bg-cyan-500 text-slate-900 font-bold py-3 px-6 rounded-lg shadow-xl transform transition-all duration-300 translate-y-20 opacity-0 z-50 pointer-events-none">Copied!</div>
+<svg class="bg-dag" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g stroke="#49eacb" stroke-width="1" fill="none">
+    <path d="M80 120 L260 180 L440 110 L620 200 L800 130 L990 210 L1160 140"/>
+    <path d="M150 420 L330 360 L510 450 L700 380 L880 470 L1080 400"/>
+    <path d="M60 660 L240 600 L430 690 L610 620 L820 700 L1020 630 L1180 690"/>
+    <path d="M260 180 L330 360 M620 200 L700 380 M990 210 L880 470 M510 450 L430 690 M700 380 L820 700"/>
+  </g>
+  <g fill="#49eacb">
+    <circle cx="80" cy="120" r="4"/><circle cx="260" cy="180" r="5"/><circle cx="440" cy="110" r="4"/>
+    <circle cx="620" cy="200" r="5"/><circle cx="800" cy="130" r="4"/><circle cx="990" cy="210" r="5"/>
+    <circle cx="150" cy="420" r="4"/><circle cx="330" cy="360" r="5"/><circle cx="510" cy="450" r="4"/>
+    <circle cx="700" cy="380" r="5"/><circle cx="880" cy="470" r="4"/><circle cx="1080" cy="400" r="4"/>
+    <circle cx="240" cy="600" r="4"/><circle cx="430" cy="690" r="5"/><circle cx="610" cy="620" r="4"/>
+    <circle cx="820" cy="700" r="5"/><circle cx="1020" cy="630" r="4"/>
+  </g>
+</svg>
 
-<div class="max-w-7xl mx-auto w-full flex-grow">
-    <h1 class="text-4xl font-extrabold mb-1 kaspa-text-gradient tracking-tight">Kaspa Deep Origin Tracer</h1>
-    <p class="text-slate-400 mb-8 text-sm">Uncover the true origin of any Kaspa balance. Recursively traces funds through the full UTXO graph back to mining rewards or known entities.</p>
+<div id="toast" role="status">Copied to clipboard</div>
 
-    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
-        <div class="flex flex-col md:flex-row gap-4 items-end">
-            <div class="flex-1 w-full">
-                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Target Address</label>
-                <input id="addrInput" type="text" value="kaspa:qpz2vgvlxhmyhmt22h538pjzmvvd52nuut80y5zulgpvyerlskvvwm7n4uk5a" placeholder="kaspa:…" onclick="this.select()" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); manualTrace(); }" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-slate-100 font-mono text-sm transition">
-            </div>
-            <div class="w-full md:w-32">
-                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Max Depth</label>
-                <input id="depthInput" type="number" value="5" min="1" onclick="this.select()" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); manualTrace(); }" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 text-slate-100 transition text-center">
-            </div>
-            <div class="w-full md:w-36">
-                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Min KAS</label>
-                <input id="minKasInput" type="number" value="5" min="0.01" step="1" onclick="this.select()" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); manualTrace(); }" class="w-full p-3 rounded-lg bg-slate-900 border border-slate-600 focus:outline-none focus:border-cyan-400 text-slate-100 transition text-center">
-            </div>
-            <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
-                <button onclick="goBack()" id="btnBack" class="hidden w-full md:w-auto bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 px-6 rounded-lg transition whitespace-nowrap">&larr; Back</button>
-                <button onclick="stopTrace()" id="btnStop" class="hidden w-full md:w-auto bg-red-500 hover:bg-red-400 text-slate-900 font-bold py-3 px-8 rounded-lg shadow-lg transition whitespace-nowrap">Stop</button>
-                <button onclick="manualTrace()" id="btnTrace" class="w-full md:w-auto bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-3 px-8 rounded-lg shadow-lg shadow-cyan-500/20 transition whitespace-nowrap">Trace Balance</button>
-            </div>
-        </div>
+<div class="wrap">
+  <header>
+    <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="18" fill="none" stroke="#49eacb" stroke-width="2"/>
+      <path d="M14 11v18M14 20l10-9M14 20l10 9" fill="none" stroke="#70ebff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Kaspa Origin Tracer</h1>
+  </header>
+  <p class="tagline">Trace any wallet's balance back through the UTXO graph to <b>mining rewards</b>, <b>exchanges</b> and <b>known entities</b> — and see exactly what <b>percentage</b> of the funds came from each source.</p>
+
+  <!-- command bar -->
+  <div class="panel">
+    <div class="cmd">
+      <div class="field addr">
+        <label for="addrInput">Target address</label>
+        <input id="addrInput" type="text" value="kaspa:qpz2vgvlxhmyhmt22h538pjzmvvd52nuut80y5zulgpvyerlskvvwm7n4uk5a" placeholder="kaspa:…" spellcheck="false" onclick="this.select()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();manualTrace();}">
+      </div>
+      <div class="field num">
+        <label for="depthInput">Max depth</label>
+        <input id="depthInput" type="number" value="5" min="1" max="12" onclick="this.select()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();manualTrace();}">
+      </div>
+      <div class="field num">
+        <label for="minKasInput">Min KAS</label>
+        <input id="minKasInput" type="number" value="5" min="0.01" step="1" onclick="this.select()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();manualTrace();}">
+      </div>
+      <div class="actions">
+        <button id="btnBack" class="btn-ghost hidden" onclick="goBack()">&larr; Back</button>
+        <button id="btnStop" class="btn-stop hidden" onclick="stopTrace()">Stop</button>
+        <button id="btnTrace" class="btn-trace" onclick="manualTrace()">Trace balance</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- loader -->
+  <div id="loader" class="panel hidden" style="margin-top:18px">
+    <div class="loader-head">
+      <div style="min-width:0">
+        <div class="loader-title">Tracing origins</div>
+        <p id="loaderText">Starting…</p>
+      </div>
+      <p id="progressText">0%</p>
+    </div>
+    <div class="track"><div id="progressBarFill"></div></div>
+    <div class="statbar">
+      <span>Pages <b id="sPages">0</b></span>
+      <span>Txs <b id="sTxs">0</b></span>
+      <span>Retries <b id="sRetries">0</b></span>
+      <span>Wallets <b id="sNodes">0</b></span>
+      <span>Cycles <b id="sLoops">0</b></span>
+      <span><b id="sElapsed">0s</b></span>
+    </div>
+  </div>
+
+  <!-- results -->
+  <div id="resultsWrapper" class="hidden">
+
+    <div id="zeroBalancePrompt" class="panel zero hidden" style="margin-top:18px">
+      <div class="big">📭</div>
+      <h2>Current balance is 0 KAS</h2>
+      <p>This wallet is empty right now. You can trace its <b>historical inflows</b> instead.</p>
+      <button class="btn-warn" onclick="startTrace(true)">Trace historical funds</button>
     </div>
 
-    <div id="loader" class="hidden bg-slate-800/50 p-5 rounded-xl border border-slate-700 mb-6 shadow-lg">
-        <div class="flex justify-between items-start mb-2">
-            <div class="flex-1 overflow-hidden pr-4">
-                <h3 class="text-cyan-400 font-bold tracking-wide animate-pulse uppercase">Tracing Origins…</h3>
-                <p id="loaderText" class="text-slate-400 font-mono text-xs mt-1 truncate">Initializing…</p>
-            </div>
-            <p id="progressText" class="text-slate-300 font-mono text-sm font-bold text-right shrink-0">0%</p>
+    <div id="mainResultsBox" class="hidden">
+      <div class="panel hero" style="margin-top:18px">
+        <div class="glow"></div>
+        <div class="eyebrow" id="resTargetLabel">Target wallet balance</div>
+        <div class="balance" id="resTotalBalance">—</div>
+        <div class="meta-row">
+          <span>Direct sources <b id="resDirectTag">0 KAS</b></span>
+          <span>Via intermediaries <b id="resDeepTag">0 KAS</b></span>
+          <span>Oldest traced tx <b id="resOldestTag">—</b></span>
         </div>
-        <div class="w-full bg-slate-900 rounded-full h-2.5 border border-slate-700 overflow-hidden mb-2">
-            <div id="progressBarFill" class="kaspa-gradient h-2.5 rounded-full transition-all duration-500" style="width:0%"></div>
+
+        <div class="spectrum">
+          <div class="spectrum-label">
+            <span class="eyebrow">Origin spectrum</span>
+            <span id="specPending"></span>
+          </div>
+          <div class="spec-bar" aria-label="Origin composition">
+            <span class="s-mining" id="segMining"></span>
+            <span class="s-known" id="segKnown"></span>
+            <span class="s-unid" id="segUnid"></span>
+            <span class="s-unres" id="segUnres"></span>
+            <span class="s-cycle" id="segCycle"></span>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><span class="dot" style="background:var(--mining)"></span><span class="name">Mining rewards</span><span class="kas" id="lgMiningKas">0</span><span class="pct" style="color:var(--mining)" id="lgMiningPct">0%</span></div>
+            <div class="legend-item"><span class="dot" style="background:var(--known)"></span><span class="name">Known entities</span><span class="kas" id="lgKnownKas">0</span><span class="pct" style="color:var(--known)" id="lgKnownPct">0%</span></div>
+            <div class="legend-item"><span class="dot" style="background:var(--unid)"></span><span class="name">Unidentified wallets</span><span class="kas" id="lgUnidKas">0</span><span class="pct" style="color:var(--unid)" id="lgUnidPct">0%</span></div>
+            <div class="legend-item"><span class="dot" style="background:var(--unres)"></span><span class="name">Unresolved</span><span class="kas" id="lgUnresKas">0</span><span class="pct" style="color:var(--unres)" id="lgUnresPct">0%</span></div>
+            <div class="legend-item"><span class="dot" style="background:var(--cycle)"></span><span class="name">Circular flow</span><span class="kas" id="lgCycleKas">0</span><span class="pct" style="color:var(--cycle)" id="lgCyclePct">0%</span></div>
+          </div>
         </div>
-        <div id="statBar" class="flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500 font-mono">
-            <span>📄 Pages: <b id="sPages" class="text-slate-300">0</b></span>
-            <span>📦 Txs: <b id="sTxs" class="text-slate-300">0</b></span>
-            <span>🔁 Retries: <b id="sRetries" class="text-slate-300">0</b></span>
-            <span>🌿 Nodes: <b id="sNodes" class="text-slate-300">0</b></span>
-            <span>⏱ <b id="sElapsed" class="text-slate-300">0s</b></span>
+      </div>
+
+      <div class="grid">
+        <div class="panel">
+          <h3>Recursive origin tree <span class="hint">CLICK A WALLET TO DIG DEEPER</span></h3>
+          <div id="treeContainer" class="tree"></div>
         </div>
+        <div style="display:flex; flex-direction:column; gap:18px">
+          <div class="panel">
+            <h3 class="purple">Known origins — share of funds</h3>
+            <div id="knownList" class="scrolly"></div>
+          </div>
+          <div class="panel" style="flex:1">
+            <h3 class="plain">Unidentified wallets</h3>
+            <div id="unidentifiedList" class="scrolly"></div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="resultsWrapper" class="hidden">
-        <div id="zeroBalancePrompt" class="hidden bg-slate-800/80 p-8 rounded-xl border border-yellow-500/50 shadow-lg text-center mb-6">
-            <div class="text-5xl mb-4">📭</div>
-            <h2 class="text-2xl font-bold text-slate-100 mb-2">Current Balance is 0 KAS</h2>
-            <p class="text-slate-400 mb-6">This wallet is currently empty. Would you like to trace its <b>historical inflows</b> instead?</p>
-            <button onclick="startTrace(true)" class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold py-3 px-8 rounded-lg shadow-lg transition">Trace Historical Funds</button>
-        </div>
-
-        <div id="mainResultsBox" class="hidden flex flex-col gap-6">
-            <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 shadow-lg text-center relative overflow-hidden">
-                <div class="absolute inset-0 opacity-5 kaspa-gradient blur-3xl"></div>
-                <p id="resTargetLabel" class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2 relative z-10">Target Wallet Balance</p>
-                <p id="resTotalBalance" class="text-4xl md:text-5xl font-extrabold kaspa-text-gradient relative z-10">—</p>
-                
-                <div class="mt-4 inline-flex flex-wrap justify-center items-center gap-4 bg-slate-900/50 border border-slate-700/50 rounded px-4 py-2 text-xs text-slate-400 font-mono relative z-10">
-                    <span>Direct Sources: <b id="resDirectTag" class="text-cyan-400">0 KAS</b></span>
-                    <span>Intermediaries: <b id="resDeepTag" class="text-purple-400">0 KAS</b></span>
-                    <span>Oldest Traced Tx: <b id="resOldestTag" class="text-slate-200">—</b></span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-green-400 shadow-md">
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">⛏ Mining Rewards</p>
-                    <p id="resMining" class="text-2xl font-bold text-slate-100">—</p>
-                </div>
-                <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-purple-400 shadow-md">
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">🏦 Known Sources</p>
-                    <p id="resKnown" class="text-2xl font-bold text-slate-100">—</p>
-                </div>
-                <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-yellow-400 shadow-md">
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">⚠ Unresolved</p>
-                    <p id="resUnresolved" class="text-2xl font-bold text-slate-100">—</p>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-md">
-                    <h3 class="text-lg font-bold mb-4 text-cyan-300 border-b border-slate-700 pb-2 flex justify-between items-center">
-                        <span>Recursive Origin Tree</span>
-                        <span class="text-[10px] bg-cyan-900/30 text-cyan-400 px-2 py-1 rounded">CLICK WALLETS TO DIG DEEPER</span>
-                    </h3>
-                    <div id="treeContainer" class="tree-container overflow-x-auto min-h-[120px]"></div>
-                </div>
-                <div class="flex flex-col gap-5">
-                    <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-md">
-                        <h3 class="text-base font-bold mb-3 text-purple-300 border-b border-slate-700 pb-2">Top Known Origins</h3>
-                        <div id="knownList" class="space-y-2 max-h-56 overflow-y-auto font-mono text-sm pr-1"></div>
-                    </div>
-                    <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-md flex-1">
-                        <h3 class="text-base font-bold mb-3 text-slate-300 border-b border-slate-700 pb-2">Unidentified Wallets</h3>
-                        <div id="unidentifiedList" class="space-y-2 max-h-80 overflow-y-auto font-mono text-xs pr-1"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-8 bg-slate-800/80 p-6 rounded-xl border border-slate-700 shadow-lg text-center">
-        <p class="text-slate-300 mb-2">If you find Kaspa Tracer helpful, consider supporting the project!</p>
-        <p class="text-sm font-mono text-slate-400">
-            <strong>Donate Kaspa:</strong> 
-            <span onclick="copyToClipboard('kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee')" title="Click to copy address" class="text-cyan-400 select-all cursor-pointer hover:text-cyan-300 transition-colors">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</span>
-        </p>
-    </div>
+  <footer>
+    <p>If this tracer is useful to you, consider supporting the project.</p>
+    <p><b>Donate Kaspa:</b><br>
+      <span class="donate" onclick="copyToClipboard('kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee')" title="Click to copy">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</span>
+    </p>
+  </footer>
 </div>
 
 <script>
+'use strict';
+/* ================================================================
+   ENGINE — robust, loop-proof, conservation-of-funds tracing
+   ----------------------------------------------------------------
+   Key guarantees over the previous version:
+   1. CYCLES are detected per-branch (ancestor path), not globally.
+      A→B→A is flagged as "Circular flow" and its amount is still
+      attributed, so percentages always sum to ~100%.
+   2. CONVERGENCE (two branches funded by the same wallet) no longer
+      produces bogus "Loop Blocked" rows. A wallet that was already
+      fully traced has its origin distribution CACHED, and the cached
+      breakdown is reused and rescaled — no duplicate API calls, no
+      lost funds, consistent results.
+   3. CONSERVATION: every code path (stop, depth limit, dust, API
+      failure, cycle, reuse) attributes the full amount to a bucket.
+      resolved ≈ target at the end, so "% of funds" is meaningful.
+   ================================================================ */
+
 const SOMPI = 100_000_000, API = 'https://api.kaspa.org', COINBASE_HASH = '0'.repeat(64);
 const PAGE_LIMIT = 500, MAX_PAGES = 40, CONCURRENCY = 3, MAX_RETRIES = 4, BASE_DELAY_MS = 500;
+const EPS = 0.01; // dust threshold in KAS
 
 const FALLBACK_NAMES = [
-    { "address": "kaspa:precqv0krj3r6uyyfa36ga7s0u9jct0v4wg8ctsfde2gkrsgwgw8jgxfzfc98", "name": "Kaspa Dev Fund" },
-    { "address": "kaspa:pqzsudfucnsh7j325pwwxch8er2zpm87k647edzex30j8e763axtqu977e2s2", "name": "MEXC" },
-    { "address": "kaspa:qru2dhtet2kmd6h3tshw0fmsn3z6s44tt5r3ktdq22y4tyh6s9zksgnsxyud4", "name": "KuCoin" },
-    { "address": "kaspa:qqcqzzl930s5388f6h9t38aayrntv8p6tudrytzmryft43f8j9t6k7rnmz4z9", "name": "Gate.io" },
-    { "address": "kaspa:qz2k7sqdquv60mch8hymn8z74ymegesrdthavxtf3f2gmd9f5smycquvccv6a", "name": "CoinEx" },
-    { "address": "kaspa:qqvzhzcv0n94t32ts6nmy2xrq4hmsq5r8shps7k8rur3g84j9g5zsyhscfczq", "name": "Coinex Payouts" },
-    { "address": "kaspa:qzue6t6k32pms6k2277d33g7d8lyuwt06xksn4c9gct52qj9hupgquun7fpx0", "name": "Nicehash" }
+  { "address": "kaspa:precqv0krj3r6uyyfa36ga7s0u9jct0v4wg8ctsfde2gkrsgwgw8jgxfzfc98", "name": "Kaspa Dev Fund" },
+  { "address": "kaspa:pqzsudfucnsh7j325pwwxch8er2zpm87k647edzex30j8e763axtqu977e2s2", "name": "MEXC" },
+  { "address": "kaspa:qru2dhtet2kmd6h3tshw0fmsn3z6s44tt5r3ktdq22y4tyh6s9zksgnsxyud4", "name": "KuCoin" },
+  { "address": "kaspa:qqcqzzl930s5388f6h9t38aayrntv8p6tudrytzmryft43f8j9t6k7rnmz4z9", "name": "Gate.io" },
+  { "address": "kaspa:qz2k7sqdquv60mch8hymn8z74ymegesrdthavxtf3f2gmd9f5smycquvccv6a", "name": "CoinEx" },
+  { "address": "kaspa:qqvzhzcv0n94t32ts6nmy2xrq4hmsq5r8shps7k8rur3g84j9g5zsyhscfczq", "name": "Coinex Payouts" },
+  { "address": "kaspa:qzue6t6k32pms6k2277d33g7d8lyuwt06xksn4c9gct52qj9hupgquun7fpx0", "name": "Nicehash" }
 ];
 
 let knownMap = {}, isTracing = false, isHistoricalMode = false;
-let historyStack = [], globalVisited = new Set(), analysisCache = new Map();
-let globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
-let totalTarget = 0, resolvedKas = 0, eng = { pages: 0, txs: 0, retries: 0, loops: 0, nodes: 0 };
-let traceStart = 0, elapsedTimer = null;
+let historyStack = [];
+let analysisCache = new Map();   // address -> tx analysis (raw inflow breakdown)
+let distCache = new Map();       // address -> completed origin distribution (reusable)
+let inFlight = new Set();        // addresses currently being traced (concurrency guard)
+let pendingTrace = new Map();    // address -> promise that resolves when its trace completes
+let waitGraph = new Map();       // address -> Set of addresses it is currently waiting on
+let globalSums = null;
+let totalTarget = 0, resolvedKas = 0, directKas = 0;
+let eng = {}, traceStart = 0, elapsedTimer = null;
+let rootAddress = "", oldestTxTime = Infinity;
 
-let directKas = 0;
-let rootAddress = "";
-let oldestTxTime = Infinity;
-
-const fmt = n => (typeof n === 'number' ? n : 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt = n => (typeof n === 'number' && isFinite(n) ? n : 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const pctFmt = n => (totalTarget > 0 ? (n / totalTarget) * 100 : 0).toFixed(1) + '%';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const $ = id => document.getElementById(id);
 
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        const t = document.getElementById('toast');
-        t.classList.remove('translate-y-20', 'opacity-0');
-        setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 2500);
-    });
+  navigator.clipboard.writeText(text).then(() => {
+    const t = $('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  });
 }
 
-// --- STATE MANAGEMENT & UI NAVIGATION ---
+/* ---------- distribution helpers ---------- */
+const newDist = () => ({ mining: 0, known: {}, unknown: {}, unresolved: 0, circular: 0, total: 0 });
 
+// Attribute an amount to a bucket: updates the subtree distribution,
+// the live global sums, the progress counter, and the "direct" tally.
+function credit(dist, depth, kind, key, amt) {
+  if (!(amt > 0)) return;
+  switch (kind) {
+    case 'mining':     globalSums.mining += amt; dist.mining += amt; break;
+    case 'known':      globalSums.known[key] = (globalSums.known[key] || 0) + amt;
+                       dist.known[key] = (dist.known[key] || 0) + amt; break;
+    case 'unknown':    globalSums.unknown[key] = (globalSums.unknown[key] || 0) + amt;
+                       dist.unknown[key] = (dist.unknown[key] || 0) + amt; break;
+    case 'unresolved': globalSums.unresolved += amt; dist.unresolved += amt; break;
+    case 'circular':   globalSums.circular += amt; dist.circular += amt; break;
+  }
+  dist.total += amt;
+  resolvedKas += amt;
+  if (depth === 1) directKas += amt;
+}
+
+// Merge a completed child's distribution into the parent's (bookkeeping
+// only — global sums were already updated live inside the child).
+function mergeDist(parent, child) {
+  parent.mining += child.mining;
+  parent.unresolved += child.unresolved;
+  parent.circular += child.circular;
+  for (const [k, v] of Object.entries(child.known)) parent.known[k] = (parent.known[k] || 0) + v;
+  for (const [k, v] of Object.entries(child.unknown)) parent.unknown[k] = (parent.unknown[k] || 0) + v;
+  parent.total += child.total;
+}
+
+// Reuse a cached, completed trace of this wallet: rescale its origin
+// fractions to the new amount. No API calls, no duplicate traversal.
+function applyCachedDist(cached, amount, depth, dist) {
+  const s = cached.total > 0 ? amount / cached.total : 0;
+  credit(dist, depth, 'mining', null, cached.mining * s);
+  for (const [k, v] of Object.entries(cached.known)) credit(dist, depth, 'known', k, v * s);
+  for (const [k, v] of Object.entries(cached.unknown)) credit(dist, depth, 'unknown', k, v * s);
+  credit(dist, depth, 'unresolved', null, cached.unresolved * s);
+  credit(dist, depth, 'circular', null, cached.circular * s);
+  const residue = amount - dist.total;
+  if (residue > EPS / 2) credit(dist, depth, 'unresolved', null, residue);
+}
+
+function reusedNode(address, amount, cached) {
+  const s = cached.total > 0 ? amount / cached.total : 0;
+  const kids = [];
+  if (cached.mining * s >= EPS) kids.push({ label: '⛏ Mining rewards', amount: cached.mining * s, type: 'mining', info: 'Reused trace' });
+  for (const [k, v] of Object.entries(cached.known))
+    if (v * s >= EPS) kids.push({ label: '🏦 ' + k, amount: v * s, type: 'known', info: 'Reused trace' });
+  const unkSum = Object.values(cached.unknown).reduce((a, b) => a + b, 0) * s;
+  const unkCnt = Object.keys(cached.unknown).length;
+  if (unkSum >= EPS) kids.push({ label: `${unkCnt} unidentified wallet${unkCnt === 1 ? '' : 's'}`, amount: unkSum, type: 'unidentified', info: 'Reused trace' });
+  if (cached.unresolved * s >= EPS) kids.push({ label: '⚠ Unresolved', amount: cached.unresolved * s, type: 'unresolved', info: 'Reused trace' });
+  if (cached.circular * s >= EPS) kids.push({ label: '↺ Circular flow', amount: cached.circular * s, type: 'cycle', info: 'Reused trace' });
+  kids.sort((a, b) => b.amount - a.amount);
+  return { label: address, amount, type: 'node', info: 'Shared source · reused', isAddress: true, children: kids.length ? kids : null };
+}
+
+/* ---------- concurrency: wait-for graph with deadlock detection ----------
+   When a branch meets a wallet that a sibling branch is tracing right now,
+   we WAIT for that trace and reuse its result — unless waiting would form
+   a cycle in the wait-for graph (a cross-branch circular flow), in which
+   case we attribute the amount immediately instead of hanging forever. */
+function addWait(waiter, target) {
+  if (!waitGraph.has(waiter)) waitGraph.set(waiter, new Set());
+  waitGraph.get(waiter).add(target);
+}
+function removeWait(waiter, target) {
+  const s = waitGraph.get(waiter);
+  if (s) { s.delete(target); if (s.size === 0) waitGraph.delete(waiter); }
+}
+function wouldDeadlock(waiter, target) {
+  const seen = new Set([target]);
+  const stack = [target];
+  while (stack.length) {
+    const cur = stack.pop();
+    if (cur === waiter) return true;
+    const next = waitGraph.get(cur);
+    if (next) for (const n of next) if (!seen.has(n)) { seen.add(n); stack.push(n); }
+  }
+  return false;
+}
+
+/* ---------- UI: navigation ---------- */
 function manualTrace() {
-    historyStack = [];
-    isHistoricalMode = false;
-    startTrace();
+  historyStack = [];
+  isHistoricalMode = false;
+  startTrace();
 }
 
 function selectAndTrace(address) {
-    if (knownMap[address]) { copyToClipboard(address); return; }
-    const currentAddr = document.getElementById('addrInput').value.trim();
-    if (currentAddr && currentAddr !== address) {
-        historyStack.push({ addr: currentAddr, isHist: isHistoricalMode });
-    }
-    document.getElementById('addrInput').value = address;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    startTrace();
+  if (isTracing) return;
+  if (knownMap[address]) { copyToClipboard(address); return; }
+  const currentAddr = $('addrInput').value.trim();
+  if (currentAddr && currentAddr !== address) {
+    historyStack.push({ addr: currentAddr, isHist: isHistoricalMode });
+  }
+  $('addrInput').value = address;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  startTrace();
 }
 
 function goBack() {
-    if (historyStack.length === 0 || isTracing) return;
-    const prev = historyStack.pop();
-    document.getElementById('addrInput').value = prev.addr;
-    isHistoricalMode = prev.isHist;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    startTrace();
+  if (historyStack.length === 0 || isTracing) return;
+  const prev = historyStack.pop();
+  $('addrInput').value = prev.addr;
+  isHistoricalMode = prev.isHist;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  startTrace();
 }
 
 function stopTrace() {
-    if (!isTracing) return;
-    isTracing = false;
-    document.getElementById('loaderText').textContent = 'Stopping… finishing open requests.';
-    document.getElementById('btnStop').disabled = true;
-    document.getElementById('btnStop').classList.add('opacity-50', 'cursor-not-allowed');
+  if (!isTracing) return;
+  isTracing = false;
+  $('loaderText').textContent = 'Stopping… finishing open requests.';
+  $('btnStop').disabled = true;
 }
 
 function refreshStats() {
-    ['sPages', 'sTxs', 'sRetries', 'sNodes'].forEach(id => {
-        document.getElementById(id).textContent = eng[id.substring(1).toLowerCase()];
-    });
+  $('sPages').textContent = eng.pages; $('sTxs').textContent = eng.txs;
+  $('sRetries').textContent = eng.retries; $('sNodes').textContent = eng.nodes;
+  $('sLoops').textContent = eng.loops;
 }
 
+/* ---------- UI: live results ---------- */
 function updateProgressBar() {
-    const pct = totalTarget > 0 ? Math.min(100, (resolvedKas / totalTarget) * 100) : 0;
-    document.getElementById('progressBarFill').style.width = `${pct}%`;
-    document.getElementById('progressText').textContent = `${pct.toFixed(1)}%`;
+  const pct = totalTarget > 0 ? Math.min(100, (resolvedKas / totalTarget) * 100) : 0;
+  $('progressBarFill').style.width = pct + '%';
+  $('progressText').textContent = pct.toFixed(1) + '%';
 
-    document.getElementById('resMining').innerHTML = `${fmt(globalSums.mining)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
-    document.getElementById('resKnown').innerHTML = `${fmt(Object.values(globalSums.known).reduce((a, b) => a + b, 0))} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
-    document.getElementById('resUnresolved').innerHTML = `${fmt(globalSums.unresolved)} <span class="text-sm text-slate-500 font-normal">KAS</span>`;
+  const knownTotal = Object.values(globalSums.known).reduce((a, b) => a + b, 0);
+  const unidTotal = Object.values(globalSums.unknown).reduce((a, b) => a + b, 0);
+  const buckets = [
+    ['Mining', globalSums.mining, 'segMining', 'lgMiningKas', 'lgMiningPct'],
+    ['Known', knownTotal, 'segKnown', 'lgKnownKas', 'lgKnownPct'],
+    ['Unid', unidTotal, 'segUnid', 'lgUnidKas', 'lgUnidPct'],
+    ['Unres', globalSums.unresolved, 'segUnres', 'lgUnresKas', 'lgUnresPct'],
+    ['Cycle', globalSums.circular, 'segCycle', 'lgCycleKas', 'lgCyclePct'],
+  ];
+  for (const [, v, seg, kasId, pctId] of buckets) {
+    const p = totalTarget > 0 ? Math.min(100, (v / totalTarget) * 100) : 0;
+    $(seg).style.width = p + '%';
+    $(seg).title = fmt(v) + ' KAS · ' + p.toFixed(1) + '%';
+    $(kasId).textContent = fmt(v);
+    $(pctId).textContent = p.toFixed(1) + '%';
+  }
+  const pending = Math.max(0, totalTarget - resolvedKas);
+  $('specPending').textContent = pending > EPS ? fmt(pending) + ' KAS still tracing…' : '';
 
-    document.getElementById('resDirectTag').textContent = `${fmt(directKas)} KAS`;
-    // Intermediaries = total resolved minus what was resolved at depth-1 leaf nodes
-    document.getElementById('resDeepTag').textContent = `${fmt(Math.max(0, resolvedKas - directKas))} KAS`;
+  $('resDirectTag').textContent = fmt(directKas) + ' KAS';
+  $('resDeepTag').textContent = fmt(Math.max(0, resolvedKas - directKas)) + ' KAS';
 
-    const oldestTag = document.getElementById('resOldestTag');
-    if (oldestTxTime !== Infinity && oldestTxTime > 0) {
-        const d = new Date(oldestTxTime);
-        oldestTag.textContent = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    } else {
-        oldestTag.textContent = '—';
-    }
+  const oldestTag = $('resOldestTag');
+  if (oldestTxTime !== Infinity && oldestTxTime > 0) {
+    oldestTag.textContent = new Date(oldestTxTime).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  } else oldestTag.textContent = '—';
 
-    document.getElementById('knownList').innerHTML = Object.entries(globalSums.known).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
-        `<div class="p-2 rounded flex justify-between border border-slate-700/50 bg-slate-800/50"><span class="text-purple-300 truncate mr-2">${k}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`
-    ).join('') || '<span class="text-slate-500 italic text-xs">None found yet…</span>';
+  $('knownList').innerHTML = Object.entries(globalSums.known).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
+    const p = totalTarget > 0 ? Math.min(100, (v / totalTarget) * 100) : 0;
+    return `<div class="origin-row">
+      <div class="top"><span class="nm">${k}</span><span class="vals">${fmt(v)} KAS · <b>${p.toFixed(1)}%</b></span></div>
+      <div class="minibar"><i style="width:${p}%"></i></div>
+    </div>`;
+  }).join('') || '<span class="empty">None found yet…</span>';
 
-    document.getElementById('unidentifiedList').innerHTML = Object.entries(globalSums.unknown).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
-        `<div onclick="selectAndTrace('${k}')" title="Trace ${k}" class="p-2 rounded flex justify-between cursor-pointer hover:bg-slate-700 hover:ring-1 hover:ring-cyan-500 transition border border-slate-700/50 bg-slate-800/50"><span class="text-cyan-400 hover:text-white underline decoration-cyan-400/50 truncate mr-2">${k.substring(0, 18)}…${k.slice(-8)}</span><b class="text-slate-200 shrink-0">${fmt(v)}</b></div>`
-    ).join('') || '<span class="text-slate-500 italic text-xs">None found yet…</span>';
+  $('unidentifiedList').innerHTML = Object.entries(globalSums.unknown).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+    `<div class="unid-row" onclick="selectAndTrace('${k}')" title="Trace ${k}">
+      <span class="a">${k.substring(0, 18)}…${k.slice(-8)}</span>
+      <span class="v">${fmt(v)} <small>· ${pctFmt(v)}</small></span>
+    </div>`
+  ).join('') || '<span class="empty">None found yet…</span>';
 }
 
-// --- ENGINE ---
-
+/* ---------- API layer ---------- */
 async function apiFetch(url) {
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-        if (!isTracing) return null;
-        try {
-            const r = await fetch(url);
-            if (r.status === 429) throw new Error('rate-limited');
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return await r.json();
-        } catch (e) {
-            if (attempt < MAX_RETRIES) {
-                eng.retries++; refreshStats();
-                await sleep(BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 300);
-            } else return null;
-        }
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    if (!isTracing) return null;
+    try {
+      const r = await fetch(url);
+      if (r.status === 429) throw new Error('rate-limited');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
+    } catch (e) {
+      if (attempt < MAX_RETRIES) {
+        eng.retries++; refreshStats();
+        await sleep(BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 300);
+      } else return null;
     }
+  }
+  return null;
 }
 
 function netFlowForAddress(tx, address) {
-    const outputs = tx.outputs || [], inputs = tx.inputs || [];
-    const outSompi = outputs
-        .filter(o => (o.script_public_key_address || o.scriptPublicKeyAddress) === address)
-        .reduce((s, o) => s + Number(o.amount || 0), 0);
-    const inSompi = inputs
-        .filter(i => (i.previous_outpoint_address || i.previousOutpointAddress) === address)
-        .reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
-    return outSompi - inSompi;
+  const outputs = tx.outputs || [], inputs = tx.inputs || [];
+  const outSompi = outputs
+    .filter(o => (o.script_public_key_address || o.scriptPublicKeyAddress) === address)
+    .reduce((s, o) => s + Number(o.amount || 0), 0);
+  const inSompi = inputs
+    .filter(i => (i.previous_outpoint_address || i.previousOutpointAddress) === address)
+    .reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
+  return outSompi - inSompi;
 }
 
 function isCoinbase(tx) {
-    const inputs = tx.inputs || [];
-    if (inputs.length === 0) return true;
-    return inputs.every(i => {
-        const h = i.previous_outpoint_hash || i.previousOutpointHash || '';
-        return h === COINBASE_HASH || h === '';
-    });
+  const inputs = tx.inputs || [];
+  if (inputs.length === 0) return true;
+  return inputs.every(i => {
+    const h = i.previous_outpoint_hash || i.previousOutpointHash || '';
+    return h === COINBASE_HASH || h === '';
+  });
 }
 
-// FIX 1 & 2: Pagination no longer terminates early based on inflow vs balance.
-// Instead it always fetches until: empty page, undersized page, or cursor stops advancing.
-// The cursor is derived from the last tx's blue score (not Math.min), avoiding
-// false stalls when multiple txs share the same score at a page boundary.
+// Cursor pagination: derives the cursor from the last tx's blue score and
+// stops on empty page, undersized page, or a cursor that fails to advance.
 async function fetchAllTxs(address) {
-    let allTxs = [], before = null;
+  let allTxs = [], before = null;
 
-    for (let page = 0; page < MAX_PAGES && isTracing; page++) {
-        const url = `${API}/addresses/${address}/full-transactions-page?limit=${PAGE_LIMIT}&resolve_previous_outpoints=light`
-            + (before !== null ? `&before=${before}` : '');
-        document.getElementById('loaderText').textContent = `Paginating ${address.substring(0, 16)}… (page ${page + 1})`;
+  for (let page = 0; page < MAX_PAGES && isTracing; page++) {
+    const url = `${API}/addresses/${address}/full-transactions-page?limit=${PAGE_LIMIT}&resolve_previous_outpoints=light`
+      + (before !== null ? `&before=${before}` : '');
+    $('loaderText').textContent = `Reading ${address.substring(0, 16)}… (page ${page + 1})`;
 
-        const data = await apiFetch(url);
-        if (!data || !Array.isArray(data) || data.length === 0) break;
+    const data = await apiFetch(url);
+    if (!data || !Array.isArray(data) || data.length === 0) break;
 
-        eng.pages++; eng.txs += data.length; refreshStats();
-        allTxs = allTxs.concat(data);
+    eng.pages++; eng.txs += data.length; refreshStats();
+    allTxs = allTxs.concat(data);
 
-        // Track oldest tx timestamp (root address only — intentional)
-        if (address === rootAddress) {
-            for (const tx of data) {
-                if (tx.block_time && tx.block_time < oldestTxTime) {
-                    oldestTxTime = tx.block_time;
-                }
-            }
-        }
-
-        // Stop if the page came back smaller than the limit — we've hit the end
-        if (data.length < PAGE_LIMIT) break;
-
-        // Advance cursor using the last tx's blue score (most chronologically distant
-        // item in this page). Using the last item avoids the Math.min stall bug where
-        // multiple txs with the same score at a boundary would not advance the cursor.
-        const lastTx = data[data.length - 1];
-        const nextCursor = lastTx.accepting_block_blue_score ?? lastTx.block_blue_score ?? null;
-
-        if (nextCursor === null || nextCursor <= 0) break;
-
-        // Guard: if cursor hasn't moved at all, stop to avoid infinite loop
-        if (before !== null && nextCursor >= before) break;
-
-        before = nextCursor;
+    if (address === rootAddress) {
+      for (const tx of data) {
+        if (tx.block_time && tx.block_time < oldestTxTime) oldestTxTime = tx.block_time;
+      }
     }
 
-    return allTxs;
+    if (data.length < PAGE_LIMIT) break;
+
+    const lastTx = data[data.length - 1];
+    const nextCursor = lastTx.accepting_block_blue_score ?? lastTx.block_blue_score ?? null;
+    if (nextCursor === null || nextCursor <= 0) break;
+    if (before !== null && nextCursor >= before) break; // cursor stalled
+    before = nextCursor;
+  }
+  return allTxs;
 }
 
 async function analyseAddress(address) {
-    if (analysisCache.has(address)) return analysisCache.get(address);
-    const txs = await fetchAllTxs(address);
-    let netInflow = 0, miningKas = 0, knownKas = {}, senderKas = {};
+  if (analysisCache.has(address)) return analysisCache.get(address);
+  const txs = await fetchAllTxs(address);
+  let netInflow = 0, miningKas = 0, knownKas = {}, senderKas = {};
 
-    for (const tx of txs) {
-        const netSompi = netFlowForAddress(tx, address);
-        if (netSompi <= 0) continue;
-        const netKas = netSompi / SOMPI;
-        netInflow += netKas;
+  for (const tx of txs) {
+    const netSompi = netFlowForAddress(tx, address);
+    if (netSompi <= 0) continue;
+    const netKas = netSompi / SOMPI;
+    netInflow += netKas;
 
-        if (isCoinbase(tx)) { miningKas += netKas; continue; }
+    if (isCoinbase(tx)) { miningKas += netKas; continue; }
 
-        const extInputs = (tx.inputs || []).filter(i => {
-            const a = i.previous_outpoint_address || i.previousOutpointAddress || '';
-            return a && a !== address;
-        });
-        if (extInputs.length === 0) continue;
+    const extInputs = (tx.inputs || []).filter(i => {
+      const a = i.previous_outpoint_address || i.previousOutpointAddress || '';
+      return a && a !== address;
+    });
+    if (extInputs.length === 0) continue;
 
-        const totalExtAmt = extInputs.reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
-        for (const inp of extInputs) {
-            const sAddr = inp.previous_outpoint_address || inp.previousOutpointAddress;
-            if (!sAddr) continue;
-            const sAmt = Number(inp.previous_outpoint_amount || inp.previousOutpointAmount || 0);
-            const attrKas = netKas * (totalExtAmt > 0 ? sAmt / totalExtAmt : 1 / extInputs.length);
-
-            if (knownMap[sAddr]) {
-                const name = knownMap[sAddr];
-                knownKas[name] = (knownKas[name] || 0) + attrKas;
-            } else {
-                senderKas[sAddr] = (senderKas[sAddr] || 0) + attrKas;
-            }
-        }
+    const totalExtAmt = extInputs.reduce((s, i) => s + Number(i.previous_outpoint_amount || i.previousOutpointAmount || 0), 0);
+    for (const inp of extInputs) {
+      const sAddr = inp.previous_outpoint_address || inp.previousOutpointAddress;
+      if (!sAddr) continue;
+      const sAmt = Number(inp.previous_outpoint_amount || inp.previousOutpointAmount || 0);
+      const attrKas = netKas * (totalExtAmt > 0 ? sAmt / totalExtAmt : 1 / extInputs.length);
+      if (knownMap[sAddr]) {
+        const name = knownMap[sAddr];
+        knownKas[name] = (knownKas[name] || 0) + attrKas;
+      } else {
+        senderKas[sAddr] = (senderKas[sAddr] || 0) + attrKas;
+      }
     }
+  }
 
-    const result = { netInflow, miningKas, knownKas, senderKas };
-    analysisCache.set(address, result);
-    return result;
+  const result = { netInflow, miningKas, knownKas, senderKas };
+  analysisCache.set(address, result);
+  return result;
 }
 
-// FIX 3: directKas only accumulates when a depth-1 source is a terminal leaf
-// (mining reward, known entity, or a sender that won't be recursed further).
-// Senders that will be recursed are NOT counted here — their resolved descendants
-// will be counted at their own depth, preventing double-counting.
-async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas) {
-    if (!isTracing) return { label: address, amount: targetAmount, type: 'unresolved', info: 'Trace Aborted' };
-    if (globalVisited.has(address)) {
-        eng.loops++; refreshStats();
-        return { label: address, amount: targetAmount, type: 'cycle', info: 'Loop Blocked' };
-    }
+/* ---------- recursive tracer ---------- */
+async function recursiveTrace(address, targetAmount, depth, maxDepth, minKas, path, parent) {
+  const dist = newDist();
 
-    if (depth > maxDepth || targetAmount < minKas) {
-        globalSums.unknown[address] = (globalSums.unknown[address] || 0) + targetAmount;
-        resolvedKas += targetAmount;
-        if (depth === 1) directKas += targetAmount; // leaf at root level
-        updateProgressBar();
-        return { label: address, amount: targetAmount, type: 'unidentified', info: depth > maxDepth ? 'Max Depth Limit' : 'Below Min KAS', isAddress: true };
-    }
+  if (!isTracing) {
+    credit(dist, depth, 'unresolved', null, targetAmount);
+    return { node: { label: address, amount: targetAmount, type: 'unresolved', info: 'Stopped', isAddress: true }, dist };
+  }
 
-    globalVisited.add(address); eng.nodes++; refreshStats();
+  // True cycle: this address is an ancestor of itself in THIS branch.
+  if (path.has(address)) {
+    eng.loops++; refreshStats();
+    credit(dist, depth, 'circular', null, targetAmount);
+    updateProgressBar();
+    return { node: { label: address, amount: targetAmount, type: 'cycle', info: 'Circular flow', isAddress: true }, dist };
+  }
+
+  // Convergence: this wallet was already fully traced elsewhere — reuse
+  // its origin distribution instead of blocking or re-traversing.
+  if (distCache.has(address)) {
+    applyCachedDist(distCache.get(address), targetAmount, depth, dist);
+    updateProgressBar();
+    return { node: reusedNode(address, targetAmount, distCache.get(address)), dist };
+  }
+
+  // A sibling branch is tracing this wallet right now: wait for it, then
+  // reuse the result — unless waiting would deadlock (cross-branch cycle).
+  if (inFlight.has(address)) {
+    const waiter = parent || rootAddress;
+    if (!wouldDeadlock(waiter, address)) {
+      addWait(waiter, address);
+      try { await (pendingTrace.get(address) || Promise.resolve()); }
+      finally { removeWait(waiter, address); }
+    }
+    if (distCache.has(address)) {
+      applyCachedDist(distCache.get(address), targetAmount, depth, dist);
+      updateProgressBar();
+      return { node: reusedNode(address, targetAmount, distCache.get(address)), dist };
+    }
+    credit(dist, depth, 'unknown', address, targetAmount);
+    updateProgressBar();
+    return { node: { label: address, amount: targetAmount, type: 'unidentified', info: 'Converging flow', isAddress: true }, dist };
+  }
+
+  if (depth > maxDepth || targetAmount < minKas) {
+    credit(dist, depth, 'unknown', address, targetAmount);
+    updateProgressBar();
+    return { node: { label: address, amount: targetAmount, type: 'unidentified', info: depth > maxDepth ? 'Depth limit' : 'Below min KAS', isAddress: true }, dist };
+  }
+
+  inFlight.add(address);
+  let traceDone; pendingTrace.set(address, new Promise(r => { traceDone = r; }));
+  eng.nodes++; refreshStats();
+
+  try {
     const analysis = await analyseAddress(address);
 
     if (!isTracing || analysis.netInflow <= 0) {
-        globalSums.unresolved += targetAmount; resolvedKas += targetAmount;
-        if (depth === 1) directKas += targetAmount;
-        updateProgressBar();
-        return { label: address, amount: targetAmount, type: 'unresolved', info: 'Incomplete History' };
+      credit(dist, depth, 'unresolved', null, targetAmount);
+      updateProgressBar();
+      return { node: { label: address, amount: targetAmount, type: 'unresolved', info: 'No traceable history', isAddress: true }, dist };
     }
 
+    // If the wallet historically received more than the amount we are
+    // tracing, attribute proportionally (scale < 1). If it received
+    // less than expected (pagination cap), the difference is a gap.
     let scale = 1.0, gapKas = 0.0;
     if (analysis.netInflow > targetAmount * 1.0001) scale = targetAmount / analysis.netInflow;
     else if (analysis.netInflow < targetAmount * 0.9999) gapKas = targetAmount - analysis.netInflow;
 
-    let children = [];
+    const children = [];
 
-    // Mining rewards are always terminal — count as direct if depth === 1
     const scaledMining = analysis.miningKas * scale;
-    if (scaledMining >= 0.01) {
-        globalSums.mining += scaledMining; resolvedKas += scaledMining;
-        if (depth === 1) directKas += scaledMining;
-        children.push({ label: '⛏️ Mining Rewards', amount: scaledMining, type: 'mining', info: 'Block Reward', isAddress: false });
+    if (scaledMining >= EPS) {
+      credit(dist, depth, 'mining', null, scaledMining);
+      children.push({ label: '⛏ Mining rewards', amount: scaledMining, type: 'mining', info: 'Block reward' });
     }
 
-    // Known entities are always terminal — count as direct if depth === 1
     for (const [name, kas] of Object.entries(analysis.knownKas)) {
-        const scaled = kas * scale; if (scaled < 0.01) continue;
-        globalSums.known[name] = (globalSums.known[name] || 0) + scaled; resolvedKas += scaled;
-        if (depth === 1) directKas += scaled;
-        children.push({ label: `🏦 ${name}`, amount: scaled, type: 'known', info: 'Exchange', isAddress: false });
+      const scaled = kas * scale; if (scaled < EPS) continue;
+      credit(dist, depth, 'known', name, scaled);
+      children.push({ label: '🏦 ' + name, amount: scaled, type: 'known', info: 'Known entity' });
     }
 
-    if (gapKas >= 0.01) {
-        globalSums.unresolved += gapKas; resolvedKas += gapKas;
-        if (depth === 1) directKas += gapKas;
-        children.push({ label: '⚠️ Incomplete History', amount: gapKas, type: 'unresolved', info: 'API pagination gap', isAddress: false });
+    if (gapKas >= EPS) {
+      credit(dist, depth, 'unresolved', null, gapKas);
+      children.push({ label: '⚠ Incomplete history', amount: gapKas, type: 'unresolved', info: 'Pagination gap' });
     }
 
     const senders = Object.entries(analysis.senderKas).sort((a, b) => b[1] - a[1]);
     const recurseTasks = [];
 
     for (const [sAddr, sKas] of senders) {
-        const scaled = sKas * scale; if (scaled < 0.01) continue;
+      const scaled = sKas * scale; if (scaled < EPS) continue;
 
-        if (knownMap[sAddr]) {
-            // Recognised mid-trace — terminal, so count as direct at depth 1
-            const name = knownMap[sAddr];
-            globalSums.known[name] = (globalSums.known[name] || 0) + scaled; resolvedKas += scaled;
-            if (depth === 1) directKas += scaled;
-            children.push({ label: `🏦 ${name}`, amount: scaled, type: 'known', info: 'Exchange', isAddress: false });
-        } else if (scaled >= minKas && depth < maxDepth && isTracing) {
-            // Will be recursed — do NOT add to directKas here; children will resolve it
-            recurseTasks.push({ addr: sAddr, amount: scaled });
-        } else {
-            // Terminal unidentified sender
-            globalSums.unknown[sAddr] = (globalSums.unknown[sAddr] || 0) + scaled; resolvedKas += scaled;
-            if (depth === 1) directKas += scaled;
-            children.push({ label: sAddr, amount: scaled, type: 'unidentified', info: depth >= maxDepth ? 'Max Depth Limit' : 'Below Min KAS', isAddress: true });
-        }
+      if (knownMap[sAddr]) {
+        const name = knownMap[sAddr];
+        credit(dist, depth, 'known', name, scaled);
+        children.push({ label: '🏦 ' + name, amount: scaled, type: 'known', info: 'Known entity' });
+      } else if (scaled >= minKas && depth < maxDepth && isTracing) {
+        recurseTasks.push({ addr: sAddr, amount: scaled });
+      } else {
+        credit(dist, depth, 'unknown', sAddr, scaled);
+        children.push({ label: sAddr, amount: scaled, type: 'unidentified', info: depth >= maxDepth ? 'Depth limit' : 'Below min KAS', isAddress: true });
+      }
     }
+    updateProgressBar();
 
+    const nextPath = new Set(path); nextPath.add(address);
     for (let i = 0; i < recurseTasks.length; i += CONCURRENCY) {
-        if (!isTracing) break;
-        const batch = recurseTasks.slice(i, i + CONCURRENCY);
-        const results = await Promise.all(batch.map(({ addr, amount }) => recursiveTrace(addr, amount, depth + 1, maxDepth, minKas)));
-        children.push(...results); updateProgressBar();
+      if (!isTracing) break;
+      const batch = recurseTasks.slice(i, i + CONCURRENCY);
+      // Record what this node is blocked on, so cross-branch waits can
+      // detect cycles through normal recursion chains too.
+      batch.forEach(t => addWait(address, t.addr));
+      let results;
+      try {
+        results = await Promise.all(batch.map(({ addr, amount }) =>
+          recursiveTrace(addr, amount, depth + 1, maxDepth, minKas, nextPath, address)));
+      } finally {
+        batch.forEach(t => removeWait(address, t.addr));
+      }
+      for (const r of results) { children.push(r.node); mergeDist(dist, r.dist); }
+      updateProgressBar();
     }
+
+    // Conservation: whatever was not attributed (dust filtering, an
+    // early stop) goes to "unresolved" so the totals always reconcile.
+    const residue = targetAmount - dist.total;
+    if (residue > EPS) {
+      credit(dist, depth, 'unresolved', null, residue);
+      updateProgressBar();
+    }
+
+    // Cache only fully completed subtrees for safe reuse.
+    if (isTracing) distCache.set(address, dist);
 
     children.sort((a, b) => b.amount - a.amount);
     return {
+      node: {
         label: address,
         amount: targetAmount,
         type: depth === 1 ? 'root' : 'node',
         info: depth === 1 ? 'Target' : 'Intermediary',
         isAddress: true,
         children: children.length ? children : null
+      },
+      dist
     };
+  } finally {
+    inFlight.delete(address);
+    pendingTrace.delete(address);
+    traceDone();
+  }
 }
 
+/* ---------- orchestration ---------- */
 async function startTrace(forceHistory = false) {
-    if (isTracing) return;
-    const addr = document.getElementById('addrInput').value.trim();
-    if (!addr.startsWith('kaspa:')) return alert('Invalid Kaspa address');
+  if (isTracing) return;
+  const addr = $('addrInput').value.trim();
+  if (!addr.startsWith('kaspa:')) { alert('Invalid Kaspa address'); return; }
 
-    const btnBack = document.getElementById('btnBack');
-    if (historyStack.length > 0) {
-        btnBack.classList.remove('hidden');
-        btnBack.innerText = `← Back to ${historyStack[historyStack.length - 1].addr.substring(0, 12)}...`;
-    } else {
-        btnBack.classList.add('hidden');
+  const btnBack = $('btnBack');
+  if (historyStack.length > 0) {
+    btnBack.classList.remove('hidden');
+    btnBack.textContent = '← Back to ' + historyStack[historyStack.length - 1].addr.substring(0, 12) + '…';
+  } else btnBack.classList.add('hidden');
+
+  isTracing = true;
+  if (forceHistory) isHistoricalMode = true;
+
+  analysisCache = new Map(); distCache = new Map(); inFlight = new Set();
+  pendingTrace = new Map(); waitGraph = new Map();
+  globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0, circular: 0 };
+  eng = { pages: 0, txs: 0, retries: 0, loops: 0, nodes: 0 };
+  totalTarget = 0; resolvedKas = 0; directKas = 0;
+  traceStart = Date.now(); rootAddress = addr; oldestTxTime = Infinity;
+
+  ['resultsWrapper', 'zeroBalancePrompt', 'mainResultsBox', 'btnTrace'].forEach(id => $(id).classList.add('hidden'));
+  $('loader').classList.remove('hidden');
+  const btnStop = $('btnStop');
+  btnStop.classList.remove('hidden'); btnStop.disabled = false;
+
+  clearInterval(elapsedTimer);
+  elapsedTimer = setInterval(() => {
+    $('sElapsed').textContent = ((Date.now() - traceStart) / 1000).toFixed(0) + 's';
+  }, 500);
+
+  if (Object.keys(knownMap).length === 0) {
+    try {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 5000);
+      const r = await fetch(`${API}/addresses/names`, { signal: controller.signal });
+      if (!r.ok) throw new Error('API status ' + r.status);
+      const data = await r.json();
+      if (!Array.isArray(data)) throw new Error('API did not return an array');
+      data.forEach(i => { knownMap[i.address] = i.name; });
+    } catch (e) {
+      console.warn('Known-address list unavailable, using built-in fallback:', e);
+      FALLBACK_NAMES.forEach(i => { knownMap[i.address] = i.name; });
     }
+  }
 
-    isTracing = true;
-    if (forceHistory) isHistoricalMode = true;
+  const currentBalance = (await apiFetch(`${API}/addresses/${addr}/balance`))?.balance / SOMPI || 0;
 
-    globalVisited = new Set(); analysisCache = new Map();
-    globalSums = { mining: 0, known: {}, unknown: {}, unresolved: 0 };
-    eng = { pages: 0, txs: 0, retries: 0, loops: 0, nodes: 0 };
-    totalTarget = 0; resolvedKas = 0; traceStart = Date.now();
-    directKas = 0;
-    rootAddress = addr;
-    oldestTxTime = Infinity;
+  if (currentBalance === 0 && !isHistoricalMode) {
+    isTracing = false; clearInterval(elapsedTimer);
+    ['loader', 'btnStop'].forEach(id => $(id).classList.add('hidden'));
+    ['btnTrace', 'resultsWrapper', 'zeroBalancePrompt'].forEach(id => $(id).classList.remove('hidden'));
+    return;
+  }
 
-    ['resultsWrapper', 'zeroBalancePrompt', 'mainResultsBox', 'btnTrace'].forEach(id => document.getElementById(id).classList.add('hidden'));
-    document.getElementById('loader').classList.remove('hidden');
-    document.getElementById('btnStop').classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
-    document.getElementById('btnStop').disabled = false;
+  if (isHistoricalMode) {
+    totalTarget = (await analyseAddress(addr)).netInflow;
+    $('resTargetLabel').textContent = 'Historical total received';
+    if (totalTarget === 0) { finalise(null, 'This wallet has no traceable history.'); return; }
+  } else {
+    totalTarget = currentBalance;
+    $('resTargetLabel').textContent = 'Target wallet balance';
+  }
 
-    clearInterval(elapsedTimer);
-    elapsedTimer = setInterval(() => {
-        document.getElementById('sElapsed').textContent = `${((Date.now() - traceStart) / 1000).toFixed(0)}s`;
-    }, 500);
+  $('resTotalBalance').innerHTML = fmt(totalTarget) + ' <small>KAS</small>';
+  $('treeContainer').innerHTML = '<div style="color:var(--teal); padding:20px 0" class="empty">Building trace hierarchy…</div>';
+  ['resultsWrapper', 'mainResultsBox'].forEach(id => $(id).classList.remove('hidden'));
 
-    if (Object.keys(knownMap).length === 0) {
-        try {
-            const controller = new AbortController();
-            setTimeout(() => controller.abort(), 5000);
-            const r = await fetch(`${API}/addresses/names`, { signal: controller.signal });
-            if (!r.ok) throw new Error(`API returned status ${r.status}`);
-            const data = await r.json();
-            if (!Array.isArray(data)) throw new Error("API did not return an array");
-            data.forEach(i => { knownMap[i.address] = i.name; });
-        } catch (e) {
-            console.warn("Failed to fetch known addresses, using fallback:", e);
-            FALLBACK_NAMES.forEach(i => { knownMap[i.address] = i.name; });
-        }
-    }
+  const maxDepth = parseInt($('depthInput').value) || 5;
+  const minKas = parseFloat($('minKasInput').value) || 5;
 
-    const currentBalance = (await apiFetch(`${API}/addresses/${addr}/balance`))?.balance / SOMPI || 0;
+  const result = await recursiveTrace(addr, totalTarget, 1, maxDepth, minKas, new Set(), null);
 
-    if (currentBalance === 0 && !isHistoricalMode) {
-        isTracing = false; clearInterval(elapsedTimer);
-        ['loader', 'btnStop'].forEach(id => document.getElementById(id).classList.add('hidden'));
-        ['btnTrace', 'resultsWrapper', 'zeroBalancePrompt'].forEach(id => document.getElementById(id).classList.remove('hidden'));
-        return;
-    }
-
-    if (isHistoricalMode) {
-        totalTarget = (await analyseAddress(addr)).netInflow;
-        document.getElementById('resTargetLabel').innerText = "Historical Total Received";
-        if (totalTarget === 0) { finalise(null, "Wallet has zero history."); return; }
-    } else {
-        totalTarget = currentBalance;
-        document.getElementById('resTargetLabel').innerText = "Target Wallet Balance";
-    }
-
-    document.getElementById('resTotalBalance').innerHTML = `${fmt(totalTarget)} <span class="text-xl md:text-2xl text-slate-400 font-normal">KAS</span>`;
-    document.getElementById('treeContainer').innerHTML = '<div class="text-cyan-400 animate-pulse py-6 font-mono">Building trace hierarchy…</div>';
-    ['resultsWrapper', 'mainResultsBox'].forEach(id => document.getElementById(id).classList.remove('hidden'));
-
-    const maxDepth = parseInt(document.getElementById('depthInput').value) || 5;
-    const minKas = parseFloat(document.getElementById('minKasInput').value) || 5;
-    const rootTree = await recursiveTrace(addr, totalTarget, 1, maxDepth, minKas);
-    finalise(rootTree);
+  // Snap rounding drift so the spectrum reads a clean 100%.
+  if (Math.abs(resolvedKas - totalTarget) < 0.5) resolvedKas = totalTarget;
+  finalise(result.node);
 }
 
 function finalise(tree, customMsg = null) {
-    isTracing = false; clearInterval(elapsedTimer);
-    ['loader', 'btnStop'].forEach(id => document.getElementById(id).classList.add('hidden'));
-    document.getElementById('btnTrace').classList.remove('hidden');
-    document.getElementById('treeContainer').innerHTML = tree
-        ? buildTreeHTML(tree, true)
-        : `<div class="text-red-400 py-6 font-mono font-bold">${customMsg || 'Trace aborted.'}</div>`;
-    updateProgressBar();
+  isTracing = false; clearInterval(elapsedTimer);
+  ['loader', 'btnStop'].forEach(id => $(id).classList.add('hidden'));
+  $('btnTrace').classList.remove('hidden');
+  $('treeContainer').innerHTML = tree
+    ? buildTreeHTML(tree, true)
+    : `<div style="color:var(--cycle); font-weight:700; padding:20px 0">${customMsg || 'Trace aborted.'}</div>`;
+  updateProgressBar();
 }
 
+/* ---------- tree rendering ---------- */
 function buildTreeHTML(node, isRoot = false) {
-    if (!node) return '';
-    const kas = `${fmt(node.amount)} KAS`;
+  if (!node) return '';
+  const kas = fmt(node.amount) + ' KAS';
+  const pct = totalTarget > 0 ? ((node.amount / totalTarget) * 100).toFixed(1) + '%' : '';
 
-    let labelHtml = `<span class="text-${node.type} truncate mr-4 font-bold">${node.label}</span>`;
-    if (node.isAddress && !knownMap[node.label]) {
-        labelHtml = `<span onclick="selectAndTrace('${node.label}')" title="Click to Trace" class="cursor-pointer text-cyan-400 hover:text-white underline decoration-cyan-400/50 hover:decoration-white transition-all truncate pr-4">${node.label}</span>`;
-    } else if (node.isAddress && knownMap[node.label]) {
-        labelHtml = `<span onclick="copyToClipboard('${node.label}')" title="Click to Copy" class="cursor-pointer text-${node.type} hover:text-white transition-all truncate pr-4">${node.label}</span>`;
-    }
+  let labelHtml = `<span class="t-${node.type} trunc" style="font-weight:600">${node.label}</span>`;
+  if (node.isAddress && !knownMap[node.label] && node.type !== 'root') {
+    labelHtml = `<span onclick="selectAndTrace('${node.label}')" title="Click to trace this wallet" class="addr-link">${node.label}</span>`;
+  } else if (node.isAddress) {
+    labelHtml = `<span onclick="copyToClipboard('${node.label}')" title="Click to copy" class="addr-copy t-${node.type}">${node.label}</span>`;
+  }
 
-    if (!node.children || node.children.length === 0) {
-        return `<div class="leaf-node"><div class="flex items-center truncate mr-4">${labelHtml}</div><div class="flex space-x-4 shrink-0 text-right"><span class="text-slate-500 w-36 text-xs self-center">${node.info}</span><span class="text-slate-100 font-bold w-28">${kas}</span></div></div>`;
-    }
-    return `<details ${isRoot ? 'open' : ''}><summary><div class="flex items-center truncate mr-4 overflow-hidden"><span class="node-caret"></span>${labelHtml}</div><div class="flex space-x-4 shrink-0 text-right"><span class="text-slate-500 w-36 text-xs self-center">${node.info}</span><span class="text-slate-100 font-bold w-28">${kas}</span></div></summary>${node.children.map(c => buildTreeHTML(c)).join('')}</details>`;
+  const right = `<div class="n-right"><span class="n-info">${node.info || ''}</span><span class="n-kas">${kas}</span><span class="n-pct">${pct}</span></div>`;
+
+  if (!node.children || node.children.length === 0) {
+    return `<div class="leaf"><div class="n-left">${labelHtml}</div>${right}</div>`;
+  }
+  return `<details ${isRoot ? 'open' : ''}><summary><div class="n-left"><span class="caret"></span>${labelHtml}</div>${right}</summary>${node.children.map(c => buildTreeHTML(c)).join('')}</details>`;
 }
 </script>
 </body>
