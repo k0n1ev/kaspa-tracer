@@ -1,35 +1,73 @@
 <!doctype html>
+<!-- Generated release v2.1.0. Ready for GitHub Pages: deploy this file as-is. No build or server is required. Site settings/labels are editable in the tracer-config JSON block below. Maintained module sources are available separately. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Trace a Kaspa address's current unspent outputs to mining rewards or labeled exchanges. Resumable, transparent proportional attribution.">
   <meta name="referrer" content="no-referrer">
-  <title>Kaspa Origin Tracer · v2</title>
+  <title>Kaspa Origin Tracer · Static v2.1.0</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230d1722'/%3E%3Cpath d='M13 9v22M13 20L27 9M13 20l14 11' fill='none' stroke='%2349eacb' stroke-width='3'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./src/styles.css?v=2.0.0">
-  <script type="module" src="./src/app.js?v=2.0.0"></script>
+  <style>
+:root{color-scheme:dark;--bg:#070d13;--panel:#0d1722;--panel2:#101d2b;--line:#1c2c3c;--text:#eaf4f6;--muted:#8ea2b4;--teal:#49eacb;--mining:#4ade80;--exchange:#c084fc;--pending:#6181a7;--blocked:#fbbf24;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--radius:14px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 88% 0,rgba(73,234,203,.05),transparent 42%),var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}[hidden]{display:none!important}.wrap{max-width:1200px;margin:auto;padding:34px 24px 28px}header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}.brand{display:flex;gap:14px;align-items:center}.mark{color:var(--teal);width:43px;height:43px;flex:none}h1{font-size:clamp(1.4rem,3vw,1.9rem);letter-spacing:-.035em;line-height:1.25;margin:0}p{margin:8px 0 0}.tagline{font-size:.86rem;color:var(--muted);margin:3px 0 0}.version{font:10px var(--mono);letter-spacing:.08em;color:var(--muted);white-space:nowrap}.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);margin:0 5px 0 12px}.panel{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:22px;margin:18px 0}.command{margin-top:0}form{display:flex;gap:14px;align-items:flex-end}.field{display:flex;flex-direction:column;gap:7px;min-width:0}.address-field{flex:1}label,.eyebrow{font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;color:var(--muted)}input{border:1px solid var(--line);border-radius:9px;padding:12px;background:#091018;color:var(--text);min-width:0;width:100%;font-size:.85rem}input[type=text],input[type=url]{font-family:var(--mono)}input[type=file]{font-size:.72rem;padding:10px 7px}input:focus{border-color:var(--teal);outline:2px solid #49eacb24;outline-offset:1px}.actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}button{font-weight:650;border-radius:9px;border:1px solid transparent;padding:11px 18px;transition:filter .15s,background .15s}button:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--teal);outline-offset:3px}.primary{background:linear-gradient(90deg,#70ebff,var(--teal));color:#06231d}.primary span{margin-left:14px}.danger{background:#b93848;color:#fff}.ghost{background:var(--panel2);border-color:var(--line);color:var(--text);font-size:.76rem;padding:9px 13px}button:hover:not(:disabled){filter:brightness(1.13)}.text-button{background:none;border:0;color:var(--teal);padding:4px 0;font-size:.76rem;text-align:left}.command-bottom{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:12px}.command-bottom p{font-size:.74rem;color:var(--muted);margin:0}summary{cursor:pointer;color:var(--muted);font-size:.79rem;font-weight:600}#settings{margin-top:16px;padding-top:13px;border-top:1px solid var(--line)}.settings-grid{display:grid;grid-template-columns:1.35fr 1fr 1.3fr;gap:18px;padding-top:18px}.field small{color:var(--muted);font-size:.7rem;line-height:1.5}.small{font-size:.76rem}.muted{color:var(--muted)}.message{padding:15px 18px;border:1px solid #b95c69;background:#2b151d;color:#ffcdd4;border-radius:10px;margin:16px 0;overflow-wrap:anywhere}.message.info{border-color:#386477;background:#0e222e;color:#c3e8f5}.status-top{display:flex;justify-content:space-between;gap:20px;align-items:center}.badge{font:10px var(--mono);letter-spacing:.12em;color:var(--teal);padding:4px 7px;background:#49eacb12;border:1px solid #49eacb33;border-radius:5px}.status-panel p{font-size:.8rem;color:var(--muted)}.status-actions{display:flex;gap:8px;flex-wrap:wrap}.stats{display:flex;flex-wrap:wrap;gap:7px 22px;border-top:1px solid var(--line);padding-top:13px;margin-top:16px;color:var(--muted);font:11px/1.5 var(--mono)}.stats b{color:var(--text);font-weight:600;margin-left:4px}.hero{padding:24px 26px}.hero-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.hero .eyebrow{color:var(--teal)}.balance-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:20px 0 24px;min-width:0}.balance-row>div:first-child{min-width:0}.balance{font-size:clamp(1.55rem,4vw,3.2rem);letter-spacing:-.04em;font-weight:750;line-height:1.3;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.balance small{font-size:.4em;letter-spacing:0;color:var(--muted);font-weight:500}.address-text{font:11px/1.6 var(--mono);color:var(--muted);overflow-wrap:anywhere}.coverage{text-align:right;flex:none}.coverage strong{display:block;font-size:2rem;color:var(--teal);line-height:1.3;letter-spacing:-.04em}.coverage span{display:block;font-size:.69rem;color:var(--muted)}.spectrum{display:flex;height:15px;border-radius:12px;overflow:hidden;background:#091018}.spectrum>span{display:block;height:100%;width:0;transition:width .25s}.mining-fill{background:var(--mining)}.exchange-fill{background:var(--exchange)}.pending-fill{background:var(--pending)}.blocked-fill{background:var(--blocked)}.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}.legend>div{display:grid;grid-template-columns:10px 1fr;column-gap:7px;align-items:center;font-size:.71rem;color:var(--muted)}.legend b{grid-column:2;color:var(--text);font:12px/1.8 var(--mono);margin-top:3px;overflow-wrap:anywhere}.legend small{grid-column:2;font:10px var(--mono)}.dot{display:inline-block;width:7px;height:7px;border-radius:50%}.conservation{font:10px/1.6 var(--mono);color:var(--muted);margin-top:23px}.method-note{border-top:1px solid var(--line);padding-top:14px;margin-top:13px;color:var(--muted);font-size:.73rem}.method-note b{color:var(--text);font-weight:500}.two-columns{display:grid;grid-template-columns:1.12fr 1fr;gap:18px}.two-columns .panel{margin:0 0 18px;min-width:0}h2{font-size:.85rem;letter-spacing:.025em;font-weight:700;margin:0;display:flex;align-items:center;gap:10px}.count{font:10px var(--mono);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:2px 6px}.list{margin-top:17px}.empty{font-size:.78rem;color:var(--muted);padding:22px 0}.endpoint,.branch{border-top:1px solid var(--line);padding:13px 0}.endpoint:first-child,.branch:first-child{border-top:0;padding-top:0}.row-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline}.row-name{font-size:.83rem;font-weight:650;min-width:0;overflow-wrap:anywhere}.row-value{text-align:right;font:12px var(--mono);flex:none}.row-value small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.mining-text{color:var(--mining)}.exchange-text{color:var(--exchange)}.evidence{font-size:.67rem;color:var(--muted);overflow-wrap:anywhere;margin-top:6px}.row-links{display:flex;align-items:center;gap:13px;margin-top:6px;flex-wrap:wrap}.row-links a{font-size:.7rem;color:var(--muted);text-decoration:none}.row-links button{font-size:.7rem;padding:0}.mini-track{height:3px;border-radius:4px;background:#091018;margin-top:10px;overflow:hidden}.mini-track span{display:block;height:100%}.branch .row-name{font:11px var(--mono);color:var(--text)}.branch .row-value{font-size:11px}.branch .evidence{line-height:1.5;color:#c8b98e}.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}.path-title{font:12px/1.8 var(--mono);overflow-wrap:anywhere;color:var(--teal);margin-top:20px}#pathDetails{line-height:1.7;overflow-wrap:anywhere}#pathDetails a{color:var(--muted);margin-right:15px}.table-scroll{overflow:auto;margin-top:17px}table{width:100%;border-collapse:collapse;font-size:.74rem}th{font-size:.6rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);text-align:left;border-bottom:1px solid var(--line);padding:8px 8px 10px}td{padding:12px 8px;border-bottom:1px solid var(--line);vertical-align:top}td:nth-child(2){font:11px/1.7 var(--mono);white-space:nowrap}td:nth-child(3){font-size:.69rem;color:var(--muted);min-width:85px}td:last-child{text-align:right}td button{padding:5px 9px;font-size:.69rem}td .output-id{font:11px var(--mono);color:var(--text);white-space:nowrap}td .output-owner{font:10px/1.6 var(--mono);color:var(--muted);margin-top:5px}#warningsList p{color:var(--muted);font-size:.76rem;margin-top:14px}.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:16px}.how h3{font-size:.78rem;font-weight:600;margin:0;color:var(--teal)}.how p{font-size:.75rem;color:var(--muted)}.methodology p{font-size:.76rem;color:var(--muted);max-width:110ch;margin-top:14px}footer{padding-top:9px;text-align:center;color:var(--muted);font-size:.71rem}.donation{padding:0;border:none;background:none;color:var(--teal);font:10px/1.8 var(--mono);overflow-wrap:anywhere;white-space:normal}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}#copyStatus{display:block;min-height:24px;font-size:.7rem;color:var(--teal)}
+@media(max-width:880px){.settings-grid{grid-template-columns:1fr 1fr}.settings-grid>.field:last-child{grid-column:1/-1}.two-columns{grid-template-columns:1fr}.legend{grid-template-columns:repeat(2,1fr)}.how-grid{gap:18px}.version{font-size:9px}.row-value{max-width:50%;overflow-wrap:anywhere}}
+@media(max-width:620px){.wrap{padding:23px 14px}.panel{padding:18px}.version{display:none}form{align-items:stretch;flex-direction:column;gap:13px}.actions{width:100%}.command form button{flex:1}.command-bottom{flex-direction:column;gap:9px}.settings-grid{grid-template-columns:1fr}.settings-grid>.field:last-child{grid-column:auto}.status-top{align-items:flex-start;flex-direction:column;gap:14px}.balance-row{align-items:flex-start;flex-direction:column;gap:16px}.coverage{text-align:left;display:flex;gap:10px;align-items:baseline}.coverage strong{font-size:1.6rem}.hero-top .small{font-size:.65rem}.legend{gap:14px 9px}.legend>div{font-size:.67rem}.how-grid{grid-template-columns:1fr;gap:21px}.section-head{flex-direction:column;gap:12px}h1{font-size:1.35rem}.stats{font-size:10px;gap:7px 15px}.row-name{font-size:.77rem}.row-value{font-size:11px}th,td{padding-left:5px;padding-right:5px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+@media(max-width:620px){.table-scroll th:nth-child(3),.table-scroll td:nth-child(3){display:none}}
+
+.connection-panel pre {white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font-size:12px;line-height:1.6;max-height:24rem;overflow:auto;}
+.connection-panel .actions {flex-wrap:wrap;}
+#testConnection {margin-top:8px;align-self:flex-start;}
+
+/* Visible even if application initialization fails. */
+.startup-panel { border-color: var(--muted, #687987); }
+.startup-panel h2 { margin-bottom: .65rem; }
+.startup-panel p { line-height: 1.6; }
+.startup-details { white-space: pre-wrap; overflow-wrap: anywhere; padding: 1rem; border: 1px solid currentColor; border-radius: .6rem; font-size: .85rem; }
+#message { margin: .75rem 0; }
+
+</style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="brand"><svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 11v18M14 20l10-9M14 20l10 9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><div><h1>Kaspa Origin Tracer</h1><p class="tagline">Follow the outputs. Find the endpoints.</p></div></div>
-    <span class="version">v2.0.0 <span class="live-dot"></span> MAINNET</span>
+    <span class="version">v2.1.0 · STATIC <span class="live-dot"></span> MAINNET</span>
   </header>
   <main>
+    <section id="bootPanel" class="panel startup-panel" role="alert">
+      <h2 id="bootTitle">Starting the application…</h2>
+      <p id="bootText">The controls will become available when startup succeeds. If this message stays here, JavaScript was blocked or could not start. This is not a wallet or API result.</p>
+      <pre id="bootDetails" class="startup-details" hidden></pre>
+      <p class="small">This is a self-contained static site. Publish this <code>index.html</code> on GitHub Pages; no installation, server process or build step is required.</p>
+    </section>
+    <section id="localFilePanel" class="panel startup-panel" hidden aria-label="Local file preview">
+      <h2>Local file preview</h2>
+      <p>The application and offline demo work from this file. Live tracing attempts a direct API connection, but the API or browser may reject local-file origins. The intended deployment is GitHub Pages: upload <code>index.html</code> and open the published HTTPS site.</p>
+      <p class="small">No npm, Node.js, local server or separate backend is needed.</p>
+    </section>
     <section class="panel command" aria-label="Start a trace">
-      <form id="traceForm">
+      <form id="traceForm" novalidate>
         <div class="field address-field"><label for="addressInput">Kaspa address</label><input id="addressInput" name="address" type="text" placeholder="kaspa:…" autocomplete="off" spellcheck="false" required aria-describedby="addressHelp"></div>
-        <div class="actions"><button id="traceButton" type="submit" class="primary">Trace balance <span aria-hidden="true">↗</span></button><button id="stopButton" type="button" class="danger" hidden>Stop</button><button id="continueButton" type="button" class="primary" hidden>Continue trace</button></div>
+        <div class="actions"><button id="traceButton" type="submit" disabled class="primary">Trace balance <span aria-hidden="true">↗</span></button><button id="stopButton" type="button" class="danger" hidden>Stop</button><button id="continueButton" type="button" class="primary" hidden>Continue trace</button></div>
       </form>
-      <div class="command-bottom"><p id="addressHelp">Current balance only. No wallet connection, seed phrase or private key.</p><button id="demoButton" class="text-button" type="button">Try the offline demo →</button></div>
+      <div class="command-bottom"><p id="addressHelp">Current balance only. No wallet connection, seed phrase or private key.</p><button id="demoButton" disabled class="text-button" type="button">Try the offline demo →</button></div>
+      <div id="message" class="message" role="alert" hidden></div>
       <details id="settings"><summary>Advanced &amp; address labels</summary><div class="settings-grid">
-        <div class="field"><label for="apiInput">Compatible REST API</label><input id="apiInput" type="url" value="https://api.kaspa.org" spellcheck="false"><small>Public API limits still apply. A custom API must support browser CORS.</small></div>
+        <div class="field"><label for="apiInput">Compatible REST API</label><input id="apiInput" type="url" value="https://api.kaspa.org" spellcheck="false"><small>Requests go directly from your browser to this API. It must allow browser CORS; public rate limits still apply. No backend is used by this site.</small><div class="actions"><button id="testConnection" disabled type="button" class="ghost">Test connection</button><button id="resetApi" type="button" class="ghost">Reset API</button></div></div>
         <div class="field"><label for="idleInput">Pause after no discovery (seconds)</label><input id="idleInput" type="number" value="90" min="10" max="3600" step="5"><small>Discovery = a new endpoint, or at least 0.01% more balance attributed.</small></div>
         <div class="field"><label for="labelsInput">Additional labels (JSON)</label><input id="labelsInput" type="file" accept="application/json,.json"><small id="labelsHelp">Only explicitly enabled exchange labels stop a branch. Labels apply to the next new trace.</small></div>
       </div><p class="small muted">No maximum depth or minimum KAS. Browser memory/work safety limits preserve a partial result rather than dropping branches.</p></details>
     </section>
-    <div id="message" class="message" role="alert" hidden></div>
+    <section id="connectionPanel" class="panel connection-panel" hidden aria-label="Connection diagnostics">
+      <h2>API connection</h2><p id="connectionSummary" role="status" aria-live="polite"></p>
+      <pre id="connectionDetails" tabindex="0"></pre>
+      <p class="small muted">Browser JavaScript cannot tell a CORS block from every DNS/TLS/network failure. The browser console may show the precise reason. This static site uses direct GET requests. If the API blocks your origin, choose a compatible browser-accessible API or retry later. An HTML change cannot grant access on the API’s behalf.</p>
+      <div class="actions"><button id="retryConnection" type="button" class="ghost">Test connection again</button><button id="cancelConnection" type="button" class="danger" hidden>Stop test</button><button id="copyDiagnostics" type="button" class="ghost">Copy diagnostics</button></div>
+      <p id="diagnosticCopyStatus" role="status" class="small muted"></p>
+    </section>
     <section id="statusPanel" class="panel status-panel" hidden aria-label="Trace status">
       <div class="status-top"><div><span id="stateBadge" class="badge">PREPARING</span><p id="statusText" role="status" aria-live="polite">Taking a checked UTXO snapshot…</p></div><div class="status-actions"><button id="exportJSON" class="ghost" type="button" disabled>Export JSON</button><button id="exportCSV" class="ghost" type="button" disabled>Export CSV</button></div></div>
       <div class="stats"><span>Requests <b id="statRequests">0</b></span><span>Cache hits <b id="statCache">0</b></span><span>Retries <b id="statRetries">0</b></span><span>Outputs explored <b id="statNodes">0</b></span><span>Deepest path <b id="statDepth">0</b></span><span>Active time <b id="statTime">0s</b></span></div>
@@ -51,10 +89,1512 @@
       <details class="panel" id="warningsBox" hidden><summary>Data quality &amp; limitations <span id="warningCount"></span></summary><div id="warningsList"></div></details>
     </section>
     <section class="panel how"><h2>What this trace tells you</h2><div class="how-grid"><div><h3>1 / Start with what remains</h3><p>Trace the unspent outputs in a checked snapshot, not a percentage of lifetime receipts. One address is not necessarily an entire wallet.</p></div><div><h3>2 / Follow the funding inputs</h3><p>Work backwards through specific outpoints. Larger branches get priority, with regular turns for smaller branches.</p></div><div><h3>3 / Stop at evidence</h3><p>Stop at mining-reward evidence or a labeled exchange. Pause after no new discovery, or press Stop and continue later in this tab.</p></div></div></section>
-    <details class="panel methodology"><summary>Methodology, limitations &amp; privacy</summary><p>For a transaction with mixed inputs, this tracer apportions the target contribution in proportion to input values. Cumulative integer rounding across outputs of the same transaction prevents repeated rounding from exceeding an input. Fees are not added to your balance: the analysis follows only your attributed outputs.</p><p>A mining endpoint is supported by an API coinbase flag or the coinbase subnetwork ID. Coinbase payments can include fees. A mining-pool name alone is not evidence of a newly mined payment. Other named entities do not terminate a trace.</p><p>Exchange labels identify public/operator-supplied stopping points, not verified beneficial ownership. Unknown exchange addresses may be followed past the exchange and back to mining. Never interpret missing labels, complete model coverage or a long path as proof of the economic origin of funds.</p><p>Snapshots are amount/count cross-checked, not block-pinned or cryptographically verified. Indexer errors, missing historical data, reorganizations and public API limits can prevent completion. There is no promise of finding every exchange.</p><p>Stop aborts requests; Continue preserves the same snapshot and retries unfinished branches. This in-memory session does not survive reloading the page. Exported JSON is an audit report, not an importable checkpoint. Start a new trace for a fresh balance.</p><p>No signing, tracking analytics or external scripts are used. The selected API can see queried addresses, transaction IDs and your IP. Exports contain public-address tracing history; share them deliberately.</p><p>Empty addresses have no current balance to trace. Lifetime-receipt tracing from v1 has intentionally been removed rather than mixed with current-balance attribution.</p></details>
+    <details class="panel methodology"><summary>Methodology, limitations &amp; privacy</summary><p>For a transaction with mixed inputs, this tracer apportions the target contribution in proportion to input values. Cumulative integer rounding across outputs of the same transaction prevents repeated rounding from exceeding an input. Fees are not added to your balance: the analysis follows only your attributed outputs.</p><p>A mining endpoint is supported by an API coinbase flag or the coinbase subnetwork ID. Coinbase payments can include fees. A mining-pool name alone is not evidence of a newly mined payment. Other named entities do not terminate a trace.</p><p>Exchange labels identify public/operator-supplied stopping points, not verified beneficial ownership. Unknown exchange addresses may be followed past the exchange and back to mining. Never interpret missing labels, complete model coverage or a long path as proof of the economic origin of funds.</p><p>Snapshots are amount/count cross-checked, not block-pinned or cryptographically verified. Indexer errors, missing historical data, reorganizations and public API limits can prevent completion. There is no promise of finding every exchange.</p><p>Stop aborts requests; Continue preserves the same snapshot and retries unfinished branches. This in-memory session does not survive reloading the page. Exported JSON is an audit report, not an importable checkpoint. Start a new trace for a fresh balance.</p><p>No signing, tracking analytics or third-party scripts are used. The selected API can see queried addresses and transaction IDs. The API receives your IP address. This application uses no relay, wallet connection or backend, and it does not silently switch providers. Exports contain public-address tracing history; share them deliberately.</p><p>Empty addresses have no current balance to trace. Lifetime-receipt tracing from v1 has intentionally been removed rather than mixed with current-balance attribution.</p></details>
   </main>
-  <footer><p>Kaspa Origin Tracer · v2.0.0</p><p>Support this project: <button type="button" id="copyDonation" class="donation" title="Copy donation address">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</button></p><span id="copyStatus" role="status"></span></footer>
+  <footer><p>Kaspa Origin Tracer · v2.1.0</p><p>Support this project: <button type="button" id="copyDonation" class="donation" title="Copy donation address">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</button></p><span id="copyStatus" role="status"></span></footer>
 </div>
 <noscript><p class="message">Enable JavaScript to run this browser-only tracer.</p></noscript>
+<script id="tracer-config" type="application/json">
+{
+  "apiBase": "https://api.kaspa.org",
+  "entities": [
+    {
+      "address": "kaspa:precqv0krj3r6uyyfa36ga7s0u9jct0v4wg8ctsfde2gkrsgwgw8jgxfzfc98",
+      "name": "Kaspa Dev Fund",
+      "type": "entity",
+      "enabled": false,
+      "source": "Imported from the uploaded v1 tracer; not independently revalidated. Disabled as a stopping rule until reviewed."
+    }
+  ]
+}
+</script>
+<script id="startup-script">
+/* Deliberately ES5-compatible and separate from the app: parse/load failures
+ * in the main script must produce a visible message, not inert controls.
+ */
+(function () {
+  'use strict';
+  var ready = false, failed = false;
+  function element(id) { return document.getElementById(id); }
+  function describe(error) {
+    if (!error) return 'Unknown JavaScript startup error';
+    return String(error.message || error).slice(0, 2000);
+  }
+  function fail(error) {
+    failed = true;
+    element('bootPanel').hidden = false;
+    element('bootTitle').textContent = ready ? 'Application error' : 'The application could not start';
+    element('bootText').textContent = 'No successful trace is implied. Copy the details below when reporting this error. Reload the complete current release in a supported browser.';
+    element('bootDetails').hidden = false;
+    element('bootDetails').textContent = describe(error);
+    if (!ready) {
+      element('traceButton').disabled = true;
+      element('demoButton').disabled = true;
+      element('testConnection').disabled = true;
+    }
+  }
+  window.KaspaBoot = {
+    ready: function () {
+      if (failed) return;
+      ready = true;
+      element('bootPanel').hidden = true;
+      element('localFilePanel').hidden = location.protocol !== 'file:';
+      document.documentElement.setAttribute('data-app-ready', 'true');
+    },
+    fail: fail
+  };
+  window.addEventListener('error', function (event) {
+    if (event.error || event.message) fail(event.error || event.message);
+  });
+  window.addEventListener('unhandledrejection', function (event) { fail(event.reason); });
+  setTimeout(function () {
+    if (!ready && !failed) fail('Startup did not complete. Check that JavaScript is enabled and that you are using the complete current index.html.');
+  }, 8000);
+}());
+
+</script>
+<script id="application-script">
+(function () {
+'use strict';
+const __modules = Object.create(null);
+__modules["amount"] = (function () {
+/** Monetary values are integer sompi, never floating-point KAS. */
+const SOMPI = 100_000_000n;
+
+function sompi(value, field = 'amount') {
+  if (typeof value === 'bigint' && value >= 0n) return value;
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) return BigInt(value);
+  if (typeof value === 'string' && /^\d+$/.test(value)) return BigInt(value);
+  throw new Error(`Invalid or unsafe ${field}; expected nonnegative integer sompi`);
+}
+
+/** Preserve large JSON integer literals before JSON.parse can round them. */
+function parseLosslessJSON(text) {
+  let result = '', i = 0;
+  while (i < text.length) {
+    if (text[i] === '"') {
+      const start = i++;
+      while (i < text.length) {
+        if (text[i] === '\\') i += 2;
+        else if (text[i++] === '"') break;
+      }
+      result += text.slice(start, i);
+    } else if (text[i] === '-' || /[0-9]/.test(text[i])) {
+      const match = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(text.slice(i));
+      if (!match) throw new SyntaxError('Invalid JSON number');
+      const token = match[0];
+      const integer = !/[.eE]/.test(token);
+      result += integer && (BigInt(token) > 9007199254740991n || BigInt(token) < -9007199254740991n)
+        ? `"${token}"` : token;
+      i += token.length;
+    } else result += text[i++];
+  }
+  return JSON.parse(result);
+}
+
+/** Largest-remainder proportional attribution; exact conservation at each split.
+ * A transaction does not identify a unique input-to-output ownership mapping.
+ * This allocation is an explicit model, not a claim about individual coins.
+ */
+function allocate(total, weights) {
+  total = sompi(total);
+  weights = weights.map(w => sompi(w));
+  const denominator = weights.reduce((s, w) => s + w, 0n);
+  if (!denominator) {
+    if (!total) return weights.map(() => 0n);
+    throw new Error('Cannot allocate over zero-valued inputs');
+  }
+  const shares = weights.map(w => total * w / denominator);
+  let remainder = total - shares.reduce((s, w) => s + w, 0n);
+  const order = weights.map((w, i) => ({i, r: total * w % denominator}))
+    .sort((a, b) => a.r === b.r ? a.i - b.i : a.r > b.r ? -1 : 1);
+  for (const {i} of order) { if (!remainder) break; shares[i]++; remainder--; }
+  return shares;
+}
+
+function formatKAS(value, places = 8) {
+  const n = sompi(value);
+  const whole = (n / SOMPI).toLocaleString('en-US');
+  const fraction = (n % SOMPI).toString().padStart(8, '0').slice(0, places).replace(/0+$/, '');
+  return fraction ? `${whole}.${fraction}` : whole;
+}
+function kasDecimal(value) {
+  const n = sompi(value);
+  return `${n / SOMPI}.${(n % SOMPI).toString().padStart(8, '0')}`;
+}
+function percent(value, total) {
+  return total > 0n ? Number(value * 1_000_000n / total) / 10_000 : 0;
+}
+function stringify(value, space = 2) {
+  return JSON.stringify(value, (_, v) => typeof v === 'bigint' ? v.toString() : v, space);
+}
+
+/** Monotone cumulative apportionment (Jefferson / highest averages).
+ * Unlike largest-remainder rounding, increasing the total never takes a unit
+ * away from an input. Pooling by transaction prevents sibling outputs from
+ * repeatedly rounding the same one-sompi input upward. At total=sum(weights),
+ * every input receives exactly its value.
+ */
+function apportion(total, weights) {
+  total = sompi(total); weights = weights.map(w => sompi(w));
+  const sum = weights.reduce((s, w) => s + w, 0n);
+  if (!sum) {
+    if (!total) return weights.map(() => 0n);
+    throw new Error('Cannot apportion to zero inputs');
+  }
+  const shares = weights.map(w => total * w / sum);
+  let left = total - shares.reduce((s, w) => s + w, 0n);
+  const heap = weights.map((_, i) => i).filter(i => weights[i] > 0n);
+  const better = (i, j) => {
+    const a = weights[i] * (shares[j] + 1n), b = weights[j] * (shares[i] + 1n);
+    return a === b ? i < j : a > b;
+  };
+  const down = start => {
+    let i = start;
+    while (true) {
+      let best = i, a = 2 * i + 1, b = a + 1;
+      if (a < heap.length && better(heap[a], heap[best])) best = a;
+      if (b < heap.length && better(heap[b], heap[best])) best = b;
+      if (best === i) break;
+      [heap[i], heap[best]] = [heap[best], heap[i]]; i = best;
+    }
+  };
+  for (let i = (heap.length >> 1) - 1; i >= 0; i--) down(i);
+  while (left > 0n) { shares[heap[0]]++; left--; down(0); }
+  return shares;
+}
+
+return {SOMPI, sompi, parseLosslessJSON, allocate, formatKAS, kasDecimal, percent, stringify, apportion};
+}());
+
+__modules["model"] = (function () {
+const {sompi} = __modules["amount"];
+
+const COINBASE_SUBNETWORK = '01' + '00'.repeat(19);
+class DataError extends Error {
+  constructor(message, code = 'invalid-data', retryable = false) {
+    super(message); this.name = 'DataError'; this.code = code; this.retryable = retryable;
+  }
+}
+function txId(value) {
+  if (typeof value !== 'string' || !/^[0-9a-fA-F]{64}$/.test(value)) throw new DataError('Missing or invalid transaction ID');
+  return value.toLowerCase();
+}
+function indexOf(value) {
+  if (value === null || value === undefined || value === '' || !/^\d+$/.test(String(value))) throw new DataError('Missing output index');
+  const n = Number(value);
+  if (!Number.isSafeInteger(n) || n < 0 || n > 4294967295) throw new DataError('Invalid output index');
+  return n;
+}
+const keyOf = (id, index) => `${txId(id)}:${indexOf(index)}`;
+const bool = v => v === true || v === 'true';
+const addressOf = o => o.script_public_key_address ?? o.scriptPublicKeyAddress ?? o.verboseData?.scriptPublicKeyAddress ?? null;
+
+function normalizeOutput(o, fallbackIndex) {
+  if (!o || typeof o !== 'object') throw new DataError('Missing transaction output');
+  return {index: indexOf(o.index ?? fallbackIndex), value: sompi(o.amount, 'output amount'), address: addressOf(o)};
+}
+function normalizeTransaction(data, expectedId) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw new DataError('Invalid transaction response');
+  const id = txId(data.transaction_id ?? data.transactionId ?? data.verboseData?.transactionId);
+  if (id !== txId(expectedId)) throw new DataError('API returned a different transaction ID');
+  if (data.is_accepted === false || data.isAccepted === false) throw new DataError('Transaction is not accepted by the indexer', 'not-accepted', true);
+  if (!Array.isArray(data.outputs) || !data.outputs.length) throw new DataError('Transaction outputs are missing', 'missing-outputs', true);
+  const outputs = data.outputs.map(normalizeOutput);
+  if (new Set(outputs.map(o => o.index)).size !== outputs.length) throw new DataError('Duplicate transaction output index');
+  const subnet = data.subnetwork_id ?? data.subnetworkId;
+  const coinbase = typeof subnet === 'string' && subnet.toLowerCase() === COINBASE_SUBNETWORK;
+  // The API represents coinbase inputs as null. Empty/missing inputs alone do NOT prove mining.
+  if (!coinbase && (!Array.isArray(data.inputs) || !data.inputs.length)) {
+    throw new DataError('Inputs missing and no coinbase subnetwork evidence', 'missing-inputs', true);
+  }
+  if (coinbase && Array.isArray(data.inputs) && data.inputs.length) throw new DataError('Coinbase transaction unexpectedly has inputs');
+  const inputs = (data.inputs ?? []).map(i => {
+    const resolved = i.previous_outpoint_resolved ?? i.previousOutpointResolved;
+    const prev = i.previousOutpoint ?? i.previous_outpoint;
+    const hash = txId(i.previous_outpoint_hash ?? i.previousOutpointHash ?? prev?.transactionId ?? resolved?.transaction_id);
+    const index = indexOf(i.previous_outpoint_index ?? i.previousOutpointIndex ?? prev?.index ?? resolved?.index);
+    const value = i.previous_outpoint_amount ?? i.previousOutpointAmount ?? resolved?.amount;
+    return {txid: hash, index, key: keyOf(hash, index),
+      value: value === undefined || value === null ? null : sompi(value, 'previous output amount'),
+      address: i.previous_outpoint_address ?? i.previousOutpointAddress ?? (resolved ? addressOf(resolved) : null)};
+  });
+  if (new Set(inputs.map(i => i.key)).size !== inputs.length) throw new DataError('Duplicate input outpoint');
+  const time = Number(data.accepting_block_time ?? data.block_time ?? data.verboseData?.blockTime ?? 0);
+  return {id, coinbase, inputs, outputs, time: Number.isFinite(time) && time > 0 ? time : null,
+    accepted: data.is_accepted ?? data.isAccepted ?? null};
+}
+function findOutput(tx, index) {
+  const result = tx.outputs.find(o => o.index === index);
+  if (!result) throw new DataError(`Referenced output ${index} is missing`, 'missing-output', true);
+  return result;
+}
+function normalizeUTXOs(data, address) {
+  if (!Array.isArray(data)) throw new DataError('UTXO API did not return a list');
+  const unique = new Map();
+  for (const row of data) {
+    if (row.address && row.address !== address) throw new DataError('UTXO belongs to a different address');
+    const out = row.outpoint ?? row.outPoint;
+    const entry = row.utxoEntry ?? row.utxo_entry;
+    if (!out || !entry) throw new DataError('Incomplete UTXO data');
+    const id = txId(out.transactionId ?? out.transaction_id), index = indexOf(out.index);
+    const key = keyOf(id, index), value = sompi(entry.amount, 'UTXO amount');
+    const item = {key, txid: id, index, value, address, coinbase: bool(entry.isCoinbase ?? entry.is_coinbase)};
+    const previous = unique.get(key);
+    if (previous && (previous.value !== value || previous.coinbase !== item.coinbase)) throw new DataError('Conflicting duplicate UTXOs');
+    unique.set(key, item);
+  }
+  return [...unique.values()];
+}
+
+return {COINBASE_SUBNETWORK, DataError, txId, indexOf, keyOf, normalizeOutput, normalizeTransaction, findOutput, normalizeUTXOs};
+}());
+
+__modules["api"] = (function () {
+const {parseLosslessJSON, sompi} = __modules["amount"];
+
+const {DataError, normalizeTransaction, normalizeUTXOs, txId} = __modules["model"];
+
+const abortError = () => new DOMException('Operation stopped', 'AbortError');
+function throwIfAborted(signal) { if (signal?.aborted) throw abortError(); }
+function delay(ms, signal) {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) return reject(abortError());
+    const done = () => { signal?.removeEventListener('abort', cancel); resolve(); };
+    const timer = setTimeout(done, Math.max(0, ms));
+    const cancel = () => { clearTimeout(timer); signal?.removeEventListener('abort', cancel); reject(abortError()); };
+    signal?.addEventListener('abort', cancel, {once: true});
+  });
+}
+class ApiError extends Error {
+  constructor(message, {status = 0, retryable = true, retryAfterMs = 0, code, url = '', method = 'GET', detail = ''} = {}) {
+    super(message); this.name = 'ApiError'; this.code = code ?? (status ? `http-${status}` : 'network');
+    this.status = status; this.retryable = retryable; this.retryAfterMs = retryAfterMs;
+    this.url = url; this.method = method; this.detail = detail;
+  }
+  diagnostic() {
+    return {name:this.name, code:this.code, message:this.message, method:this.method,
+      url:this.url, httpStatus:this.status || null, detail:this.detail};
+  }
+}
+function retryAfter(value, now = Date.now()) {
+  if (!value) return 0;
+  const seconds = Number(value);
+  return Number.isFinite(seconds) ? Math.max(0, seconds * 1000) : Math.max(0, Date.parse(value) - now || 0);
+}
+function validateApiBase(value) {
+  let url;
+  try { url = new URL(value); } catch { throw new Error('API URL must be a complete HTTPS URL'); }
+  const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+  if ((url.protocol !== 'https:' && !(url.protocol === 'http:' && local)) || url.username || url.password || url.search || url.hash) {
+    throw new Error('Use an HTTPS API URL without credentials, query parameters or a fragment (localhost HTTP is allowed)');
+  }
+  return url.href.replace(/\/$/, '');
+}
+
+class Pool {
+  constructor(limit) { this.limit = limit; this.active = 0; this.queue = []; }
+  acquire(signal) {
+    return new Promise((resolve, reject) => {
+      if (signal?.aborted) return reject(abortError());
+      const entry = {signal, resolve, reject};
+      entry.cancel = () => {
+        const i = this.queue.indexOf(entry); if (i >= 0) this.queue.splice(i, 1);
+        reject(abortError());
+      };
+      signal?.addEventListener('abort', entry.cancel, {once: true});
+      this.queue.push(entry); this.drain();
+    });
+  }
+  drain() {
+    while (this.active < this.limit && this.queue.length) {
+      const entry = this.queue.shift(); entry.signal?.removeEventListener('abort', entry.cancel);
+      if (entry.signal?.aborted) { entry.reject(abortError()); continue; }
+      this.active++;
+      let released = false;
+      entry.resolve(() => { if (!released) { released = true; this.active--; this.drain(); } });
+    }
+  }
+}
+
+class KaspaApi {
+  constructor({baseUrl = 'https://api.kaspa.org', fetchImpl = globalThis.fetch,
+    concurrency = 3, minIntervalMs = 180, timeoutMs = 12000, retries = 3, cacheSize = 2500,
+    random = Math.random, onMetrics = () => {}, onProgress = () => {}} = {}) {
+    this.baseUrl = validateApiBase(baseUrl); this.fetch = fetchImpl; this.pool = new Pool(concurrency);
+    this.minIntervalMs = minIntervalMs; this.timeoutMs = timeoutMs; this.retries = retries;
+    this.cacheSize = cacheSize; this.random = random; this.onMetrics = onMetrics;
+    this.onProgress = onProgress;
+    this.nextStart = 0; this.cooldownUntil = 0; this.cache = new Map(); this.inFlight = new Map();
+    this.metrics = {requests: 0, retries: 0, cacheHits: 0, failures: 0, active: 0, peakActive: 0};
+  }
+  emit() { try { this.onMetrics({...this.metrics}); } catch { /* UI must not interrupt accounting */ } }
+  progress(text) { try { this.onProgress(text); } catch { /* UI is not part of transport */ } }
+  async json(path, {signal, retries = this.retries, timeoutMs = this.timeoutMs} = {}) {
+    const method = 'GET';
+    const requestUrl = this.baseUrl + path;
+    for (let attempt = 0; ; attempt++) {
+      throwIfAborted(signal);
+      let retryError;
+      const release = await this.pool.acquire(signal);
+      try {
+        const start = Math.max(Date.now(), this.nextStart, this.cooldownUntil);
+        this.nextStart = start + this.minIntervalMs;
+        await delay(start - Date.now(), signal);
+        while (Date.now() < this.cooldownUntil) await delay(this.cooldownUntil - Date.now(), signal);
+        throwIfAborted(signal);
+        const controller = new AbortController();
+        const cancel = () => controller.abort();
+        signal?.addEventListener('abort', cancel, {once: true});
+        let timedOut = false;
+        const timer = setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs);
+        this.metrics.requests++; this.metrics.active++;
+        this.metrics.peakActive = Math.max(this.metrics.peakActive, this.metrics.active); this.emit();
+        try {
+          const response = await this.fetch(requestUrl, {
+            method, mode: 'cors', signal: controller.signal, credentials: 'omit', cache: 'no-store',
+            headers: {Accept: 'application/json'}
+          });
+          if (!response.ok) {
+            const wait = retryAfter(response.headers?.get('Retry-After'));
+            if (response.status === 429 || wait) this.cooldownUntil = Math.max(this.cooldownUntil, Date.now() + (wait || 1500));
+            let detail = '';
+            try {
+              const text = (await response.text()).slice(0, 4096);
+              const errorBody = JSON.parse(text);
+              const value = errorBody.detail ?? errorBody.message ?? errorBody.error;
+              if (typeof value === 'string') detail = value.slice(0, 400);
+            } catch { /* HTML challenge pages are not trustworthy error descriptions */ }
+            throw new ApiError(`API returned HTTP ${response.status}${detail ? ': ' + detail : ''}`, {status: response.status,
+              retryable: [408, 425, 429].includes(response.status) || response.status >= 500, retryAfterMs: wait, detail});
+          }
+          const text = await response.text();
+          if (text.length > 32 * 1024 * 1024) throw new ApiError('API response exceeds browser safety budget', {retryable: false});
+          let data;
+          try { data = parseLosslessJSON(text); }
+          catch { throw new ApiError('API returned invalid JSON. An HTML error, login or security-challenge page cannot be used as blockchain data.',
+            {retryable: false, code: 'invalid-json'}); }
+          throwIfAborted(signal);
+          return data;
+        } catch (error) {
+          throwIfAborted(signal);
+          const offline = globalThis.navigator?.onLine === false;
+          retryError = error instanceof ApiError ? error : new ApiError(timedOut
+            ? `API request timed out after ${timeoutMs / 1000}s`
+            : offline ? 'Your browser reports that it is offline.'
+            : 'Could not read a response from the API. Possible causes include network/DNS/TLS failure, a browser extension, or CORS; JavaScript cannot distinguish these.',
+            {code: timedOut ? 'timeout' : offline ? 'offline' : 'network', retryable: !offline,
+              detail: [error?.cause?.code, error?.message].filter(Boolean).join(': ').slice(0, 400)});
+          retryError.url ||= requestUrl; retryError.method = method;
+        } finally {
+          clearTimeout(timer); signal?.removeEventListener('abort', cancel);
+          this.metrics.active--; this.emit();
+        }
+      } finally { release(); }
+      if (!retryError.retryable || attempt >= (retryError.code === 'network' ? Math.min(retries, 1) : retries)) {
+        this.metrics.failures++; this.emit(); throw retryError;
+      }
+      this.metrics.retries++; this.emit();
+      await delay(Math.max(retryError.retryAfterMs, 600 * 2 ** attempt + this.random() * 300), signal);
+    }
+  }
+  remember(id, transaction) {
+    this.cache.delete(id); this.cache.set(id, transaction);
+    while (this.cache.size > this.cacheSize) this.cache.delete(this.cache.keys().next().value);
+  }
+  async transaction(id, signal) {
+    throwIfAborted(signal); id = txId(id);
+    if (this.cache.has(id)) {
+      const tx = this.cache.get(id); this.remember(id, tx); this.metrics.cacheHits++; this.emit(); return tx;
+    }
+    if (this.inFlight.has(id)) { this.metrics.cacheHits++; this.emit(); return this.inFlight.get(id); }
+    const work = this.json(`/transactions/${id}?inputs=true&outputs=true&resolve_previous_outpoints=light`, {signal})
+      .then(data => { const tx = normalizeTransaction(data, id); this.remember(id, tx); return tx; });
+    this.inFlight.set(id, work);
+    try { return await work; }
+    finally { if (this.inFlight.get(id) === work) this.inFlight.delete(id); }
+  }
+  /** Static edition: deliberately no POST batch/preflight dependency.
+   * The engine already schedules bounded concurrent, coalesced transaction GETs.
+   * Keep the optional hook for compatible engines without speculative requests.
+   */
+  async prefetchTransactions(_ids, signal) { throwIfAborted(signal); }
+  names(signal) { return this.json('/addresses/names', {signal, retries: 0, timeoutMs: Math.min(this.timeoutMs, 5000)}); }
+  async snapshot(address, signal) {
+    let last;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      throwIfAborted(signal);
+      // Preserve the valid colon in the address path, as the original app did.
+      // Do not require an unrelated /health endpoint to start a valid trace.
+      const path = `/addresses/${encodeURIComponent(address).replace(/%3A/gi, ':')}`;
+      this.progress(`${attempt ? 'Rechecking' : 'Checking'} reported balance…`);
+      const balanceData = await this.json(`${path}/balance`, {signal, retries: Math.min(this.retries, 1)});
+      const balance = sompi(balanceData?.balance, 'reported balance');
+      this.progress('Loading current unspent outputs…');
+      const raw = await this.json(`${path}/utxos`, {signal, retries: Math.min(this.retries, 1)});
+      throwIfAborted(signal);
+      const utxos = normalizeUTXOs(raw, address);
+      const total = utxos.reduce((s, u) => s + u.value, 0n);
+      let count = null;
+      const warnings = [];
+      this.progress('Cross-checking output count (optional)…');
+      try {
+        const data = await this.json(`${path}/utxos/count`, {signal, retries: 0, timeoutMs: Math.min(this.timeoutMs, 3000)});
+        count = sompi(data?.count, 'UTXO count');
+      } catch (error) {
+        throwIfAborted(signal);
+        warnings.push(`UTXO-count check unavailable (${error.code ?? 'invalid-data'}); snapshot cross-checked against balance only.`);
+      }
+      last = {utxos, total, balance, count};
+      if (total === balance && (count === null || count === BigInt(utxos.length))) {
+        return {address, utxos, total, reportedBalance: balance, count, capturedAt: new Date().toISOString(),
+          apiBase: this.baseUrl, warnings,
+          note: 'Amount/count cross-check, not an atomic block-pinned snapshot. Live activity, caching and reorganizations can change state.'};
+      }
+      if (!attempt) await delay(1400, signal);
+    }
+    throw new DataError(`Could not establish a consistent UTXO snapshot: ${last.utxos.length} outputs / ${last.total} sompi returned, ` +
+      `${last.balance} sompi balance reported${last.count !== null ? ` / ${last.count} outputs expected` : ''}. ` +
+      'The address may be active, the indexer may lag, or its UTXO limit may be exceeded. Retry later or use your own compatible API. No balance has been assumed.',
+      'snapshot-mismatch', true);
+  }
+}
+
+return {abortError, throwIfAborted, delay, ApiError, retryAfter, validateApiBase, KaspaApi};
+}());
+
+__modules["address"] = (function () {
+// Kaspa's 40-bit address checksum, not Bitcoin's 30-bit bech32 checksum.
+// Specification reference: rusty-kaspa/crypto/addresses/src/bech32.rs.
+const ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+const GENERATORS = [0x98f2bc8e61n, 0x79b76d99e2n, 0xf33e5fb3c4n, 0xae2eabe2a8n, 0x1e4f43e470n];
+function polymod(values) {
+  let c = 1n;
+  for (const v of values) {
+    const high = c >> 35n;
+    c = ((c & 0x07ffffffffn) << 5n) ^ BigInt(v);
+    for (let j = 0; j < 5; j++) if ((high >> BigInt(j)) & 1n) c ^= GENERATORS[j];
+  }
+  return c ^ 1n;
+}
+function convert(values, from, to, pad) {
+  let bits = 0, acc = 0;
+  const out = [], mask = (1 << to) - 1;
+  for (const value of values) {
+    acc = ((acc << from) | value) & ((1 << (from + to - 1)) - 1);
+    bits += from;
+    while (bits >= to) { bits -= to; out.push((acc >> bits) & mask); }
+  }
+  if (pad && bits) out.push((acc << (to - bits)) & mask);
+  if (!pad && (bits >= from || ((acc << (to - bits)) & mask))) throw new Error('Invalid address padding');
+  return out;
+}
+function validateAddress(input) {
+  if (typeof input !== 'string') throw new Error('Enter a Kaspa mainnet address');
+  const text = input.trim();
+  if (text !== text.toLowerCase() && text !== text.toUpperCase()) throw new Error('Mixed-case address');
+  const address = text.toLowerCase();
+  const [prefix, encoded, extra] = address.split(':');
+  if (prefix !== 'kaspa' || !encoded || extra !== undefined || encoded.length > 120) {
+    throw new Error('Enter a complete kaspa: mainnet address (not a seed phrase)');
+  }
+  const values = [...encoded].map(c => ALPHABET.indexOf(c));
+  if (values.some(v => v < 0) || values.length < 8 ||
+      polymod([...prefix].map(c => c.charCodeAt(0) & 31).concat(0, values)) !== 0n) {
+    throw new Error('Address checksum is invalid; check the pasted address');
+  }
+  const decoded = convert(values.slice(0, -8), 5, 8, false);
+  const lengths = new Map([[0, 32], [1, 33], [8, 32]]);
+  if (decoded.length - 1 !== lengths.get(decoded[0])) throw new Error('Unsupported address version or payload size');
+  return address;
+}
+/** Also used to generate deterministic, non-owned addresses in offline tests. */
+function encodeAddress(payload, version = 0) {
+  const prefix = 'kaspa', values = convert([version, ...payload], 8, 5, true);
+  const check = polymod([...prefix].map(c => c.charCodeAt(0) & 31).concat(0, values, Array(8).fill(0)));
+  const tail = Array.from({length: 8}, (_, i) => Number((check >> BigInt(5 * (7 - i))) & 31n));
+  return `${prefix}:${values.concat(tail).map(v => ALPHABET[v]).join('')}`;
+}
+const shortAddress = value => value ? `${value.slice(0, 17)}…${value.slice(-8)}` : 'Non-address script';
+
+return {validateAddress, encodeAddress, shortAddress};
+}());
+
+__modules["entities"] = (function () {
+const {validateAddress} = __modules["address"];
+
+const {throwIfAborted} = __modules["api"];
+
+// These are category/name matchers, NOT assertions that an address belongs to a brand.
+const EXCHANGE_NAMES = /^(?:mexc|kucoin|gate(?:\.io)?|coinex|binance|bybit|okx|okex|bitget|kraken|htx|huobi|upbit|bitmart|bingx|phemex|xt(?:\.com)?|lbank|bitfinex|poloniex)(?:$|[\s\-:#(])/i;
+function inferType(name) { return EXCHANGE_NAMES.test(name.trim()) ? 'exchange' : 'entity'; }
+
+class EntityRegistry {
+  constructor() { this.records = new Map(); this.warnings = []; this.fetchedAt = null; }
+  addRows(rows, {source = '', api = false} = {}) {
+    if (!Array.isArray(rows)) throw new Error('Entity registry must be an array of records');
+    let added = 0, skipped = 0;
+    for (const item of rows) {
+      try {
+        const address = validateAddress(item.address);
+        if (typeof item.name !== 'string' || !item.name.trim() || item.name.length > 160) throw new Error('Invalid label');
+        const name = item.name.trim();
+        const type = api ? inferType(name) : item.type;
+        if (!['exchange', 'entity', 'pool'].includes(type)) throw new Error('Entity type must be exchange, entity or pool');
+        if (!api && (typeof item.source !== 'string' || !item.source.trim())) throw new Error('Custom labels need a source');
+        const terminal = type === 'exchange' && (api || item.enabled === true);
+        const record = {address, name, type, terminal, source: api ? source : item.source,
+          evidence: api ? 'public-registry' : terminal ? 'operator-supplied' : 'unverified-label',
+          asOf: item.asOf ?? null};
+        const existing = this.records.get(address);
+        // Disabled legacy suggestions must not downgrade fresh registry classifications.
+        if (!existing || terminal || !existing.terminal) { this.records.set(address, record); added++; }
+      } catch { skipped++; }
+    }
+    if (skipped) this.warnings.push(`${skipped} invalid entity record(s) were ignored.`);
+    return added;
+  }
+  get(address) { return address ? this.records.get(address) ?? null : null; }
+  exchange(address) { const r = this.get(address); return r?.terminal ? r : null; }
+  export() { return [...this.records.values()]; }
+}
+
+async function loadRegistry(api, signal, customRows = [], {timeoutMs = 6000, bundledRows = []} = {}) {
+  const registry = new EntityRegistry(), controller = new AbortController();
+  const cancel = () => controller.abort();
+  if (signal?.aborted) cancel();
+  signal?.addEventListener('abort', cancel, {once: true});
+  const timer = setTimeout(cancel, timeoutMs);
+  try {
+    throwIfAborted(signal);
+    registry.addRows(bundledRows);
+    try {
+      registry.addRows(await api.names(controller.signal), {api: true, source: api.baseUrl + '/addresses/names'});
+      registry.fetchedAt = new Date().toISOString();
+    } catch (e) {
+      if (signal?.aborted) throw e;
+      registry.warnings.push('Live address registry unavailable or timed out. Exchange recognition may be incomplete; missing labels are not proof of mining origin.');
+    }
+    if (customRows.length) registry.addRows(customRows);
+    return registry;
+  } finally { clearTimeout(timer); signal?.removeEventListener('abort', cancel); }
+}
+
+return {inferType, EntityRegistry, loadRegistry};
+}());
+
+__modules["frontier"] = (function () {
+/** Indexed max heap with occasional FIFO selection to avoid starving small branches. */
+class Frontier {
+  constructor() { this.heap = []; this.positions = new Map(); this.age = new Map(); this.pops = 0; }
+  get size() { return this.heap.length; }
+  better(a, b) { return a.pending > b.pending || (a.pending === b.pending && a.order < b.order); }
+  swap(a, b) {
+    [this.heap[a], this.heap[b]] = [this.heap[b], this.heap[a]];
+    this.positions.set(this.heap[a].key, a); this.positions.set(this.heap[b].key, b);
+  }
+  up(i) { while (i > 0) { const p = (i - 1) >> 1; if (!this.better(this.heap[i], this.heap[p])) break; this.swap(i, p); i = p; } return i; }
+  down(i) {
+    while (true) {
+      let best = i, left = i * 2 + 1, right = left + 1;
+      if (left < this.size && this.better(this.heap[left], this.heap[best])) best = left;
+      if (right < this.size && this.better(this.heap[right], this.heap[best])) best = right;
+      if (best === i) return; this.swap(i, best); i = best;
+    }
+  }
+  set(node) {
+    if (node.pending <= 0n || node.busy) return;
+    if (this.positions.has(node.key)) { const i = this.up(this.positions.get(node.key)); this.down(i); return; }
+    this.positions.set(node.key, this.size); this.age.set(node.key, node); this.heap.push(node); this.up(this.size - 1);
+  }
+  remove(key) {
+    const i = this.positions.get(key); if (i === undefined) return null;
+    const node = this.heap[i], last = this.heap.pop();
+    this.positions.delete(key); this.age.delete(key);
+    if (i < this.size) { this.heap[i] = last; this.positions.set(last.key, i); this.down(this.up(i)); }
+    return node;
+  }
+  pop() {
+    if (!this.size) return null;
+    const key = ++this.pops % 8 === 0 ? this.age.keys().next().value : this.heap[0].key;
+    return this.remove(key);
+  }
+}
+
+return {Frontier};
+}());
+
+__modules["engine"] = (function () {
+const {apportion, sompi, percent, stringify} = __modules["amount"];
+
+const {DataError, findOutput, keyOf} = __modules["model"];
+
+const {Frontier} = __modules["frontier"];
+
+const {EntityRegistry} = __modules["entities"];
+
+const {throwIfAborted, delay} = __modules["api"];
+
+const VERSION = '2.1.0';
+const DEFAULTS = Object.freeze({idleMs: 90_000, batchSize: 16, maxNodes: 50_000, maxEdges: 150_000, maxSteps: 200_000});
+
+/** Output-level, iterative flow traversal. No wallet recursion or address cycles.
+ * Accounting invariant at every externally visible update:
+ * target = mining + exchanges + queued + in-flight + blocked.
+ * All allocations are modeled proportions, not coin-identity claims.
+ */
+class TraceSession {
+  constructor({api, snapshot, registry = new EntityRegistry(), onUpdate = () => {}, now = Date.now, ...options}) {
+    if (!api || !snapshot || !Array.isArray(snapshot.utxos)) throw new Error('A checked UTXO snapshot is required');
+    this.api = api; this.snapshot = snapshot; this.registry = registry; this.onUpdate = onUpdate; this.now = now;
+    this.options = {...DEFAULTS, ...options};
+    for (const k of Object.keys(DEFAULTS)) if (!Number.isSafeInteger(this.options[k]) || this.options[k] < 1) throw new Error(`Invalid ${k}`);
+    this.total = sompi(snapshot.total); this.frontier = new Frontier(); this.nodes = new Map(); this.txFlows = new Map();
+    this.endpoints = new Map(); this.plans = new Map(); this.planFlights = new Map(); this.planEdges = 0; this.rootEdges = []; this.warnings = [...(snapshot.warnings ?? []), ...registry.warnings];
+    this.totals = {mining: 0n, exchange: 0n, queued: 0n, active: 0n, blocked: 0n};
+    this.stats = {steps: 0, nodes: 0, edges: 0, maxDepth: 0, oldestTime: null};
+    this.state = 'ready'; this.reason = null; this.running = false; this.controller = null;
+    this.createdAt = new Date().toISOString(); this.elapsedMs = 0; this.segmentStart = 0;
+    this.lastDiscovery = this.now(); this.lastMarkedResolved = 0n;
+    const keys = new Set(snapshot.utxos.map(u => u.key));
+    if (keys.size !== snapshot.utxos.length) throw new Error('Snapshot contains duplicate outpoints');
+    if (snapshot.utxos.length > this.options.maxNodes) throw new Error('Snapshot exceeds the browser node budget');
+    if (snapshot.utxos.reduce((s, u) => s + sompi(u.value), 0n) !== this.total) throw new Error('Snapshot total does not match UTXOs');
+    for (const u of snapshot.utxos) {
+      const node = this.createNode(u, 0); this.addFlow(node, u.value);
+      this.rootEdges.push({key: node.key, amount: u.value});
+    }
+    this.assertConservation();
+  }
+  createNode(meta, depth) {
+    const key = keyOf(meta.txid, meta.index);
+    if (meta.key && meta.key !== key) throw new DataError('Mismatched outpoint key');
+    const node = {key, txid: meta.txid, index: meta.index, value: meta.value, address: meta.address ?? null,
+      coinbaseHint: meta.coinbase === true, depth, order: this.nodes.size,
+      through: 0n, pending: 0n, blocked: 0n, active: 0n, busy: false,
+      recipe: null, edges: new Map(), error: null};
+    this.nodes.set(key, node); this.stats.nodes = this.nodes.size;
+    this.stats.maxDepth = Math.max(this.stats.maxDepth, depth);
+    return node;
+  }
+  addFlow(node, amount) {
+    if (amount <= 0n) return;
+    node.through += amount;
+    if (node.error) { node.blocked += amount; this.totals.blocked += amount; }
+    else { node.pending += amount; this.totals.queued += amount; this.frontier.set(node); }
+  }
+  assertConservation() {
+    const {mining, exchange, queued, active, blocked} = this.totals;
+    if ([mining, exchange, queued, active, blocked].some(x => x < 0n) || mining + exchange + queued + active + blocked !== this.total) {
+      throw new Error('Internal accounting invariant failed; do not use this result');
+    }
+  }
+  emit() {
+    this.assertConservation();
+    try { this.onUpdate(this.summary()); } catch (error) { console.error('Render callback failed', error); }
+  }
+  summary() {
+    const resolved = this.totals.mining + this.totals.exchange;
+    return {version: VERSION, address: this.snapshot.address, state: this.state, reason: this.reason,
+      total: this.total, resolved, coverage: percent(resolved, this.total), totals: {...this.totals},
+      unresolved: this.total - resolved, stats: {...this.stats}, api: {...this.api.metrics},
+      frontier: this.frontier.size, noDiscoveryMs: this.now() - this.lastDiscovery,
+      elapsedMs: this.elapsedMs + (this.running ? this.now() - this.segmentStart : 0),
+      capturedAt: this.snapshot.capturedAt, warnings: this.warnings,
+      endpointCount: this.endpoints.size};
+  }
+  stop(reason = 'user') {
+    if (!this.running) return;
+    if (!this.controller.signal.aborted) {
+      this.reason = reason; this.state = 'stopping'; this.controller.abort(); this.emit();
+    }
+  }
+  async run() {
+    if (this.running) throw new Error('This trace is already running');
+    if (this.state === 'complete') return this.summary();
+    if (this.reason === 'resource') throw new Error('Browser safety budget reached; export the partial result and use a larger-capacity implementation');
+    this.controller = new AbortController(); const signal = this.controller.signal;
+    // Retry failures on explicit continuation only. Keep successful expansions and all resolved flow.
+    if (this.totals.blocked > 0n) {
+      this.api.cache?.clear();
+      for (const node of this.nodes.values()) {
+        if (!node.blocked) continue;
+        this.totals.blocked -= node.blocked; this.totals.queued += node.blocked;
+        node.pending += node.blocked; node.blocked = 0n; node.error = null;
+        this.frontier.set(node);
+      }
+    }
+    this.running = true; this.state = 'running'; this.reason = null;
+    this.segmentStart = this.now(); this.lastDiscovery = this.now();
+    this.lastMarkedResolved = this.totals.mining + this.totals.exchange;
+    const timer = setInterval(() => {
+      if (this.running && !signal.aborted && this.now() - this.lastDiscovery >= this.options.idleMs) this.stop('no-discovery');
+      this.emit();
+    }, Math.min(250, this.options.idleMs));
+    this.emit();
+    try {
+      while (this.frontier.size && !signal.aborted) {
+        if (this.stats.steps >= this.options.maxSteps) { this.stop('resource'); break; }
+        const batch = [];
+        while (this.frontier.size && batch.length < Math.min(this.options.batchSize, this.options.maxSteps - this.stats.steps)) {
+          const node = this.frontier.pop(), amount = node.pending;
+          node.pending = 0n; node.active = amount; node.busy = true;
+          this.totals.queued -= amount; this.totals.active += amount;
+          this.stats.steps++; batch.push({node, amount});
+        }
+        const needed = batch.filter(({node}) => !node.recipe && !node.coinbaseHint && !this.registry.exchange(node.address))
+          .map(({node}) => node.txid);
+        try { await this.api.prefetchTransactions?.(needed, signal); } catch { /* stop/error is handled per work item */ }
+        await Promise.all(batch.map(work => this.execute(work, signal)));
+        this.emit();
+        // Yield even on cached one-input chains so Stop and the watchdog can run.
+        await delay(0);
+      }
+      if (signal.aborted) this.state = 'paused';
+      else if (this.totals.blocked > 0n) { this.state = 'partial'; this.reason = 'data-unavailable'; }
+      else { this.state = 'complete'; this.reason = this.total === 0n ? 'empty' : 'all-endpoints'; }
+    } catch (error) {
+      this.state = 'error'; this.reason = 'internal-error'; throw error;
+    } finally {
+      clearInterval(timer); this.elapsedMs += this.now() - this.segmentStart; this.running = false; this.emit();
+    }
+    return this.summary();
+  }
+  async prepare(node, signal) {
+    if (node.recipe) return node.recipe;
+    if (node.coinbaseHint) return {kind: 'mining', address: node.address, value: node.value, evidence: 'UTXO isCoinbase=true', time: null};
+    const exchange = this.registry.exchange(node.address);
+    if (exchange) return {kind: 'exchange', address: node.address, value: node.value, entity: exchange, time: null};
+    const tx = await this.api.transaction(node.txid, signal);
+    throwIfAborted(signal);
+    const output = findOutput(tx, node.index);
+    if (node.value !== null && node.value !== undefined && output.value !== node.value) throw new DataError('Referenced output amount disagrees with transaction');
+    if (node.address && output.address && node.address !== output.address) throw new DataError('Referenced output address disagrees with transaction');
+    const address = output.address ?? node.address;
+    if (tx.coinbase) return {kind: 'mining', address, value: output.value, evidence: 'Coinbase subnetwork ID', time: tx.time};
+    const label = this.registry.exchange(address);
+    if (label) return {kind: 'exchange', address, value: output.value, entity: label, time: tx.time};
+    const plan = await this.transactionPlan(tx, signal);
+    return {kind: 'split', address, value: output.value, ...plan};
+  }
+  async transactionPlan(tx, signal) {
+    if (this.plans.has(tx.id)) return this.plans.get(tx.id);
+    if (this.planFlights.has(tx.id)) return this.planFlights.get(tx.id);
+    const work = (async () => {
+      const parents = tx.inputs.map(i => ({...i})).sort((a, b) => a.key.localeCompare(b.key));
+      const missing = parents.filter(p => p.value === null);
+      // No equal splitting or renormalizing around unknown-valued inputs.
+      for (let i = 0; i < missing.length; i += 3) {
+        await Promise.all(missing.slice(i, i + 3).map(async parent => {
+          try {
+            const prior = await this.api.transaction(parent.txid, signal);
+            const out = findOutput(prior, parent.index);
+            parent.value = out.value; parent.address = out.address ?? parent.address;
+          } catch (error) {
+            throwIfAborted(signal);
+            throw new DataError(`Cannot obtain a required input amount: ${error.message}`, 'missing-input-value', true);
+          }
+        }));
+      }
+      throwIfAborted(signal);
+      const inputTotal = parents.reduce((s, p) => s + p.value, 0n);
+      const outputTotal = tx.outputs.reduce((s, o) => s + o.value, 0n);
+      if (inputTotal < outputTotal || inputTotal === 0n) throw new DataError('Transaction input/output amounts do not reconcile');
+      if (tx.accepted === null && !this.warnings.includes('Some transactions lack acceptance metadata; indexed outpoint references are being trusted.')) {
+        this.warnings.push('Some transactions lack acceptance metadata; indexed outpoint references are being trusted.');
+      }
+      // Shared by every output of this transaction; do not clone fan-in arrays
+      // for each sibling output. Count all plan edges, including zero allocations.
+      if (this.planEdges + parents.length > this.options.maxEdges) {
+        throw new DataError('Transaction-plan safety budget reached', 'resource');
+      }
+      const plan = {txid: tx.id, parents, outputTotal, inputTotal, fee: inputTotal - outputTotal, time: tx.time};
+      this.plans.set(tx.id, plan); this.planEdges += parents.length; return plan;
+    })();
+    this.planFlights.set(tx.id, work);
+    try { return await work; }
+    finally { if (this.planFlights.get(tx.id) === work) this.planFlights.delete(tx.id); }
+  }
+
+  reaches(start, target) {
+    const seen = new Set(), stack = [start];
+    while (stack.length) {
+      const key = stack.pop(); if (key === target) return true;
+      if (seen.has(key)) continue; seen.add(key);
+      const recipe = this.nodes.get(key)?.recipe;
+      if (recipe?.kind === 'split') for (const parent of recipe.parents) stack.push(parent.key);
+    }
+    return false;
+  }
+  validateMeta(meta, existing, extra = 0n) {
+    if (existing) {
+      if (existing.value !== null && existing.value !== meta.value) throw new DataError('Inconsistent values for a shared outpoint');
+      if (existing.address && meta.address && existing.address !== meta.address) throw new DataError('Inconsistent addresses for a shared outpoint');
+    }
+    if ((existing?.through ?? 0n) + extra > meta.value) throw new DataError('Attributed flow exceeds this output; index data may be inconsistent');
+  }
+  commit(node, amount, recipe) {
+    if (node.through > recipe.value) throw new DataError('Attributed amount exceeds referenced output');
+    let deltas = null, cumulative = null, nextShares = null, flow = null;
+    if (recipe.kind === 'split') {
+      flow = this.txFlows.get(node.txid);
+      if (flow && flow.keys.join(',') !== recipe.parents.map(p => p.key).join(',')) throw new DataError('Inconsistent transaction inputs');
+      cumulative = (flow?.total ?? 0n) + amount;
+      if (cumulative > recipe.outputTotal) throw new DataError('Overlapping or inconsistent snapshot ancestry');
+      nextShares = apportion(cumulative, recipe.parents.map(p => p.value));
+      deltas = nextShares.map((v, i) => v - (flow?.shares[i] ?? 0n));
+      if (deltas.some(v => v < 0n) || deltas.reduce((s, v) => s + v, 0n) !== amount) throw new Error('Invalid cumulative apportionment');
+      let newNodes = 0, newEdges = 0;
+      for (let i = 0; i < recipe.parents.length; i++) {
+        const p = recipe.parents[i], existing = this.nodes.get(p.key);
+        // Even a zero-contribution edge can prove malformed cyclic data.
+        if (this.reaches(p.key, node.key)) throw new DataError('Invalid cyclic transaction-outpoint data (not a wallet-address loop)', 'invalid-cycle');
+        if (!existing && deltas[i] > 0n) newNodes++;
+        if (!node.edges.has(p.key) && deltas[i] > 0n) newEdges++;
+        this.validateMeta(p, existing, deltas[i]);
+      }
+      if (this.nodes.size + newNodes > this.options.maxNodes || this.stats.edges + newEdges > this.options.maxEdges) {
+        throw new DataError('Browser graph safety budget reached; no remaining flow was discarded', 'resource');
+      }
+    }
+    // No awaits after validation: one atomic accounting commit.
+    node.recipe = recipe; node.value = recipe.value; node.address = recipe.address;
+    if (recipe.time && (!this.stats.oldestTime || recipe.time < this.stats.oldestTime)) this.stats.oldestTime = recipe.time;
+    this.totals.active -= amount; node.active = 0n;
+    if (recipe.kind !== 'split') this.credit(node, amount, recipe);
+    else {
+      this.txFlows.set(node.txid, {total: cumulative, shares: nextShares, keys: recipe.parents.map(p => p.key)});
+      for (let i = 0; i < recipe.parents.length; i++) {
+        if (deltas[i] <= 0n) continue;
+        const p = recipe.parents[i];
+        let parent = this.nodes.get(p.key);
+        if (!parent) parent = this.createNode(p, node.depth + 1);
+        else {
+          parent.depth = Math.max(parent.depth, node.depth + 1);
+          if (!parent.address && p.address) parent.address = p.address;
+          this.stats.maxDepth = Math.max(this.stats.maxDepth, parent.depth);
+        }
+        if (!node.edges.has(p.key)) this.stats.edges++;
+        node.edges.set(p.key, (node.edges.get(p.key) ?? 0n) + deltas[i]);
+        this.addFlow(parent, deltas[i]);
+      }
+    }
+  }
+  credit(node, amount, recipe) {
+    const type = recipe.kind;
+    const key = type === 'exchange' ? `exchange:${recipe.entity.name}` : `mining:${recipe.address ?? 'non-address-script'}`;
+    let entry = this.endpoints.get(key);
+    const fresh = !entry;
+    if (!entry) {
+      const label = this.registry.get(recipe.address);
+      entry = {key, type, name: type === 'exchange' ? recipe.entity.name : label ? `Mining rewards · ${label.name}` : 'Mining rewards',
+        amount: 0n, addresses: new Set(), examples: new Set(), sources: new Set()};
+      this.endpoints.set(key, entry);
+    }
+    entry.amount += amount;
+    if (recipe.address) entry.addresses.add(recipe.address);
+    if (entry.examples.size < 5) entry.examples.add(node.key);
+    entry.sources.add(type === 'exchange' ? `${recipe.entity.evidence}: ${recipe.entity.source}` : recipe.evidence);
+    this.totals[type] += amount;
+    const resolved = this.totals.mining + this.totals.exchange;
+    const threshold = this.total > 0n ? (this.total + 9_999n) / 10_000n : 1n;
+    if (fresh || resolved - this.lastMarkedResolved >= threshold) {
+      this.lastDiscovery = this.now(); this.lastMarkedResolved = resolved;
+    }
+  }
+  async execute({node, amount}, signal) {
+    try {
+      throwIfAborted(signal);
+      const recipe = await this.prepare(node, signal);
+      throwIfAborted(signal); this.commit(node, amount, recipe);
+    } catch (error) {
+      if (error.code === 'resource') this.stop('resource');
+      if (signal.aborted || error.name === 'AbortError') {
+        this.totals.active -= amount; this.totals.queued += amount;
+        node.active = 0n; node.pending += amount;
+      } else {
+        this.totals.active -= amount; node.active = 0n;
+        node.error = {code: error.code ?? 'invalid-data', message: error.message, retryable: error.retryable ?? false};
+        node.blocked += amount + node.pending; this.totals.blocked += amount + node.pending;
+        this.totals.queued -= node.pending; node.pending = 0n;
+      }
+    } finally { node.busy = false; this.frontier.set(node); }
+  }
+  endpointRows() {
+    return [...this.endpoints.values()].map(e => ({...e, addresses: [...e.addresses], examples: [...e.examples], sources: [...e.sources]}))
+      .sort((a, b) => a.amount === b.amount ? a.name.localeCompare(b.name) : a.amount > b.amount ? -1 : 1);
+  }
+  blockedRows() {
+    return [...this.nodes.values()].filter(n => n.blocked > 0n)
+      .sort((a, b) => a.blocked === b.blocked ? a.key.localeCompare(b.key) : a.blocked > b.blocked ? -1 : 1);
+  }
+  report() {
+    return {schema: 'kaspa-origin-tracer/report-v2', version: VERSION, exportedAt: new Date().toISOString(),
+      method: 'Current UTXO ancestry; proportional input-value attribution with cumulative monotone integer apportionment; stop at registry/operator-labeled exchanges or coinbase evidence.',
+      interpretation: 'Exact accounting in integer sompi; source shares are a model, not unique coin ownership. Exchange labels are not cryptographic identity proof. Coinbase endpoints include rewards/fees. Unknown flow is not inferred to be mining.',
+      summary: this.summary(), snapshot: this.snapshot, settings: this.options, endpoints: this.endpointRows(),
+      labels: this.registry.export(), registryFetchedAt: this.registry.fetchedAt, root: this.rootEdges,
+      transactionPlans: [...this.plans.values()],
+      nodes: [...this.nodes.values()].map(n => ({key: n.key, txid: n.txid, index: n.index, address: n.address,
+        outputValue: n.value, attributedThrough: n.through, pending: n.pending, active: n.active, blocked: n.blocked,
+        depth: n.depth, recipe: n.recipe?.kind === 'split' ? {kind: 'split', transactionPlan: n.txid, address: n.address, value: n.value} : n.recipe, error: n.error, edges: [...n.edges].map(([key, amount]) => ({key, amount}))}))};
+  }
+  reportJSON() { return stringify(this.report()); }
+}
+
+return {VERSION, DEFAULTS, TraceSession};
+}());
+
+__modules["demo"] = (function () {
+const {KaspaApi, delay} = __modules["api"];
+
+const {encodeAddress} = __modules["address"];
+
+const {EntityRegistry} = __modules["entities"];
+
+const {COINBASE_SUBNETWORK} = __modules["model"];
+
+const {SOMPI, stringify} = __modules["amount"];
+
+const DEMO_ADDRESS = encodeAddress(Array(32).fill(9));
+const address = n => encodeAddress(Array(32).fill(n));
+const id = n => n.toString(16).padStart(64, '0');
+/** Synthetic 1,000 KAS snapshot: mining 20%, Demo exchange A 60%, B 20%.
+ * No real wallet ownership is implied. Never send funds to these addresses.
+ */
+function makeDemo({latency = 260} = {}) {
+  const root = DEMO_ADDRESS, miner = address(10), exchangeA = address(11), exchangeB = address(12), middle = address(13);
+  const out = (index, amount, owner) => ({index, amount: (BigInt(amount) * SOMPI).toString(), script_public_key_address: owner});
+  const input = (n, index, amount, owner) => ({previous_outpoint_hash: id(n), previous_outpoint_index: index,
+    previous_outpoint_amount: (BigInt(amount) * SOMPI).toString(), previous_outpoint_address: owner});
+  const tx = (n, outputs, inputs, coinbase = false) => ({transaction_id: id(n), is_accepted: true,
+    subnetwork_id: coinbase ? COINBASE_SUBNETWORK : '00'.repeat(20), outputs, inputs,
+    block_time: Date.UTC(2026, 0, n)});
+  const data = new Map([
+    [id(1), tx(1, [out(0, 100, miner), out(1, 100, root)], null, true)],
+    [id(2), tx(2, [out(0, 300, exchangeA), out(1, 300, exchangeA)], null, true)],
+    [id(3), tx(3, [out(0, 200, exchangeB)], null, true)],
+    [id(4), tx(4, [out(0, 400, middle)], [input(1, 0, 100, miner), input(2, 0, 300, exchangeA)])],
+    [id(5), tx(5, [out(0, 600, root)], [input(4, 0, 400, middle), input(3, 0, 200, exchangeB)])],
+    [id(6), tx(6, [out(0, 300, root)], [input(2, 1, 300, exchangeA)])]
+  ]);
+  const rawUTXOs = [[1, 1, 100, true], [5, 0, 600, false], [6, 0, 300, false]].map(([n, index, amount, coinbase]) => ({
+    address: root, outpoint: {transactionId: id(n), index}, utxoEntry: {amount: (BigInt(amount) * SOMPI).toString(), isCoinbase: coinbase}
+  }));
+  const rows = [{address: exchangeA, name: 'Demo exchange A', type: 'exchange', enabled: true, source: 'Synthetic demo fixture'},
+    {address: exchangeB, name: 'Demo exchange B', type: 'exchange', enabled: true, source: 'Synthetic demo fixture'}];
+  const registry = new EntityRegistry(); registry.addRows(rows);
+  const fetchImpl = async (url, options = {}) => {
+    await delay(latency, options.signal);
+    const parsed = new URL(url); let result;
+    if (parsed.pathname.endsWith('/utxos/count')) result = {count: 3};
+    else if (parsed.pathname.endsWith('/utxos')) result = rawUTXOs;
+    else if (parsed.pathname.endsWith('/balance')) result = {balance: (1000n * SOMPI).toString()};
+    else if (parsed.pathname.startsWith('/transactions/')) result = data.get(parsed.pathname.split('/').pop());
+    else if (parsed.pathname === '/addresses/names') result = rows;
+    return new Response(stringify(result ?? {error: 'not found'}), {status: result ? 200 : 404, headers: {'Content-Type': 'application/json'}});
+  };
+  const api = new KaspaApi({baseUrl: 'https://demo.invalid', fetchImpl, minIntervalMs: 0});
+  return {api, registry, address: root};
+}
+
+return {DEMO_ADDRESS, makeDemo};
+}());
+
+__modules["export"] = (function () {
+const {kasDecimal, percent} = __modules["amount"];
+
+function cell(value) {
+  let s = String(value ?? '');
+  // Prevent spreadsheet formula execution in untrusted entity labels/evidence.
+  if (/^\s*[=+@-]/.test(s) || /^[\t\r\n]/.test(s)) s = "'" + s;
+  return '"' + s.replaceAll('"', '""') + '"';
+}
+function toCSV(report, demo = false) {
+  const total = BigInt(report.summary.total);
+  const rows = [['snapshotAddress', 'capturedAt', 'demo', 'category', 'name', 'attributedSompi', 'attributedKAS', 'percentOfSnapshot', 'addresses', 'evidence', 'exampleOutpoints']];
+  const add = (type, name, amount, addresses = [], evidence = [], examples = []) => rows.push([
+    report.snapshot.address, report.snapshot.capturedAt, demo, type, name, amount.toString(), kasDecimal(amount),
+    percent(amount, total).toFixed(4), addresses.join(' | '), evidence.join(' | '), examples.join(' | ')
+  ]);
+  for (const e of report.endpoints) add(e.type, e.name, BigInt(e.amount), e.addresses, e.sources, e.examples);
+  const t = report.summary.totals;
+  const pending = BigInt(t.queued) + BigInt(t.active), blocked = BigInt(t.blocked);
+  if (pending > 0n) add('unresolved', 'Queued / in progress', pending);
+  if (blocked > 0n) add('unresolved', 'Data unavailable', blocked);
+  return '\uFEFF' + rows.map(row => row.map(cell).join(',')).join('\r\n') + '\r\n';
+}
+
+return {toCSV};
+}());
+
+__modules["connection"] = (function () {
+const {KaspaApi, throwIfAborted} = __modules["api"];
+
+const {normalizeUTXOs} = __modules["model"];
+
+const {sompi} = __modules["amount"];
+
+/** Real browser reads, not an image ping or opaque no-cors probe.
+ * A successful health probe alone says nothing about balance/UTXO access.
+ */
+async function diagnoseConnection({baseUrl, address = null, signal, onProgress = () => {}, fetchImpl,
+  timeoutMs = 5000} = {}) {
+  const api = new KaspaApi({baseUrl, fetchImpl, retries: 0, timeoutMs, concurrency: 1});
+  const path = address ? `/addresses/${encodeURIComponent(address).replace(/%3A/gi, ':')}` : null;
+  const checks = address ? [
+    {name:'Reported balance', path:`${path}/balance`, required:true, validate:d => sompi(d?.balance)},
+    {name:'Current unspent outputs', path:`${path}/utxos`, required:true, validate:d => normalizeUTXOs(d, address)},
+    {name:'Output count', path:`${path}/utxos/count`, required:false, validate:d => sompi(d?.count)}
+  ] : [{name:'API health', path:'/info/health', required:false}];
+  checks.push({name:'Address labels', path:'/addresses/names', required:false,
+    validate:d => { if (!Array.isArray(d)) throw new Error('Address labels did not return a list'); }});
+  const results = [];
+  for (const check of checks) {
+    throwIfAborted(signal); onProgress(`Testing ${check.name.toLowerCase()}…`);
+    const started = Date.now();
+    const row = {name:check.name, required:check.required, method:'GET', url:api.baseUrl + check.path};
+    try {
+      const data = await api.json(check.path, {signal}); check.validate?.(data);
+      results.push({...row, ok:true, elapsedMs:Date.now() - started});
+    } catch (error) {
+      throwIfAborted(signal);
+      results.push({...row, ok:false, elapsedMs:Date.now() - started,
+        error:error.diagnostic?.() ?? {code:error.code ?? 'invalid-data', message:error.message}});
+    }
+  }
+  const required = results.filter(r => r.required);
+  return {version:'2.1.0', capturedAt:new Date().toISOString(), apiBase:api.baseUrl,
+    pageOrigin:globalThis.location?.origin ?? null, browserOnline:globalThis.navigator?.onLine ?? null,
+    hasAddressChecks:!!address,
+    ok:required.length ? required.every(r => r.ok) : results.some(r => r.ok),
+    note:address ? 'Checks transport and response shape; not an atomic snapshot, full trace or transaction-history availability test.'
+      : 'No wallet address was tested. A readable health/labels response does not confirm balance or UTXO access.',
+    checks:results};
+}
+
+return {diagnoseConnection};
+}());
+
+__modules["config"] = (function () {
+const {validateApiBase} = __modules["api"];
+
+const STATIC_API_KEY = 'kaspa-tracer-static-api-v1';
+const DEFAULT_API = 'https://api.kaspa.org';
+
+function parseSiteConfig(text = '{}') {
+  let data;
+  try { data = JSON.parse(text); } catch { throw new Error('Invalid JSON in the tracer-config block in index.html'); }
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('The tracer-config block must contain a JSON object');
+  const apiBase = validateApiBase(data.apiBase ?? DEFAULT_API);
+  if (!apiBase.startsWith('https:')) throw new Error('The static site configuration requires an HTTPS API');
+  const entities = data.entities ?? [];
+  if (!Array.isArray(entities)) throw new Error('The tracer-config entities field must be an array');
+  return {apiBase, entities};
+}
+
+/** Do not import old relay/local-server settings. They belong to another edition.
+ * Even in the new namespace, ignore local HTTP settings after a reload.
+ */
+function restoreApiBase(storage, fallback = DEFAULT_API) {
+  try {
+    const value = storage?.getItem(STATIC_API_KEY);
+    if (!value) return fallback;
+    const base = validateApiBase(value), url = new URL(base);
+    const host = url.hostname.toLowerCase().replace(/\.$/, '');
+    if (url.protocol !== 'https:' || host === 'localhost' || host.endsWith('.localhost') ||
+        host.startsWith('127.') || host === '[::1]' || host === '[::ffff:7f00:1]') return fallback;
+    return base;
+  } catch { return fallback; }
+}
+
+return {STATIC_API_KEY, DEFAULT_API, parseSiteConfig, restoreApiBase};
+}());
+
+__modules["app"] = (function () {
+const {KaspaApi, validateApiBase} = __modules["api"];
+
+const {validateAddress, shortAddress} = __modules["address"];
+
+const {EntityRegistry, loadRegistry} = __modules["entities"];
+
+const {TraceSession} = __modules["engine"];
+
+const {makeDemo} = __modules["demo"];
+
+const {formatKAS, percent, stringify} = __modules["amount"];
+
+const {toCSV} = __modules["export"];
+
+const {diagnoseConnection} = __modules["connection"];
+
+const {parseSiteConfig, restoreApiBase, STATIC_API_KEY} = __modules["config"];
+
+const $ = id => document.getElementById(id);
+const siteConfig = parseSiteConfig($('tracer-config')?.textContent ?? '{}');
+const make = (tag, className = '', text = '') => {
+  const el = document.createElement(tag); if (className) el.className = className; if (text !== '') el.textContent = text; return el;
+};
+let current = null, startup = null, busy = false, generation = 0, demoMode = false;
+let customLabels = [], pathStack = ['root'], pathLimit = 30, endpointLimit = 25;
+let lastListRender = 0, lastState = '';
+let diagnostics = null, checkingConnection = false;
+const donation = 'kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee';
+const pct = (n, total) => {
+  const p = percent(n, total);
+  return n > 0n && p < 0.01 ? '<0.01%' : `${p.toFixed(2)}%`;
+};
+function message(text, info = false) {
+  $('message').textContent = text; $('message').hidden = !text;
+  $('message').classList.toggle('info', info);
+  if (text && !info) $('message').scrollIntoView({block: 'nearest'});
+}
+function controls() {
+  $('traceButton').hidden = busy;
+  $('traceButton').disabled = busy;
+  $('cancelConnection').hidden = !checkingConnection;
+  $('traceButton').textContent = current ? 'New snapshot ↗' : 'Trace balance ↗';
+  $('stopButton').hidden = !busy;
+  $('stopButton').disabled = !!(current?.state === 'stopping' || startup?.signal.aborted);
+  $('continueButton').hidden = busy || !current || !['paused', 'partial'].includes(current.state) || current.reason === 'resource';
+  for (const id of ['addressInput', 'apiInput', 'idleInput', 'labelsInput', 'demoButton', 'testConnection', 'retryConnection', 'resetApi']) $(id).disabled = busy;
+  $('exportJSON').disabled = !current; $('exportCSV').disabled = !current;
+}
+function metrics(data) {
+  $('statRequests').textContent = (data.requests ?? 0).toLocaleString();
+  $('statCache').textContent = (data.cacheHits ?? 0).toLocaleString();
+  $('statRetries').textContent = (data.retries ?? 0).toLocaleString();
+}
+function statusText(s) {
+  if (s.state === 'running') return `Following ${s.frontier.toLocaleString()} queued output(s). ${Math.floor(s.noDiscoveryMs / 1000)}s since meaningful endpoint discovery.`;
+  if (s.state === 'stopping') return 'Stopping requests and preserving every unfinished contribution…';
+  if (s.reason === 'empty') return 'No current unspent balance. Historical lifetime receipts are not mixed into this result.';
+  if (s.reason === 'all-endpoints') return 'All snapshot value reached mining or labeled-exchange endpoints under this attribution model.';
+  if (s.reason === 'no-discovery') return `Automatically paused after ${current.options.idleMs / 1000}s without meaningful endpoint discovery. Continue keeps the same snapshot.`;
+  if (s.reason === 'resource') return 'Browser memory/work safety budget reached. Export the partial trace; no unfinished value has been discarded.';
+  if (s.reason === 'user') return 'Stopped. Results and unfinished branches are preserved; Continue resumes the same snapshot.';
+  if (s.reason === 'data-unavailable') return 'Some branches could not be resolved from available data. Continue retries them without losing discovered endpoints.';
+  if (s.state === 'error') return 'The trace encountered an internal error. Do not rely on this result; take a fresh snapshot.';
+  return 'Snapshot checked; ready to trace.';
+}
+function render(force = false) {
+  if (!current) return;
+  const s = current.summary();
+  $('results').hidden = false; $('statusPanel').hidden = false;
+  $('stateBadge').textContent = `${demoMode ? 'DEMO · ' : ''}${s.state.toUpperCase()}`;
+  $('statusText').textContent = statusText(s);
+  $('totalBalance').textContent = formatKAS(s.total);
+  $('targetDisplay').textContent = s.address;
+  $('balanceLabel').textContent = demoMode ? 'SYNTHETIC DEMO · NOT A REAL WALLET' : 'CURRENT UTXO SNAPSHOT';
+  $('snapshotTime').textContent = `Captured ${new Date(s.capturedAt).toLocaleString()}`;
+  $('coverageValue').textContent = s.total === 0n ? '—' : pct(s.resolved, s.total);
+  const values = {mining: s.totals.mining, exchange: s.totals.exchange,
+    pending: s.totals.queued + s.totals.active, blocked: s.totals.blocked};
+  const names = {mining: 'Mining', exchange: 'Exchanges', pending: 'Still to trace', blocked: 'Data unavailable'};
+  for (const [key, amount] of Object.entries(values)) {
+    $(key + 'Value').textContent = `${formatKAS(amount)} KAS`;
+    $(key + 'Percent').textContent = pct(amount, s.total);
+    $(key + 'Segment').style.width = percent(amount, s.total) + '%';
+    $(key + 'Segment').title = `${names[key]}: ${formatKAS(amount)} KAS`;
+  }
+  $('spectrum').setAttribute('aria-label', Object.entries(values).map(([key, amount]) => `${names[key]} ${pct(amount, s.total)}`).join(', '));
+  $('conservationText').textContent = `ACCOUNTED FOR: ${formatKAS(s.total)} KAS = ${formatKAS(s.resolved)} attributed + ${formatKAS(s.unresolved)} unresolved. Integer-sompi reconciliation.`;
+  metrics(s.api);
+  $('statNodes').textContent = s.stats.nodes.toLocaleString();
+  $('statDepth').textContent = s.stats.maxDepth.toLocaleString();
+  $('statTime').textContent = s.elapsedMs < 60000 ? `${Math.floor(s.elapsedMs / 1000)}s` : `${Math.floor(s.elapsedMs / 60000)}m ${Math.floor(s.elapsedMs / 1000) % 60}s`;
+  $('endpointCount').textContent = s.endpointCount.toLocaleString();
+  const stateChanged = lastState !== s.state; lastState = s.state;
+  if (force || stateChanged || Date.now() - lastListRender > 800) {
+    renderEndpoints(); renderBranches(); renderPath(); renderWarnings(); lastListRender = Date.now();
+  }
+  controls();
+}
+function explorerLink(kind, value, title) {
+  const link = make('a', '', title);
+  link.href = `https://explorer.kaspa.org/${kind}/${encodeURIComponent(value)}`;
+  link.target = '_blank'; link.rel = 'noopener noreferrer';
+  return link;
+}
+function inspectButton(key, text = 'Inspect path') {
+  const b = make('button', 'text-button', text); b.type = 'button'; b.addEventListener('click', () => inspect(key)); return b;
+}
+function renderEndpoints() {
+  const rows = current.endpointRows(), container = $('endpointList'); container.replaceChildren();
+  if (!rows.length) container.append(make('p', 'empty', current.total === 0n ? 'No balance to attribute.' : 'No endpoint found yet. Unresolved value stays visible.'));
+  for (const row of rows.slice(0, endpointLimit)) {
+    const card = make('div', 'endpoint'), head = make('div', 'row-head');
+    head.append(make('div', `row-name ${row.type}-text`, row.name));
+    const value = make('div', 'row-value', `${formatKAS(row.amount)} KAS`);
+    value.append(make('small', '', pct(row.amount, current.total))); head.append(value); card.append(head);
+    const addressText = row.addresses.length === 1 ? shortAddress(row.addresses[0]) : `${row.addresses.length} labeled address(es)`;
+    card.append(make('p', 'evidence', `${addressText} · ${row.sources.join(' · ')}`));
+    const links = make('div', 'row-links');
+    if (row.examples[0]) links.append(inspectButton(row.examples[0], 'View endpoint'));
+    if (row.addresses[0] && !demoMode) links.append(explorerLink('addresses', row.addresses[0], 'Address ↗'));
+    card.append(links);
+    const track = make('div', 'mini-track'), fill = make('span', `${row.type}-fill`);
+    fill.style.width = percent(row.amount, current.total) + '%'; track.append(fill); card.append(track); container.append(card);
+  }
+  $('moreEndpoints').hidden = rows.length <= endpointLimit;
+}
+function renderBranches() {
+  const rows = [...current.nodes.values()].filter(n => n.pending + n.active + n.blocked > 0n)
+    .sort((a, b) => {
+      const av = a.pending + a.active + a.blocked, bv = b.pending + b.active + b.blocked;
+      return av === bv ? a.key.localeCompare(b.key) : av > bv ? -1 : 1;
+    });
+  $('branchCount').textContent = rows.length.toLocaleString();
+  const container = $('branchList'); container.replaceChildren();
+  if (!rows.length) container.append(make('p', 'empty', current.state === 'complete' ? 'No unfinished branches.' : 'Waiting for trace updates…'));
+  for (const row of rows.slice(0, 15)) {
+    const card = make('div', 'branch'), head = make('div', 'row-head');
+    const owner = row.address ? shortAddress(row.address) : `${row.txid.slice(0, 12)}…:${row.index}`;
+    head.append(make('div', 'row-name', owner), make('div', 'row-value', `${formatKAS(row.pending + row.active + row.blocked)} KAS`));
+    card.append(head, make('p', 'evidence', row.error ? `${row.error.code}: ${row.error.message}` : row.active ? 'Request / attribution in progress' : 'Queued for continued tracing'));
+    card.append(inspectButton(row.key)); container.append(card);
+  }
+  $('branchFootnote').textContent = rows.length > 15 ? `Showing the 15 largest of ${rows.length.toLocaleString()} unfinished outputs. Full state is included in JSON.` : '';
+}
+function nodeState(node) {
+  if (node.blocked > 0n) return 'Data unavailable';
+  if (node.active > 0n) return 'In progress';
+  if (node.pending > 0n) return 'Queued';
+  if (node.recipe?.kind === 'mining') return 'Mining endpoint';
+  if (node.recipe?.kind === 'exchange') return 'Exchange endpoint';
+  if (node.recipe?.kind === 'split') return 'Expanded';
+  return 'Not expanded';
+}
+function inspect(key) {
+  if (!current || (key !== 'root' && !current.nodes.has(key))) return;
+  if (pathStack.at(-1) !== key) pathStack.push(key);
+  pathLimit = 30; renderPath();
+  document.querySelector('.inspector').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+function renderPath() {
+  const key = pathStack.at(-1), node = key === 'root' ? null : current.nodes.get(key);
+  $('pathBack').disabled = pathStack.length <= 1;
+  const details = $('pathDetails'); details.replaceChildren();
+  let edges;
+  if (!node) {
+    $('pathTitle').textContent = `Snapshot · ${current.rootEdges.length.toLocaleString()} unspent output(s)`;
+    details.append(document.createTextNode('These are the actual outputs returned for the target address. Attributed amounts are shares of this snapshot, not other addresses’ current balances.'));
+    edges = current.rootEdges;
+  } else {
+    $('pathTitle').textContent = `Output ${node.txid}:${node.index}`;
+    details.append(make('p', '', `Owner: ${node.address ?? 'Non-address / unavailable script'} · ${nodeState(node)}`));
+    details.append(make('p', '', `Original output: ${formatKAS(node.value)} KAS · Attributed through it: ${formatKAS(node.through)} KAS`));
+    if (node.recipe?.kind === 'exchange') details.append(make('p', '', `Endpoint: ${node.recipe.entity.name}. Label evidence: ${node.recipe.entity.evidence} — ${node.recipe.entity.source}`));
+    if (node.recipe?.kind === 'mining') details.append(make('p', '', `Mining evidence: ${node.recipe.evidence}`));
+    if (node.error) details.append(make('p', '', `${node.error.code}: ${node.error.message}`));
+    if (!demoMode) {
+      details.append(explorerLink('txs', node.txid, 'Transaction in explorer ↗'));
+      if (node.address) details.append(explorerLink('addresses', node.address, 'Address in explorer ↗'));
+    }
+    edges = [...node.edges].map(([key, amount]) => ({key, amount}));
+  }
+  const sorted = [...edges].sort((a, b) => a.amount === b.amount ? a.key.localeCompare(b.key) : a.amount > b.amount ? -1 : 1);
+  const tbody = $('pathRows'); tbody.replaceChildren();
+  for (const edge of sorted.slice(0, pathLimit)) {
+    const child = current.nodes.get(edge.key); if (!child) continue;
+    const tr = make('tr'), label = make('td');
+    label.append(make('div', 'output-id', `${child.txid.slice(0, 12)}…${child.txid.slice(-8)}:${child.index}`),
+      make('div', 'output-owner', shortAddress(child.address)));
+    tr.append(label, make('td', '', formatKAS(edge.amount)), make('td', '', nodeState(child)));
+    const action = make('td'), button = make('button', 'ghost', 'Inspect →'); button.type = 'button';
+    button.addEventListener('click', () => inspect(child.key)); action.append(button); tr.append(action); tbody.append(tr);
+  }
+  if (!sorted.length) {
+    const tr = make('tr'), td = make('td', 'empty', node?.recipe && node.recipe.kind !== 'split'
+      ? 'This branch ends here under the selected stopping rules.'
+      : 'Funding inputs appear here after this output is expanded.');
+    td.colSpan = 4; tr.append(td); tbody.append(tr);
+  }
+  $('morePaths').hidden = sorted.length <= pathLimit;
+}
+function renderWarnings() {
+  const warnings = [...new Set(current.warnings)];
+  if (demoMode) warnings.unshift('This is synthetic data. The demo’s addresses and exchange names are not real ownership claims.');
+  $('warningsBox').hidden = warnings.length === 0;
+  $('warningCount').textContent = `(${warnings.length})`;
+  $('warningsList').replaceChildren(...warnings.map(w => make('p', '', w)));
+}
+function showConnectionReport(report) {
+  diagnostics = report; $('connectionPanel').hidden = false;
+  const lines = [];
+  for (const row of report.checks ?? []) {
+    lines.push(`${row.ok ? 'OK' : 'FAILED'} · ${row.name}${row.required ? ' (required)' : ' (optional)'}`);
+    lines.push(`${row.method ?? 'GET'} ${row.url ?? report.apiBase}`);
+    if (row.error) lines.push(`${row.error.code ?? 'error'}: ${row.error.message}`, row.error.detail || '');
+    lines.push('');
+  }
+  $('connectionDetails').textContent = lines.join('\n');
+  $('connectionSummary').textContent = report.ok
+    ? report.hasAddressChecks ? 'Required API reads succeeded. A full trace can still encounter missing history or rate limits.'
+      : 'A public API response is readable. Enter an address and test again to check balance/UTXO access.'
+    : 'Required API data could not be read. This is a connection/data-access failure, not a tracing-depth limit.';
+  $('copyDiagnostics').disabled = false;
+}
+function showConnectionFailure(error, baseUrl) {
+  showConnectionReport({version:'2.1.0', capturedAt:new Date().toISOString(), apiBase:baseUrl,
+    pageOrigin:location.origin, browserOnline:navigator.onLine, ok:false,
+    checks:[{name:'Trace preparation', required:true, ok:false, method:error.method ?? 'GET', url:error.url ?? baseUrl,
+      error:error.diagnostic?.() ?? {code:error.code ?? error.name, message:error.message}}]});
+}
+async function testConnection() {
+  if (busy) return;
+  let baseUrl, address = null;
+  try {
+    baseUrl = validateApiBase($('apiInput').value.trim());
+    if ($('addressInput').value.trim()) address = validateAddress($('addressInput').value);
+  } catch (error) { message(error.message); return; }
+  checkingConnection = true; busy = true; startup = new AbortController();
+  const signal = startup.signal; controls();
+  $('connectionPanel').hidden = false; $('connectionDetails').textContent = '';
+  $('connectionSummary').textContent = 'Testing readable API responses…'; $('copyDiagnostics').disabled = true;
+  try {
+    showConnectionReport(await diagnoseConnection({baseUrl, address, signal,
+      onProgress:text => { $('connectionSummary').textContent = text; }}));
+    try { if (diagnostics.ok) localStorage.setItem(STATIC_API_KEY, baseUrl); } catch { /* optional */ }
+  } catch (error) {
+    if (signal.aborted) $('connectionSummary').textContent = 'Connection test stopped.';
+    else showConnectionFailure(error, baseUrl);
+  } finally { busy = false; checkingConnection = false; startup = null; controls(); }
+}
+async function startTrace(demo = false) {
+  if (busy) return;
+  let address, baseUrl, idleMs;
+  try {
+    address = demo ? null : validateAddress($('addressInput').value);
+    baseUrl = demo ? 'https://api.kaspa.org' : validateApiBase($('apiInput').value.trim());
+    if (!demo && location.protocol === 'https:' && baseUrl.startsWith('http:')) throw new Error('An HTTPS site needs an HTTPS API. Select a browser-accessible HTTPS endpoint.');
+    const seconds = Number($('idleInput').value);
+    if (!Number.isSafeInteger(seconds) || seconds < 10 || seconds > 3600) throw new Error('Inactivity interval must be 10–3600 whole seconds');
+    idleMs = seconds * 1000;
+  } catch (error) { message(error.message); return; }
+  try { if (!demo) localStorage.setItem(STATIC_API_KEY, baseUrl); } catch { /* storage is optional */ }
+  $('connectionPanel').hidden = true; diagnostics = null;
+  const token = ++generation;
+  current = null; busy = true; demoMode = demo; pathStack = ['root']; pathLimit = 30; endpointLimit = 25; lastState = '';
+  startup = new AbortController(); const signal = startup.signal;
+  message(demo ? 'Offline demonstration: 1,000 synthetic KAS. No live blockchain requests are made.' : '', demo);
+  $('results').hidden = true; $('statusPanel').hidden = false;
+  $('stateBadge').textContent = demo ? 'DEMO · PREPARING' : 'PREPARING';
+  $('statusText').textContent = 'Checking unspent outputs against reported balance/count and loading source labels…';
+  metrics({}); $('statNodes').textContent = '0'; $('statDepth').textContent = '0'; $('statTime').textContent = '0s';
+  controls();
+  const preparingAt = Date.now();
+  let preparingText = 'Preparing API requests…', startupExpired = false;
+  const refreshPreparing = () => {
+    if (token !== generation || current || signal.aborted) return;
+    const elapsed = Math.floor((Date.now() - preparingAt) / 1000);
+    $('statusText').textContent = `${preparingText} (${elapsed}s; Stop cancels immediately)`;
+    $('statTime').textContent = `${elapsed}s`;
+  };
+  const ticker = setInterval(refreshPreparing, 500);
+  const deadline = setTimeout(() => { startupExpired = true; startup?.abort(); }, 45000);
+  try {
+    const fixture = demo ? makeDemo() : null;
+    const api = fixture?.api ?? new KaspaApi({baseUrl});
+    api.onProgress = text => { preparingText = text; refreshPreparing(); };
+    api.onMetrics = data => { if (generation === token && !current) metrics(data); };
+    address = fixture?.address ?? address; $('addressInput').value = address;
+    const [snapshot, registry] = await Promise.all([
+      api.snapshot(address, signal).then(snapshot => { preparingText = 'Snapshot checked; finishing optional source labels…'; refreshPreparing(); return snapshot; }),
+      fixture ? Promise.resolve(fixture.registry) : loadRegistry(api, signal, customLabels, {bundledRows: siteConfig.entities})
+    ]);
+    if (signal.aborted || token !== generation) return;
+    current = new TraceSession({api, snapshot, registry, idleMs, onUpdate: () => { if (generation === token) render(); }});
+    clearInterval(ticker); clearTimeout(deadline); startup = null; render(true); await current.run();
+  } catch (error) {
+    startup?.abort();
+    if (token !== generation) return;
+    if (startupExpired) {
+      $('stateBadge').textContent = 'CONNECTION TIMEOUT';
+      $('statusText').textContent = 'Preparation exceeded 45 seconds. No unchecked balance is shown.';
+      message('The API did not complete startup in time. Use Test connection below to identify the failing endpoint.');
+      showConnectionFailure(error, baseUrl);
+    } else if (signal.aborted && !current && error.name === 'AbortError') {
+      $('stateBadge').textContent = 'STOPPED';
+      $('statusText').textContent = 'Stopped before a checked snapshot was available. Start again to take a fresh snapshot.';
+    } else {
+      $('stateBadge').textContent = 'ERROR'; $('statusText').textContent = 'Trace could not finish. No missing data is assumed to be zero.';
+      message(error.message || 'Unexpected trace error'); showConnectionFailure(error, baseUrl); console.error(error);
+    }
+  } finally {
+    clearInterval(ticker); clearTimeout(deadline);
+    if (token === generation) { busy = false; startup = null; controls(); if (current) render(true); }
+  }
+}
+async function continueTrace() {
+  if (busy || !current) return;
+  busy = true; $('addressInput').value = current.snapshot.address; controls();
+  try { await current.run(); }
+  catch (error) { message(error.message); }
+  finally { busy = false; render(true); }
+}
+function download(text, extension, type) {
+  const url = URL.createObjectURL(new Blob([text], {type}));
+  const a = make('a'); a.href = url;
+  a.download = `kaspa-trace-${demoMode ? 'demo-' : ''}${current.snapshot.address.slice(-8)}-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+$('resetApi').addEventListener('click', () => {
+  if (busy) return;
+  $('apiInput').value = siteConfig.apiBase;
+  try { localStorage.removeItem(STATIC_API_KEY); localStorage.removeItem('kaspa-tracer-api'); } catch { /* optional */ }
+  $('connectionPanel').hidden = true; diagnostics = null;
+  message('Default public API selected. Start a new trace or use Test connection; connectivity has not yet been checked.', true);
+});
+$('testConnection').addEventListener('click', testConnection);
+$('retryConnection').addEventListener('click', testConnection);
+$('cancelConnection').addEventListener('click', () => startup?.abort());
+$('copyDiagnostics').addEventListener('click', async () => {
+  if (!diagnostics) return;
+  try { await navigator.clipboard.writeText(JSON.stringify(diagnostics, null, 2)); $('diagnosticCopyStatus').textContent = 'Diagnostics copied (includes queried public address URLs).'; }
+  catch { $('diagnosticCopyStatus').textContent = 'Clipboard unavailable. Select and copy the request details above.'; }
+});
+$('traceForm').addEventListener('submit', event => { event.preventDefault(); startTrace(false); });
+$('demoButton').addEventListener('click', () => startTrace(true));
+$('continueButton').addEventListener('click', continueTrace);
+$('stopButton').addEventListener('click', () => { if (current?.running) current.stop(); else startup?.abort(); controls(); });
+$('pathBack').addEventListener('click', () => { if (pathStack.length > 1) pathStack.pop(); pathLimit = 30; renderPath(); });
+$('pathRoot').addEventListener('click', () => { pathStack = ['root']; pathLimit = 30; renderPath(); });
+$('morePaths').addEventListener('click', () => { pathLimit += 50; renderPath(); });
+$('moreEndpoints').addEventListener('click', () => { endpointLimit += 50; renderEndpoints(); });
+$('exportJSON').addEventListener('click', () => { if (current) download(stringify({...current.report(), demo: demoMode}), 'json', 'application/json'); });
+$('exportCSV').addEventListener('click', () => { if (current) download(toCSV(current.report(), demoMode), 'csv', 'text/csv;charset=utf-8'); });
+$('labelsInput').addEventListener('change', async event => {
+  const file = event.target.files?.[0]; if (!file) return;
+  try {
+    if (file.size > 2 * 1024 * 1024) throw new Error('Label file must be smaller than 2 MB');
+    const data = JSON.parse(await file.text()), rows = data.entities ?? data;
+    const validator = new EntityRegistry(); validator.addRows(rows);
+    if (validator.warnings.length) throw new Error(validator.warnings.join(' ') + ' No new labels were applied.');
+    customLabels = rows;
+    $('labelsHelp').textContent = `${rows.length} custom record(s) loaded for the next new trace. Source evidence is included in exports.`;
+    message('Custom labels apply to the next new trace, not an already running or paused snapshot.', true);
+  } catch (error) { message(error.message); event.target.value = ''; }
+});
+$('copyDonation').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(donation); $('copyStatus').textContent = 'Donation address copied.'; }
+  catch { $('copyStatus').textContent = 'Clipboard unavailable. Select and copy the address above.'; }
+});
+window.addEventListener('beforeunload', event => { if (busy) { event.preventDefault(); event.returnValue = ''; } });
+// This edition intentionally does not migrate earlier localhost/relay settings.
+$('apiInput').value = siteConfig.apiBase;
+try { $('apiInput').value = restoreApiBase(localStorage, siteConfig.apiBase); } catch { /* storage is optional */ }
+const suppliedAddress = new URLSearchParams(location.search).get('address');
+if (suppliedAddress) $('addressInput').value = suppliedAddress;
+controls();
+
+// Mark ready only after every UI listener and initial control state succeeded.
+window.KaspaBoot?.ready();
+
+return {};
+}());
+
+}());
+</script>
 </body>
 </html>
