@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- Generated release v2.1.0. Ready for GitHub Pages: deploy this file as-is. No build or server is required. Site settings/labels are editable in the tracer-config JSON block below. Maintained module sources are available separately. -->
+<!-- Generated release v2.1.1. Ready for GitHub Pages: deploy this file as-is. No build or server is required. Site settings/labels are editable in the tracer-config JSON block below. Maintained module sources are available separately. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Trace a Kaspa address's current unspent outputs to mining rewards or labeled exchanges. Resumable, transparent proportional attribution.">
   <meta name="referrer" content="no-referrer">
-  <title>Kaspa Origin Tracer · Static v2.1.0</title>
+  <title>Kaspa Origin Tracer · Static v2.1.1</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230d1722'/%3E%3Cpath d='M13 9v22M13 20L27 9M13 20l14 11' fill='none' stroke='%2349eacb' stroke-width='3'/%3E%3C/svg%3E">
   <style>
 :root{color-scheme:dark;--bg:#070d13;--panel:#0d1722;--panel2:#101d2b;--line:#1c2c3c;--text:#eaf4f6;--muted:#8ea2b4;--teal:#49eacb;--mining:#4ade80;--exchange:#c084fc;--pending:#6181a7;--blocked:#fbbf24;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--radius:14px}
@@ -34,7 +34,7 @@
 <div class="wrap">
   <header>
     <div class="brand"><svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 11v18M14 20l10-9M14 20l10 9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><div><h1>Kaspa Origin Tracer</h1><p class="tagline">Follow the outputs. Find the endpoints.</p></div></div>
-    <span class="version">v2.1.0 · STATIC <span class="live-dot"></span> MAINNET</span>
+    <span class="version">v2.1.1 · STATIC <span class="live-dot"></span> MAINNET</span>
   </header>
   <main>
     <section id="bootPanel" class="panel startup-panel" role="alert">
@@ -64,7 +64,7 @@
     <section id="connectionPanel" class="panel connection-panel" hidden aria-label="Connection diagnostics">
       <h2>API connection</h2><p id="connectionSummary" role="status" aria-live="polite"></p>
       <pre id="connectionDetails" tabindex="0"></pre>
-      <p class="small muted">Browser JavaScript cannot tell a CORS block from every DNS/TLS/network failure. The browser console may show the precise reason. This static site uses direct GET requests. If the API blocks your origin, choose a compatible browser-accessible API or retry later. An HTML change cannot grant access on the API’s behalf.</p>
+      <p id="connectionHint" class="small muted">Browser JavaScript cannot tell a CORS block from every DNS/TLS/network failure. The browser console may show the precise reason. This static site uses direct GET requests. If the API blocks your origin, choose a compatible browser-accessible API or retry later. An HTML change cannot grant access on the API’s behalf.</p>
       <div class="actions"><button id="retryConnection" type="button" class="ghost">Test connection again</button><button id="cancelConnection" type="button" class="danger" hidden>Stop test</button><button id="copyDiagnostics" type="button" class="ghost">Copy diagnostics</button></div>
       <p id="diagnosticCopyStatus" role="status" class="small muted"></p>
     </section>
@@ -91,7 +91,7 @@
     <section class="panel how"><h2>What this trace tells you</h2><div class="how-grid"><div><h3>1 / Start with what remains</h3><p>Trace the unspent outputs in a checked snapshot, not a percentage of lifetime receipts. One address is not necessarily an entire wallet.</p></div><div><h3>2 / Follow the funding inputs</h3><p>Work backwards through specific outpoints. Larger branches get priority, with regular turns for smaller branches.</p></div><div><h3>3 / Stop at evidence</h3><p>Stop at mining-reward evidence or a labeled exchange. Pause after no new discovery, or press Stop and continue later in this tab.</p></div></div></section>
     <details class="panel methodology"><summary>Methodology, limitations &amp; privacy</summary><p>For a transaction with mixed inputs, this tracer apportions the target contribution in proportion to input values. Cumulative integer rounding across outputs of the same transaction prevents repeated rounding from exceeding an input. Fees are not added to your balance: the analysis follows only your attributed outputs.</p><p>A mining endpoint is supported by an API coinbase flag or the coinbase subnetwork ID. Coinbase payments can include fees. A mining-pool name alone is not evidence of a newly mined payment. Other named entities do not terminate a trace.</p><p>Exchange labels identify public/operator-supplied stopping points, not verified beneficial ownership. Unknown exchange addresses may be followed past the exchange and back to mining. Never interpret missing labels, complete model coverage or a long path as proof of the economic origin of funds.</p><p>Snapshots are amount/count cross-checked, not block-pinned or cryptographically verified. Indexer errors, missing historical data, reorganizations and public API limits can prevent completion. There is no promise of finding every exchange.</p><p>Stop aborts requests; Continue preserves the same snapshot and retries unfinished branches. This in-memory session does not survive reloading the page. Exported JSON is an audit report, not an importable checkpoint. Start a new trace for a fresh balance.</p><p>No signing, tracking analytics or third-party scripts are used. The selected API can see queried addresses and transaction IDs. The API receives your IP address. This application uses no relay, wallet connection or backend, and it does not silently switch providers. Exports contain public-address tracing history; share them deliberately.</p><p>Empty addresses have no current balance to trace. Lifetime-receipt tracing from v1 has intentionally been removed rather than mixed with current-balance attribution.</p></details>
   </main>
-  <footer><p>Kaspa Origin Tracer · v2.1.0</p><p>Support this project: <button type="button" id="copyDonation" class="donation" title="Copy donation address">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</button></p><span id="copyStatus" role="status"></span></footer>
+  <footer><p>Kaspa Origin Tracer · v2.1.1</p><p>Support this project: <button type="button" id="copyDonation" class="donation" title="Copy donation address">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</button></p><span id="copyStatus" role="status"></span></footer>
 </div>
 <noscript><p class="message">Enable JavaScript to run this browser-only tracer.</p></noscript>
 <script id="tracer-config" type="application/json">
@@ -421,7 +421,16 @@ class KaspaApi {
   constructor({baseUrl = 'https://api.kaspa.org', fetchImpl = globalThis.fetch,
     concurrency = 3, minIntervalMs = 180, timeoutMs = 12000, retries = 3, cacheSize = 2500,
     random = Math.random, onMetrics = () => {}, onProgress = () => {}} = {}) {
-    this.baseUrl = validateApiBase(baseUrl); this.fetch = fetchImpl; this.pool = new Pool(concurrency);
+    this.baseUrl = validateApiBase(baseUrl);
+    if (typeof fetchImpl !== 'function') throw new ApiError(
+      'This browser does not provide the Fetch API. Open the site in a current browser.',
+      {code: 'client-fetch', retryable: false});
+    // Native Window.fetch requires the browser global as its receiver. Storing
+    // it unbound and calling this.fetch(...) incorrectly supplies KaspaApi as
+    // `this`, throwing Illegal invocation BEFORE any network request is sent.
+    // Bound injected functions keep their existing receiver; arrow mocks work too.
+    this.fetch = fetchImpl.bind(globalThis);
+    this.pool = new Pool(concurrency);
     this.minIntervalMs = minIntervalMs; this.timeoutMs = timeoutMs; this.retries = retries;
     this.cacheSize = cacheSize; this.random = random; this.onMetrics = onMetrics;
     this.onProgress = onProgress;
@@ -479,12 +488,18 @@ class KaspaApi {
         } catch (error) {
           throwIfAborted(signal);
           const offline = globalThis.navigator?.onLine === false;
-          retryError = error instanceof ApiError ? error : new ApiError(timedOut
+          const detail = [error?.cause?.code, error?.message].filter(Boolean).join(': ').slice(0, 400);
+          const invocationError = error?.name === 'TypeError' &&
+            /illegal invocation|incompatible receiver|called on incompatible|can only call (?:Window\.)?fetch|does not implement interface Window/i.test(detail);
+          if (error instanceof ApiError) retryError = error;
+          else if (invocationError) retryError = new ApiError(
+            'The browser request function was called incorrectly (JavaScript invocation error). This is a client-side code error, not evidence of a network or CORS block. Reload the latest site version.',
+            {code: 'client-invocation', retryable: false, detail});
+          else retryError = new ApiError(timedOut
             ? `API request timed out after ${timeoutMs / 1000}s`
             : offline ? 'Your browser reports that it is offline.'
             : 'Could not read a response from the API. Possible causes include network/DNS/TLS failure, a browser extension, or CORS; JavaScript cannot distinguish these.',
-            {code: timedOut ? 'timeout' : offline ? 'offline' : 'network', retryable: !offline,
-              detail: [error?.cause?.code, error?.message].filter(Boolean).join(': ').slice(0, 400)});
+            {code: timedOut ? 'timeout' : offline ? 'offline' : 'network', retryable: !offline, detail});
           retryError.url ||= requestUrl; retryError.method = method;
         } finally {
           clearTimeout(timer); signal?.removeEventListener('abort', cancel);
@@ -735,7 +750,7 @@ const {EntityRegistry} = __modules["entities"];
 
 const {throwIfAborted, delay} = __modules["api"];
 
-const VERSION = '2.1.0';
+const VERSION = '2.1.1';
 const DEFAULTS = Object.freeze({idleMs: 90_000, batchSize: 16, maxNodes: 50_000, maxEdges: 150_000, maxSteps: 200_000});
 
 /** Output-level, iterative flow traversal. No wallet recursion or address cycles.
@@ -1164,7 +1179,7 @@ async function diagnoseConnection({baseUrl, address = null, signal, onProgress =
     }
   }
   const required = results.filter(r => r.required);
-  return {version:'2.1.0', capturedAt:new Date().toISOString(), apiBase:api.baseUrl,
+  return {version:'2.1.1', capturedAt:new Date().toISOString(), apiBase:api.baseUrl,
     pageOrigin:globalThis.location?.origin ?? null, browserOnline:globalThis.navigator?.onLine ?? null,
     hasAddressChecks:!!address,
     ok:required.length ? required.every(r => r.ok) : results.some(r => r.ok),
@@ -1429,14 +1444,20 @@ function showConnectionReport(report) {
     lines.push('');
   }
   $('connectionDetails').textContent = lines.join('\n');
+  const clientFailure = (report.checks ?? []).some(row => row.error?.code?.startsWith('client-'));
   $('connectionSummary').textContent = report.ok
     ? report.hasAddressChecks ? 'Required API reads succeeded. A full trace can still encounter missing history or rate limits.'
       : 'A public API response is readable. Enter an address and test again to check balance/UTXO access.'
+    : clientFailure ? 'A client-side JavaScript error prevented API access. This is not a tracing-depth limit or evidence of a CORS block.'
     : 'Required API data could not be read. This is a connection/data-access failure, not a tracing-depth limit.';
+  $('connectionHint').hidden = !!report.ok;
+  $('connectionHint').textContent = clientFailure
+    ? 'Reload the latest published site version. If this JavaScript error persists, copy diagnostics and report it. Changing API providers or deploying a proxy is not a fix for an incorrectly invoked browser function.'
+    : 'Browser JavaScript cannot tell a CORS block from every DNS/TLS/network failure. The browser console may show the precise reason. This static site uses direct GET requests. If the API blocks your origin, choose a compatible browser-accessible API or retry later. An HTML change cannot grant access on the API’s behalf.';
   $('copyDiagnostics').disabled = false;
 }
 function showConnectionFailure(error, baseUrl) {
-  showConnectionReport({version:'2.1.0', capturedAt:new Date().toISOString(), apiBase:baseUrl,
+  showConnectionReport({version:'2.1.1', capturedAt:new Date().toISOString(), apiBase:baseUrl,
     pageOrigin:location.origin, browserOnline:navigator.onLine, ok:false,
     checks:[{name:'Trace preparation', required:true, ok:false, method:error.method ?? 'GET', url:error.url ?? baseUrl,
       error:error.diagnostic?.() ?? {code:error.code ?? error.name, message:error.message}}]});
