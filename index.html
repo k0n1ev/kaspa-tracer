@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- Generated release v2.1.1. Ready for GitHub Pages: deploy this file as-is. No build or server is required. Site settings/labels are editable in the tracer-config JSON block below. Maintained module sources are available separately. -->
+<!-- Generated release v2.1.2. Ready for GitHub Pages: deploy this file as-is. No build or server is required. Site settings/labels are editable in the tracer-config JSON block below. Maintained module sources are available separately. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Trace a Kaspa address's current unspent outputs to mining rewards or labeled exchanges. Resumable, transparent proportional attribution.">
   <meta name="referrer" content="no-referrer">
-  <title>Kaspa Origin Tracer · Static v2.1.1</title>
+  <title>Kaspa Origin Tracer · Static v2.1.2</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230d1722'/%3E%3Cpath d='M13 9v22M13 20L27 9M13 20l14 11' fill='none' stroke='%2349eacb' stroke-width='3'/%3E%3C/svg%3E">
   <style>
 :root{color-scheme:dark;--bg:#070d13;--panel:#0d1722;--panel2:#101d2b;--line:#1c2c3c;--text:#eaf4f6;--muted:#8ea2b4;--teal:#49eacb;--mining:#4ade80;--exchange:#c084fc;--pending:#6181a7;--blocked:#fbbf24;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--radius:14px}
@@ -34,7 +34,7 @@
 <div class="wrap">
   <header>
     <div class="brand"><svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 11v18M14 20l10-9M14 20l10 9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><div><h1>Kaspa Origin Tracer</h1><p class="tagline">Follow the outputs. Find the endpoints.</p></div></div>
-    <span class="version">v2.1.1 · STATIC <span class="live-dot"></span> MAINNET</span>
+    <span class="version">v2.1.2 · STATIC <span class="live-dot"></span> MAINNET</span>
   </header>
   <main>
     <section id="bootPanel" class="panel startup-panel" role="alert">
@@ -57,7 +57,7 @@
       <div id="message" class="message" role="alert" hidden></div>
       <details id="settings"><summary>Advanced &amp; address labels</summary><div class="settings-grid">
         <div class="field"><label for="apiInput">Compatible REST API</label><input id="apiInput" type="url" value="https://api.kaspa.org" spellcheck="false"><small>Requests go directly from your browser to this API. It must allow browser CORS; public rate limits still apply. No backend is used by this site.</small><div class="actions"><button id="testConnection" disabled type="button" class="ghost">Test connection</button><button id="resetApi" type="button" class="ghost">Reset API</button></div></div>
-        <div class="field"><label for="idleInput">Pause after no discovery (seconds)</label><input id="idleInput" type="number" value="90" min="10" max="3600" step="5"><small>Discovery = a new endpoint, or at least 0.01% more balance attributed.</small></div>
+        <div class="field"><label for="idleInput">Pause after no discovery (seconds)</label><input id="idleInput" type="number" value="90" min="10" max="3600" step="5"><small>Discovery = a new endpoint, or at least 0.01% more balance attributed. API-recovery waits do not consume this interval.</small></div>
         <div class="field"><label for="labelsInput">Additional labels (JSON)</label><input id="labelsInput" type="file" accept="application/json,.json"><small id="labelsHelp">Only explicitly enabled exchange labels stop a branch. Labels apply to the next new trace.</small></div>
       </div><p class="small muted">No maximum depth or minimum KAS. Browser memory/work safety limits preserve a partial result rather than dropping branches.</p></details>
     </section>
@@ -70,7 +70,7 @@
     </section>
     <section id="statusPanel" class="panel status-panel" hidden aria-label="Trace status">
       <div class="status-top"><div><span id="stateBadge" class="badge">PREPARING</span><p id="statusText" role="status" aria-live="polite">Taking a checked UTXO snapshot…</p></div><div class="status-actions"><button id="exportJSON" class="ghost" type="button" disabled>Export JSON</button><button id="exportCSV" class="ghost" type="button" disabled>Export CSV</button></div></div>
-      <div class="stats"><span>Requests <b id="statRequests">0</b></span><span>Cache hits <b id="statCache">0</b></span><span>Retries <b id="statRetries">0</b></span><span>Outputs explored <b id="statNodes">0</b></span><span>Deepest path <b id="statDepth">0</b></span><span>Active time <b id="statTime">0s</b></span></div>
+      <div class="stats"><span>Requests <b id="statRequests">0</b></span><span>Cache hits <b id="statCache">0</b></span><span>Retries <b id="statRetries">0</b></span><span>Outputs explored <b id="statNodes">0</b></span><span>Deepest path <b id="statDepth">0</b></span><span>Elapsed time <b id="statTime">0s</b></span></div>
     </section>
     <section id="results" hidden>
       <section class="panel hero">
@@ -83,15 +83,15 @@
       </section>
       <div class="two-columns">
         <section class="panel"><h2>Discovered endpoints <span id="endpointCount" class="count">0</span></h2><p class="small muted">Coinbase evidence, or a public/operator-supplied exchange label.</p><div id="endpointList" class="list"></div><button id="moreEndpoints" class="text-button" type="button" hidden>Show more endpoints</button></section>
-        <section class="panel"><h2>Unfinished branches <span id="branchCount" class="count">0</span></h2><p class="small muted">Largest remaining contributions first. Nothing here is counted as discovered.</p><div id="branchList" class="list"></div><p id="branchFootnote" class="small muted"></p></section>
+        <section class="panel"><h2>Unfinished branches <span id="branchCount" class="count">0</span></h2><p class="small muted">Largest remaining contributions first. Nothing here is counted as discovered. Network interruptions keep amounts queued.</p><div id="branchList" class="list"></div><p id="branchFootnote" class="small muted"></p></section>
       </div>
       <section class="panel inspector"><div class="section-head"><div><h2>Trace paths</h2><p class="small muted">Inspect actual transaction outputs, including change and shared ancestry.</p></div><div class="actions"><button id="pathBack" class="ghost" type="button" disabled>← Back</button><button id="pathRoot" class="ghost" type="button">Snapshot</button></div></div><p id="pathTitle" class="path-title"></p><div id="pathDetails" class="small muted"></div><div class="table-scroll"><table><thead><tr><th>Referenced output / owner</th><th>Attributed KAS</th><th>State</th><th><span class="sr-only">Action</span></th></tr></thead><tbody id="pathRows"></tbody></table></div><button id="morePaths" class="text-button" type="button" hidden>Show more outputs</button></section>
       <details class="panel" id="warningsBox" hidden><summary>Data quality &amp; limitations <span id="warningCount"></span></summary><div id="warningsList"></div></details>
     </section>
     <section class="panel how"><h2>What this trace tells you</h2><div class="how-grid"><div><h3>1 / Start with what remains</h3><p>Trace the unspent outputs in a checked snapshot, not a percentage of lifetime receipts. One address is not necessarily an entire wallet.</p></div><div><h3>2 / Follow the funding inputs</h3><p>Work backwards through specific outpoints. Larger branches get priority, with regular turns for smaller branches.</p></div><div><h3>3 / Stop at evidence</h3><p>Stop at mining-reward evidence or a labeled exchange. Pause after no new discovery, or press Stop and continue later in this tab.</p></div></div></section>
-    <details class="panel methodology"><summary>Methodology, limitations &amp; privacy</summary><p>For a transaction with mixed inputs, this tracer apportions the target contribution in proportion to input values. Cumulative integer rounding across outputs of the same transaction prevents repeated rounding from exceeding an input. Fees are not added to your balance: the analysis follows only your attributed outputs.</p><p>A mining endpoint is supported by an API coinbase flag or the coinbase subnetwork ID. Coinbase payments can include fees. A mining-pool name alone is not evidence of a newly mined payment. Other named entities do not terminate a trace.</p><p>Exchange labels identify public/operator-supplied stopping points, not verified beneficial ownership. Unknown exchange addresses may be followed past the exchange and back to mining. Never interpret missing labels, complete model coverage or a long path as proof of the economic origin of funds.</p><p>Snapshots are amount/count cross-checked, not block-pinned or cryptographically verified. Indexer errors, missing historical data, reorganizations and public API limits can prevent completion. There is no promise of finding every exchange.</p><p>Stop aborts requests; Continue preserves the same snapshot and retries unfinished branches. This in-memory session does not survive reloading the page. Exported JSON is an audit report, not an importable checkpoint. Start a new trace for a fresh balance.</p><p>No signing, tracking analytics or third-party scripts are used. The selected API can see queried addresses and transaction IDs. The API receives your IP address. This application uses no relay, wallet connection or backend, and it does not silently switch providers. Exports contain public-address tracing history; share them deliberately.</p><p>Empty addresses have no current balance to trace. Lifetime-receipt tracing from v1 has intentionally been removed rather than mixed with current-balance attribution.</p></details>
+    <details class="panel methodology"><summary>Methodology, limitations &amp; privacy</summary><p>For a transaction with mixed inputs, this tracer apportions the target contribution in proportion to input values. Cumulative integer rounding across outputs of the same transaction prevents repeated rounding from exceeding an input. Fees are not added to your balance: the analysis follows only your attributed outputs.</p><p>A mining endpoint is supported by an API coinbase flag or the coinbase subnetwork ID. Coinbase payments can include fees. A mining-pool name alone is not evidence of a newly mined payment. Other named entities do not terminate a trace.</p><p>Exchange labels identify public/operator-supplied stopping points, not verified beneficial ownership. Unknown exchange addresses may be followed past the exchange and back to mining. Never interpret missing labels, complete model coverage or a long path as proof of the economic origin of funds.</p><p>Snapshots are amount/count cross-checked, not block-pinned or cryptographically verified. Indexer errors, missing historical data, reorganizations and public API limits can prevent completion. There is no promise of finding every exchange.</p><p>API interruptions suspend traversal and test the failed transaction up to three times per run before pausing. Network failures never mark the whole frontier unavailable. Stop aborts requests; Continue preserves the same snapshot and retries unfinished branches. This in-memory session does not survive reloading the page. Exported JSON is an audit report, not an importable checkpoint. Start a new trace for a fresh balance.</p><p>No signing, tracking analytics or third-party scripts are used. The selected API can see queried addresses and transaction IDs. The API receives your IP address. This application uses no relay, wallet connection or backend, and it does not silently switch providers. Exports contain public-address tracing history; share them deliberately.</p><p>Empty addresses have no current balance to trace. Lifetime-receipt tracing from v1 has intentionally been removed rather than mixed with current-balance attribution.</p></details>
   </main>
-  <footer><p>Kaspa Origin Tracer · v2.1.1</p><p>Support this project: <button type="button" id="copyDonation" class="donation" title="Copy donation address">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</button></p><span id="copyStatus" role="status"></span></footer>
+  <footer><p>Kaspa Origin Tracer · v2.1.2</p><p>Support this project: <button type="button" id="copyDonation" class="donation" title="Copy donation address">kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee</button></p><span id="copyStatus" role="status"></span></footer>
 </div>
 <noscript><p class="message">Enable JavaScript to run this browser-only tracer.</p></noscript>
 <script id="tracer-config" type="application/json">
@@ -367,15 +367,29 @@ function delay(ms, signal) {
   });
 }
 class ApiError extends Error {
-  constructor(message, {status = 0, retryable = true, retryAfterMs = 0, code, url = '', method = 'GET', detail = ''} = {}) {
+  constructor(message, {status = 0, retryable = true, retryAfterMs = 0, retryAt = 0, code, url = '', method = 'GET', detail = ''} = {}) {
     super(message); this.name = 'ApiError'; this.code = code ?? (status ? `http-${status}` : 'network');
     this.status = status; this.retryable = retryable; this.retryAfterMs = retryAfterMs;
+    this.retryAt = retryAt || (retryAfterMs ? Date.now() + retryAfterMs : 0);
     this.url = url; this.method = method; this.detail = detail;
   }
   diagnostic() {
     return {name:this.name, code:this.code, message:this.message, method:this.method,
-      url:this.url, httpStatus:this.status || null, detail:this.detail};
+      url:this.url, httpStatus:this.status || null, detail:this.detail, retryAt:this.retryAt || null};
   }
+}
+/** Service/access failures must pause the client, not condemn every outpoint.
+ * A readable 404/410 or invalid transaction is a branch-local data problem.
+ * HTTP 401/403, client errors and invalid JSON pause without automatic retry.
+ */
+function isServiceError(error) {
+  const status = error?.status || Number(/^http-(\d+)$/.exec(error?.code ?? '')?.[1]);
+  return ['network', 'offline', 'timeout', 'invalid-json'].includes(error?.code) ||
+    error?.code?.startsWith('client-') === true || [401, 403, 408, 425, 429].includes(status) || status >= 500;
+}
+function canAutoRecover(error) {
+  const status = error?.status || Number(/^http-(\d+)$/.exec(error?.code ?? '')?.[1]);
+  return ['network', 'offline', 'timeout'].includes(error?.code) || [408, 425, 429].includes(status) || status >= 500;
 }
 function retryAfter(value, now = Date.now()) {
   if (!value) return 0;
@@ -419,7 +433,7 @@ class Pool {
 
 class KaspaApi {
   constructor({baseUrl = 'https://api.kaspa.org', fetchImpl = globalThis.fetch,
-    concurrency = 3, minIntervalMs = 180, timeoutMs = 12000, retries = 3, cacheSize = 2500,
+    concurrency = 2, minIntervalMs = 750, timeoutMs = 12000, retries = 3, cacheSize = 2500,
     random = Math.random, onMetrics = () => {}, onProgress = () => {}} = {}) {
     this.baseUrl = validateApiBase(baseUrl);
     if (typeof fetchImpl !== 'function') throw new ApiError(
@@ -431,15 +445,59 @@ class KaspaApi {
     // Bound injected functions keep their existing receiver; arrow mocks work too.
     this.fetch = fetchImpl.bind(globalThis);
     this.pool = new Pool(concurrency);
-    this.minIntervalMs = minIntervalMs; this.timeoutMs = timeoutMs; this.retries = retries;
+    this.minIntervalMs = minIntervalMs; this.baseIntervalMs = minIntervalMs;
+    this.serviceError = null; this.successStreak = 0; this.timeoutMs = timeoutMs; this.retries = retries;
     this.cacheSize = cacheSize; this.random = random; this.onMetrics = onMetrics;
     this.onProgress = onProgress;
     this.nextStart = 0; this.cooldownUntil = 0; this.cache = new Map(); this.inFlight = new Map();
-    this.metrics = {requests: 0, retries: 0, cacheHits: 0, failures: 0, active: 0, peakActive: 0};
+    this.metrics = {requests: 0, retries: 0, cacheHits: 0, failures: 0, active: 0, peakActive: 0, recoveryChecks: 0};
   }
   emit() { try { this.onMetrics({...this.metrics}); } catch { /* UI must not interrupt accounting */ } }
   progress(text) { try { this.onProgress(text); } catch { /* UI is not part of transport */ } }
-  async json(path, {signal, retries = this.retries, timeoutMs = this.timeoutMs} = {}) {
+  hold(error) {
+    if (!this.serviceError) {
+      this.minIntervalMs = Math.min(6000, this.minIntervalMs * 2);
+      this.successStreak = 0;
+    }
+    this.serviceError = error;
+  }
+  releaseHold() { this.serviceError = null; }
+  /** Claim a dispatch slot AFTER waiting. Reserving slots before a server
+   * cooldown makes them expire together and causes a burst at its end. */
+  async waitForTurn(signal, {guardService = false, recoveryProbe = false} = {}) {
+    for (;;) {
+      throwIfAborted(signal);
+      if (guardService && !recoveryProbe && this.serviceError) throw this.serviceError;
+      const wait = Math.max(this.nextStart, this.cooldownUntil) - Date.now();
+      if (wait <= 0) { this.nextStart = Date.now() + this.minIntervalMs; return; }
+      // Slice long Retry-After waits; browser timers cannot represent arbitrary durations.
+      await delay(Math.min(wait, 60_000), signal);
+    }
+  }
+  /** Exactly one read of the FAILED transaction endpoint, never a health ping.
+   * It runs with the traversal suspended and caches a valid successful response.
+   * A readable branch-local error also proves transport recovered; the engine
+   * will handle that individual output normally after the circuit reopens. */
+  async recover(error, signal) {
+    const prefix = this.baseUrl + '/transactions/';
+    if (!error?.url?.startsWith(prefix)) throw new ApiError('Cannot identify the failed transaction request',
+      {code:'client-recovery', retryable:false});
+    const path = error.url.slice(this.baseUrl.length);
+    const match = /^\/transactions\/([0-9a-f]{64})(?:\?|$)/i.exec(path);
+    if (!match) throw new ApiError('Invalid recovery transaction URL', {code:'client-recovery', retryable:false});
+    this.metrics.recoveryChecks++; this.metrics.retries++; this.emit();
+    try {
+      const raw = await this.json(path, {signal, retries:0, guardService:true, recoveryProbe:true});
+      const tx = normalizeTransaction(raw, match[1]); this.remember(tx.id, tx);
+      this.releaseHold();
+    } catch (failure) {
+      throwIfAborted(signal);
+      if (isServiceError(failure)) { this.hold(failure); throw failure; }
+      this.releaseHold(); // e.g. readable 404: not a global outage
+    }
+  }
+  async json(path, {signal, retries = this.retries, timeoutMs = this.timeoutMs,
+    guardService = false, recoveryProbe = false} = {}) {
     const method = 'GET';
     const requestUrl = this.baseUrl + path;
     for (let attempt = 0; ; attempt++) {
@@ -447,10 +505,7 @@ class KaspaApi {
       let retryError;
       const release = await this.pool.acquire(signal);
       try {
-        const start = Math.max(Date.now(), this.nextStart, this.cooldownUntil);
-        this.nextStart = start + this.minIntervalMs;
-        await delay(start - Date.now(), signal);
-        while (Date.now() < this.cooldownUntil) await delay(this.cooldownUntil - Date.now(), signal);
+        await this.waitForTurn(signal, {guardService, recoveryProbe});
         throwIfAborted(signal);
         const controller = new AbortController();
         const cancel = () => controller.abort();
@@ -478,12 +533,16 @@ class KaspaApi {
               retryable: [408, 425, 429].includes(response.status) || response.status >= 500, retryAfterMs: wait, detail});
           }
           const text = await response.text();
-          if (text.length > 32 * 1024 * 1024) throw new ApiError('API response exceeds browser safety budget', {retryable: false});
+          if (text.length > 32 * 1024 * 1024) throw new ApiError('API response exceeds browser safety budget', {retryable: false, code:'response-too-large'});
           let data;
           try { data = parseLosslessJSON(text); }
           catch { throw new ApiError('API returned invalid JSON. An HTML error, login or security-challenge page cannot be used as blockchain data.',
             {retryable: false, code: 'invalid-json'}); }
           throwIfAborted(signal);
+          if (!this.serviceError && ++this.successStreak >= 20) {
+            this.minIntervalMs = Math.max(this.baseIntervalMs, Math.round(this.minIntervalMs * 0.9));
+            this.successStreak = 0;
+          }
           return data;
         } catch (error) {
           throwIfAborted(signal);
@@ -501,12 +560,15 @@ class KaspaApi {
             : 'Could not read a response from the API. Possible causes include network/DNS/TLS failure, a browser extension, or CORS; JavaScript cannot distinguish these.',
             {code: timedOut ? 'timeout' : offline ? 'offline' : 'network', retryable: !offline, detail});
           retryError.url ||= requestUrl; retryError.method = method;
+          // Close before releasing the pool slot; already queued transaction
+          // requests see the same fault WITHOUT making another HTTP request.
+          if (guardService && isServiceError(retryError)) this.hold(retryError);
         } finally {
           clearTimeout(timer); signal?.removeEventListener('abort', cancel);
           this.metrics.active--; this.emit();
         }
       } finally { release(); }
-      if (!retryError.retryable || attempt >= (retryError.code === 'network' ? Math.min(retries, 1) : retries)) {
+      if ((guardService && isServiceError(retryError)) || !retryError.retryable || attempt >= (retryError.code === 'network' ? Math.min(retries, 1) : retries)) {
         this.metrics.failures++; this.emit(); throw retryError;
       }
       this.metrics.retries++; this.emit();
@@ -523,7 +585,7 @@ class KaspaApi {
       const tx = this.cache.get(id); this.remember(id, tx); this.metrics.cacheHits++; this.emit(); return tx;
     }
     if (this.inFlight.has(id)) { this.metrics.cacheHits++; this.emit(); return this.inFlight.get(id); }
-    const work = this.json(`/transactions/${id}?inputs=true&outputs=true&resolve_previous_outpoints=light`, {signal})
+    const work = this.json(`/transactions/${id}?inputs=true&outputs=true&resolve_previous_outpoints=light`, {signal, guardService:true, retries:0})
       .then(data => { const tx = normalizeTransaction(data, id); this.remember(id, tx); return tx; });
     this.inFlight.set(id, work);
     try { return await work; }
@@ -575,7 +637,7 @@ class KaspaApi {
   }
 }
 
-return {abortError, throwIfAborted, delay, ApiError, retryAfter, validateApiBase, KaspaApi};
+return {abortError, throwIfAborted, delay, ApiError, isServiceError, canAutoRecover, retryAfter, validateApiBase, KaspaApi};
 }());
 
 __modules["address"] = (function () {
@@ -748,10 +810,10 @@ const {Frontier} = __modules["frontier"];
 
 const {EntityRegistry} = __modules["entities"];
 
-const {throwIfAborted, delay} = __modules["api"];
+const {throwIfAborted, delay, isServiceError, canAutoRecover} = __modules["api"];
 
-const VERSION = '2.1.1';
-const DEFAULTS = Object.freeze({idleMs: 90_000, batchSize: 16, maxNodes: 50_000, maxEdges: 150_000, maxSteps: 200_000});
+const VERSION = '2.1.2';
+const DEFAULTS = Object.freeze({idleMs: 90_000, batchSize: 16, maxNodes: 50_000, maxEdges: 150_000, maxSteps: 200_000, recoveryBaseMs: 10_000, recoveryAttempts: 3, recoveryMaxWaitMs: 120_000});
 
 /** Output-level, iterative flow traversal. No wallet recursion or address cycles.
  * Accounting invariant at every externally visible update:
@@ -768,6 +830,8 @@ class TraceSession {
     this.endpoints = new Map(); this.plans = new Map(); this.planFlights = new Map(); this.planEdges = 0; this.rootEdges = []; this.warnings = [...(snapshot.warnings ?? []), ...registry.warnings];
     this.totals = {mining: 0n, exchange: 0n, queued: 0n, active: 0n, blocked: 0n};
     this.stats = {steps: 0, nodes: 0, edges: 0, maxDepth: 0, oldestTime: null};
+    this.batchController = null; this.serviceIssue = null; this.recoveryStarted = null;
+    this.recovery = {attempts:0, maxAttempts:this.options.recoveryAttempts, nextRetryAt:null, checking:false, lastError:null};
     this.state = 'ready'; this.reason = null; this.running = false; this.controller = null;
     this.createdAt = new Date().toISOString(); this.elapsedMs = 0; this.segmentStart = 0;
     this.lastDiscovery = this.now(); this.lastMarkedResolved = 0n;
@@ -813,7 +877,9 @@ class TraceSession {
     return {version: VERSION, address: this.snapshot.address, state: this.state, reason: this.reason,
       total: this.total, resolved, coverage: percent(resolved, this.total), totals: {...this.totals},
       unresolved: this.total - resolved, stats: {...this.stats}, api: {...this.api.metrics},
-      frontier: this.frontier.size, noDiscoveryMs: this.now() - this.lastDiscovery,
+      frontier: this.frontier.size, noDiscoveryMs: Math.max(0, this.now() - this.lastDiscovery -
+        (this.recoveryStarted === null ? 0 : this.now() - this.recoveryStarted)),
+      recovery: {...this.recovery},
       elapsedMs: this.elapsedMs + (this.running ? this.now() - this.segmentStart : 0),
       capturedAt: this.snapshot.capturedAt, warnings: this.warnings,
       endpointCount: this.endpoints.size};
@@ -831,24 +897,29 @@ class TraceSession {
     this.controller = new AbortController(); const signal = this.controller.signal;
     // Retry failures on explicit continuation only. Keep successful expansions and all resolved flow.
     if (this.totals.blocked > 0n) {
-      this.api.cache?.clear();
       for (const node of this.nodes.values()) {
         if (!node.blocked) continue;
+        this.api.cache?.delete(node.txid); // keep unrelated successful transaction data
         this.totals.blocked -= node.blocked; this.totals.queued += node.blocked;
         node.pending += node.blocked; node.blocked = 0n; node.error = null;
         this.frontier.set(node);
       }
     }
+    this.manualRecovery = this.state === 'paused' && !!this.serviceIssue;
+    this.recovery.attempts = 0; this.recovery.checking = false;
+    // Custom API implementations without a probe hook can still be retried manually.
+    if (typeof this.api.recover !== 'function') this.serviceIssue = null;
     this.running = true; this.state = 'running'; this.reason = null;
     this.segmentStart = this.now(); this.lastDiscovery = this.now();
     this.lastMarkedResolved = this.totals.mining + this.totals.exchange;
     const timer = setInterval(() => {
-      if (this.running && !signal.aborted && this.now() - this.lastDiscovery >= this.options.idleMs) this.stop('no-discovery');
+      if (this.running && this.state === 'running' && !signal.aborted && this.now() - this.lastDiscovery >= this.options.idleMs) this.stop('no-discovery');
       this.emit();
     }, Math.min(250, this.options.idleMs));
     this.emit();
     try {
       while (this.frontier.size && !signal.aborted) {
+        if (this.serviceIssue && !await this.recoverService(signal)) break;
         if (this.stats.steps >= this.options.maxSteps) { this.stop('resource'); break; }
         const batch = [];
         while (this.frontier.size && batch.length < Math.min(this.options.batchSize, this.options.maxSteps - this.stats.steps)) {
@@ -859,8 +930,17 @@ class TraceSession {
         }
         const needed = batch.filter(({node}) => !node.recipe && !node.coinbaseHint && !this.registry.exchange(node.address))
           .map(({node}) => node.txid);
-        try { await this.api.prefetchTransactions?.(needed, signal); } catch { /* stop/error is handled per work item */ }
-        await Promise.all(batch.map(work => this.execute(work, signal)));
+        // A service failure cancels this batch, NOT the whole session. Every
+        // interrupted work item requeues its exact amount before recovery starts.
+        this.batchController = new AbortController();
+        const batchSignal = this.batchController.signal;
+        const cancelBatch = () => this.batchController?.abort();
+        signal.addEventListener('abort', cancelBatch, {once:true});
+        if (signal.aborted) cancelBatch();
+        try {
+          try { await this.api.prefetchTransactions?.(needed, batchSignal); } catch { /* execute handles stop/error */ }
+          await Promise.all(batch.map(work => this.execute(work, batchSignal)));
+        } finally { signal.removeEventListener('abort', cancelBatch); this.batchController = null; }
         this.emit();
         // Yield even on cached one-input chains so Stop and the watchdog can run.
         await delay(0);
@@ -874,6 +954,51 @@ class TraceSession {
       clearInterval(timer); this.elapsedMs += this.now() - this.segmentStart; this.running = false; this.emit();
     }
     return this.summary();
+  }
+  errorInfo(error) {
+    return error.diagnostic?.() ?? {code:error.code ?? error.name, message:error.message,
+      url:error.url ?? '', httpStatus:error.status || null, detail:error.detail ?? '', retryAt:error.retryAt || null};
+  }
+  async recoverService(signal) {
+    this.recoveryStarted = this.now();
+    try {
+      while (this.serviceIssue && !signal.aborted) {
+        const error = this.serviceIssue.error;
+        const manual = this.manualRecovery; this.manualRecovery = false;
+        this.recovery.lastError = this.errorInfo(error);
+        if ((!canAutoRecover(error) && !manual) || typeof this.api.recover !== 'function' || this.recovery.attempts >= this.options.recoveryAttempts) {
+          this.stop('api-unavailable'); return false;
+        }
+        const wait = Math.max(manual ? 0 : this.options.recoveryBaseMs * 2 ** this.recovery.attempts,
+          (error.retryAt || 0) - Date.now(), (this.api.cooldownUntil || 0) - Date.now());
+        this.recovery.nextRetryAt = Date.now() + wait;
+        if (wait > this.options.recoveryMaxWaitMs) { this.stop('api-unavailable'); return false; }
+        this.state = 'recovering'; this.reason = 'api-unavailable'; this.recovery.checking = false; this.emit();
+        await delay(wait, signal); throwIfAborted(signal);
+        this.recovery.attempts++; this.recovery.nextRetryAt = null; this.recovery.checking = true; this.emit();
+        try {
+          await this.api.recover(error, signal);
+          throwIfAborted(signal);
+          this.serviceIssue = null; this.recovery.lastError = null; this.reason = null;
+          return true;
+        } catch (failure) {
+          throwIfAborted(signal);
+          this.serviceIssue.error = failure;
+          this.recovery.lastError = this.errorInfo(failure);
+        } finally { this.recovery.checking = false; }
+      }
+      return false;
+    } catch (error) {
+      if (signal.aborted || error.name === 'AbortError') return false;
+      throw error;
+    } finally {
+      // Network waiting is not a lack of source discovery. Suspend, do not
+      // restart, that clock; successful probes do not count as discovered KAS.
+      this.lastDiscovery += this.now() - this.recoveryStarted;
+      this.recoveryStarted = null; this.recovery.checking = false;
+      if (!signal.aborted) this.state = 'running';
+      this.emit();
+    }
   }
   async prepare(node, signal) {
     if (node.recipe) return node.recipe;
@@ -907,6 +1032,7 @@ class TraceSession {
             parent.value = out.value; parent.address = out.address ?? parent.address;
           } catch (error) {
             throwIfAborted(signal);
+            if (isServiceError(error)) throw error; // retain transport failure + exact failed URL
             throw new DataError(`Cannot obtain a required input amount: ${error.message}`, 'missing-input-value', true);
           }
         }));
@@ -1023,13 +1149,22 @@ class TraceSession {
       const recipe = await this.prepare(node, signal);
       throwIfAborted(signal); this.commit(node, amount, recipe);
     } catch (error) {
+      if (!signal.aborted && isServiceError(error)) {
+        if (!this.serviceIssue) {
+          this.serviceIssue = {error, nodeKey:node.key};
+          this.recovery.lastError = this.errorInfo(error);
+        }
+        this.api.hold?.(error);
+        this.state = 'recovering'; this.reason = 'api-unavailable';
+        this.batchController?.abort();
+      }
       if (error.code === 'resource') this.stop('resource');
       if (signal.aborted || error.name === 'AbortError') {
         this.totals.active -= amount; this.totals.queued += amount;
         node.active = 0n; node.pending += amount;
       } else {
         this.totals.active -= amount; node.active = 0n;
-        node.error = {code: error.code ?? 'invalid-data', message: error.message, retryable: error.retryable ?? false};
+        node.error = {code: error.code ?? 'invalid-data', message: error.message, retryable: error.retryable ?? false, url:error.url ?? '', detail:error.detail ?? ''};
         node.blocked += amount + node.pending; this.totals.blocked += amount + node.pending;
         this.totals.queued -= node.pending; node.pending = 0n;
       }
@@ -1146,7 +1281,7 @@ return {toCSV};
 __modules["connection"] = (function () {
 const {KaspaApi, throwIfAborted} = __modules["api"];
 
-const {normalizeUTXOs} = __modules["model"];
+const {normalizeUTXOs, normalizeTransaction} = __modules["model"];
 
 const {sompi} = __modules["amount"];
 
@@ -1154,7 +1289,7 @@ const {sompi} = __modules["amount"];
  * A successful health probe alone says nothing about balance/UTXO access.
  */
 async function diagnoseConnection({baseUrl, address = null, signal, onProgress = () => {}, fetchImpl,
-  timeoutMs = 5000} = {}) {
+  timeoutMs = 5000, transactionUrl = null} = {}) {
   const api = new KaspaApi({baseUrl, fetchImpl, retries: 0, timeoutMs, concurrency: 1});
   const path = address ? `/addresses/${encodeURIComponent(address).replace(/%3A/gi, ':')}` : null;
   const checks = address ? [
@@ -1162,7 +1297,15 @@ async function diagnoseConnection({baseUrl, address = null, signal, onProgress =
     {name:'Current unspent outputs', path:`${path}/utxos`, required:true, validate:d => normalizeUTXOs(d, address)},
     {name:'Output count', path:`${path}/utxos/count`, required:false, validate:d => sompi(d?.count)}
   ] : [{name:'API health', path:'/info/health', required:false}];
-  checks.push({name:'Address labels', path:'/addresses/names', required:false,
+  // A working balance endpoint does not prove ancestry reads work. Retest
+  // the exact failed transaction when diagnosing an interrupted trace.
+  if (typeof transactionUrl === 'string' && transactionUrl.startsWith(api.baseUrl + '/transactions/')) {
+    const txPath = transactionUrl.slice(api.baseUrl.length);
+    const match = /^\/transactions\/([0-9a-f]{64})(?:\?|$)/i.exec(txPath);
+    if (match) checks.unshift({name:'Previously failed transaction', path:txPath, required:true,
+      validate:d => normalizeTransaction(d, match[1])});
+  }
+  checks.push({name:'Address labels' , path:'/addresses/names', required:false,
     validate:d => { if (!Array.isArray(d)) throw new Error('Address labels did not return a list'); }});
   const results = [];
   for (const check of checks) {
@@ -1179,7 +1322,7 @@ async function diagnoseConnection({baseUrl, address = null, signal, onProgress =
     }
   }
   const required = results.filter(r => r.required);
-  return {version:'2.1.1', capturedAt:new Date().toISOString(), apiBase:api.baseUrl,
+  return {version:'2.1.2', capturedAt:new Date().toISOString(), apiBase:api.baseUrl,
     pageOrigin:globalThis.location?.origin ?? null, browserOnline:globalThis.navigator?.onLine ?? null,
     hasAddressChecks:!!address,
     ok:required.length ? required.every(r => r.ok) : results.some(r => r.ok),
@@ -1253,7 +1396,7 @@ const make = (tag, className = '', text = '') => {
 let current = null, startup = null, busy = false, generation = 0, demoMode = false;
 let customLabels = [], pathStack = ['root'], pathLimit = 30, endpointLimit = 25;
 let lastListRender = 0, lastState = '';
-let diagnostics = null, checkingConnection = false;
+let diagnostics = null, checkingConnection = false, lastRecoverySignature = '';
 const donation = 'kaspa:qp83863lsstc5rmm3mppgke0wwyklqdryund4z8e8hnnjrmffcvdsn5c0ffee';
 const pct = (n, total) => {
   const p = percent(n, total);
@@ -1281,6 +1424,18 @@ function metrics(data) {
   $('statRetries').textContent = (data.retries ?? 0).toLocaleString();
 }
 function statusText(s) {
+  if (s.state === 'recovering') {
+    const r = s.recovery;
+    const action = r.checking ? `Checking the failed transaction (attempt ${r.attempts}/${r.maxAttempts})…`
+      : `One reconnection check in ${Math.max(0, Math.ceil(((r.nextRetryAt ?? Date.now()) - Date.now()) / 1000))}s (attempt ${r.attempts + 1}/${r.maxAttempts}).`;
+    return `API access interrupted. ${action} Unfinished value stays queued; Stop cancels recovery.`;
+  }
+  if (s.reason === 'api-unavailable') {
+    const wait = Math.max(s.recovery.nextRetryAt || 0, s.recovery.lastError?.retryAt || 0) - Date.now();
+    return `Paused because transaction data cannot be read from the API. ${s.recovery.attempts} reconnection check(s) attempted. ` +
+      (wait > 0 ? `Next check no earlier than ${new Date(Date.now() + wait).toLocaleTimeString()}. ` : '') +
+      'Discovered endpoints and all waiting amounts are preserved. Continue retries this same snapshot.';
+  }
   if (s.state === 'running') return `Following ${s.frontier.toLocaleString()} queued output(s). ${Math.floor(s.noDiscoveryMs / 1000)}s since meaningful endpoint discovery.`;
   if (s.state === 'stopping') return 'Stopping requests and preserving every unfinished contribution…';
   if (s.reason === 'empty') return 'No current unspent balance. Historical lifetime receipts are not mixed into this result.';
@@ -1296,8 +1451,9 @@ function render(force = false) {
   if (!current) return;
   const s = current.summary();
   $('results').hidden = false; $('statusPanel').hidden = false;
-  $('stateBadge').textContent = `${demoMode ? 'DEMO · ' : ''}${s.state.toUpperCase()}`;
+  $('stateBadge').textContent = `${demoMode ? 'DEMO · ' : ''}${s.state === 'recovering' ? 'WAITING FOR API' : s.state.toUpperCase()}`;
   $('statusText').textContent = statusText(s);
+  renderRecovery(s);
   $('totalBalance').textContent = formatKAS(s.total);
   $('targetDisplay').textContent = s.address;
   $('balanceLabel').textContent = demoMode ? 'SYNTHETIC DEMO · NOT A REAL WALLET' : 'CURRENT UTXO SNAPSHOT';
@@ -1324,6 +1480,22 @@ function render(force = false) {
     renderEndpoints(); renderBranches(); renderPath(); renderWarnings(); lastListRender = Date.now();
   }
   controls();
+}
+function renderRecovery(s) {
+  const fault = s.recovery?.lastError;
+  if (!fault) {
+    if (lastRecoverySignature && diagnostics?.phase === 'trace') { $('connectionPanel').hidden = true; diagnostics = null; }
+    lastRecoverySignature = ''; return;
+  }
+  const signature = JSON.stringify([fault, s.state, s.recovery.attempts]);
+  if (signature === lastRecoverySignature) return;
+  lastRecoverySignature = signature;
+  showConnectionReport({version:s.version, capturedAt:new Date().toISOString(), apiBase:current.api.baseUrl,
+    phase:'trace', pageOrigin:location.origin, browserOnline:navigator.onLine, ok:false,
+    recovery:{...s.recovery}, metrics:{...s.api},
+    amounts:{totalSompi:String(s.total), attributedSompi:String(s.resolved),
+      queuedSompi:String(s.totals.queued), activeSompi:String(s.totals.active), unavailableSompi:String(s.totals.blocked)},
+    checks:[{name:'Transaction ancestry read', required:true, ok:false, method:'GET', url:fault.url || current.api.baseUrl, error:fault}]});
 }
 function explorerLink(kind, value, title) {
   const link = make('a', '', title);
@@ -1366,7 +1538,7 @@ function renderBranches() {
     const card = make('div', 'branch'), head = make('div', 'row-head');
     const owner = row.address ? shortAddress(row.address) : `${row.txid.slice(0, 12)}…:${row.index}`;
     head.append(make('div', 'row-name', owner), make('div', 'row-value', `${formatKAS(row.pending + row.active + row.blocked)} KAS`));
-    card.append(head, make('p', 'evidence', row.error ? `${row.error.code}: ${row.error.message}` : row.active ? 'Request / attribution in progress' : 'Queued for continued tracing'));
+    card.append(head, make('p', 'evidence', row.error ? `${row.error.code}: ${row.error.message}` : row.active ? 'Request / attribution in progress' : current.serviceIssue ? 'Waiting for API access — amount preserved, not data unavailable' : 'Queued for continued tracing'));
     card.append(inspectButton(row.key)); container.append(card);
   }
   $('branchFootnote').textContent = rows.length > 15 ? `Showing the 15 largest of ${rows.length.toLocaleString()} unfinished outputs. Full state is included in JSON.` : '';
@@ -1374,7 +1546,7 @@ function renderBranches() {
 function nodeState(node) {
   if (node.blocked > 0n) return 'Data unavailable';
   if (node.active > 0n) return 'In progress';
-  if (node.pending > 0n) return 'Queued';
+  if (node.pending > 0n) return current.serviceIssue ? 'Waiting for API' : 'Queued';
   if (node.recipe?.kind === 'mining') return 'Mining endpoint';
   if (node.recipe?.kind === 'exchange') return 'Exchange endpoint';
   if (node.recipe?.kind === 'split') return 'Expanded';
@@ -1449,6 +1621,7 @@ function showConnectionReport(report) {
     ? report.hasAddressChecks ? 'Required API reads succeeded. A full trace can still encounter missing history or rate limits.'
       : 'A public API response is readable. Enter an address and test again to check balance/UTXO access.'
     : clientFailure ? 'A client-side JavaScript error prevented API access. This is not a tracing-depth limit or evidence of a CORS block.'
+    : report.phase === 'trace' ? 'Transaction API access was interrupted. Remaining contributions are preserved in Still to trace, not marked Data unavailable.'
     : 'Required API data could not be read. This is a connection/data-access failure, not a tracing-depth limit.';
   $('connectionHint').hidden = !!report.ok;
   $('connectionHint').textContent = clientFailure
@@ -1457,7 +1630,7 @@ function showConnectionReport(report) {
   $('copyDiagnostics').disabled = false;
 }
 function showConnectionFailure(error, baseUrl) {
-  showConnectionReport({version:'2.1.1', capturedAt:new Date().toISOString(), apiBase:baseUrl,
+  showConnectionReport({version:'2.1.2', capturedAt:new Date().toISOString(), apiBase:baseUrl,
     pageOrigin:location.origin, browserOnline:navigator.onLine, ok:false,
     checks:[{name:'Trace preparation', required:true, ok:false, method:error.method ?? 'GET', url:error.url ?? baseUrl,
       error:error.diagnostic?.() ?? {code:error.code ?? error.name, message:error.message}}]});
@@ -1475,6 +1648,7 @@ async function testConnection() {
   $('connectionSummary').textContent = 'Testing readable API responses…'; $('copyDiagnostics').disabled = true;
   try {
     showConnectionReport(await diagnoseConnection({baseUrl, address, signal,
+      transactionUrl:current?.recovery.lastError?.url,
       onProgress:text => { $('connectionSummary').textContent = text; }}));
     try { if (diagnostics.ok) localStorage.setItem(STATIC_API_KEY, baseUrl); } catch { /* optional */ }
   } catch (error) {
@@ -1494,7 +1668,7 @@ async function startTrace(demo = false) {
     idleMs = seconds * 1000;
   } catch (error) { message(error.message); return; }
   try { if (!demo) localStorage.setItem(STATIC_API_KEY, baseUrl); } catch { /* storage is optional */ }
-  $('connectionPanel').hidden = true; diagnostics = null;
+  $('connectionPanel').hidden = true; diagnostics = null; lastRecoverySignature = '';
   const token = ++generation;
   current = null; busy = true; demoMode = demo; pathStack = ['root']; pathLimit = 30; endpointLimit = 25; lastState = '';
   startup = new AbortController(); const signal = startup.signal;
@@ -1549,7 +1723,8 @@ async function startTrace(demo = false) {
 }
 async function continueTrace() {
   if (busy || !current) return;
-  busy = true; $('addressInput').value = current.snapshot.address; controls();
+  busy = true; $('addressInput').value = current.snapshot.address;
+  $('apiInput').value = current.api.baseUrl ?? $('apiInput').value; controls();
   try { await current.run(); }
   catch (error) { message(error.message); }
   finally { busy = false; render(true); }
